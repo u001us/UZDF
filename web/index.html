@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyCheck — Безопасные полёты над Ташкентом</title>
+  <meta name="description" content="SkyCheck — платформа для пилотов дронов в Ташкенте. Карта зон полётов, курсы обучения, актуальные новости.">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-logo" onclick="showPage('home')">✈ SkyCheck</div>
+  <div class="navbar-links">
+    <a onclick="showPage('home')" id="nav-home" class="active">Главная</a>
+    <a onclick="showPage('news')" id="nav-news">Новости</a>
+    <a onclick="showPage('map')" id="nav-map">Карта</a>
+    <a onclick="showPage('courses')" id="nav-courses">Курсы</a>
+    <a onclick="showPage('login')" id="nav-login" class="btn-login">Войти</a>
+  </div>
+</nav>
+
+<!-- ══════════════ LOGIN PAGE ══════════════ -->
+<div class="page" id="page-login" style="padding-top:0">
+  <div class="login-page">
+    <div class="login-card">
+      <h2>✈ SkyCheck</h2>
+      <p>Войдите в аккаунт или создайте новый</p>
+      <div class="login-tabs">
+        <button class="login-tab active" onclick="switchTab('signin')">Войти</button>
+        <button class="login-tab" onclick="switchTab('signup')">Регистрация</button>
+      </div>
+      <div id="login-alert"></div>
+
+      <!-- SIGN IN -->
+      <div id="tab-signin">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="signin-email" placeholder="pilot@example.com">
+        </div>
+        <div class="form-group">
+          <label>Пароль</label>
+          <input type="password" id="signin-password" placeholder="••••••••">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="doLogin()">Войти</button>
+      </div>
+
+      <!-- SIGN UP -->
+      <div id="tab-signup" style="display:none">
+        <div class="form-group">
+          <label>Имя</label>
+          <input type="text" id="signup-name" placeholder="Ваше имя">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="signup-email" placeholder="pilot@example.com">
+        </div>
+        <div class="form-group">
+          <label>Пароль</label>
+          <input type="password" id="signup-password" placeholder="Минимум 6 символов">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="doRegister()">Создать аккаунт</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ HOME PAGE ══════════════ -->
+<div class="page active" id="page-home">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">🛸 Платформа для пилотов дронов</div>
+      <h1>Летайте безопасно<br>над <span>Ташкентом</span></h1>
+      <p>Проверяйте зоны полётов в реальном времени, проходите курсы обучения и следите за последними новостями законодательства для пилотов БПЛА.</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary" onclick="showPage('map')">🗺 Открыть карту</button>
+        <button class="btn btn-secondary" onclick="showPage('courses')">📚 Начать учиться</button>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num" id="stat-zones">—</div>
+          <div class="hero-stat-label">Зон на карте</div>
+        </div>
+        <div>
+          <div class="hero-stat-num" id="stat-courses">—</div>
+          <div class="hero-stat-label">Курсов</div>
+        </div>
+        <div>
+          <div class="hero-stat-num" id="stat-news">—</div>
+          <div class="hero-stat-label">Новостей</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest News -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Актуальные <span>новости</span></h2>
+      <button class="btn btn-secondary" onclick="showPage('news')">Все новости →</button>
+    </div>
+    <div class="cards-grid" id="home-news-grid">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </section>
+
+  <!-- Courses Preview -->
+  <section class="section" style="padding-top:0">
+    <div class="section-header">
+      <h2 class="section-title">Учебные <span>курсы</span></h2>
+      <button class="btn btn-secondary" onclick="showPage('courses')">Все курсы →</button>
+    </div>
+    <div id="home-courses-list">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2024 <span>SkyCheck Tashkent</span> · Безопасные полёты над городом</p>
+  </footer>
+</div>
+
+<!-- ══════════════ NEWS PAGE ══════════════ -->
+<div class="page" id="page-news">
+  <div class="section">
+    <div id="news-list-view">
+      <div class="section-header">
+        <h2 class="section-title">Новости и <span>блог</span></h2>
+      </div>
+      <div class="cards-grid" id="news-grid">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+    <div id="news-detail-view" style="display:none">
+      <button class="back-btn" onclick="showNewsList()">← Назад к новостям</button>
+      <div id="news-detail-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MAP PAGE ══════════════ -->
+<div class="page" id="page-map" style="padding-top:0">
+  <div class="map-page-wrapper">
+    <div id="public-map"></div>
+    <div class="map-legend">
+      <strong style="margin-right:8px">Зоны:</strong>
+      <div class="legend-item"><div class="legend-dot" style="background:#EF4444"></div> Запрещено (RED)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#F59E0B"></div> Ограничено (YELLOW)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#10B981"></div> Разрешено (GREEN)</div>
+    </div>
+  </div>
+  <!-- Zone Info Popup -->
+  <div id="zone-popup" class="zone-popup" style="display:none">
+    <div class="zone-popup-card">
+      <h3 id="popup-name"></h3>
+      <div class="zone-info-row">Тип: <span id="popup-type" class="zone-type-badge"></span></div>
+      <div class="zone-info-row">✈ Макс. высота: <strong id="popup-alt"></strong> м</div>
+      <div style="margin-top:20px">
+        <button class="btn btn-primary" onclick="closeZonePopup()">Понятно</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ COURSES PAGE ══════════════ -->
+<div class="page" id="page-courses">
+  <div class="section">
+    <div id="courses-list-view">
+      <div class="section-header">
+        <h2 class="section-title">Учебные <span>курсы</span></h2>
+      </div>
+      <div id="courses-list">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+    <div id="course-viewer-view" style="display:none">
+      <button class="back-btn" onclick="showCoursesList()">← Назад к курсам</button>
+      <div class="course-viewer">
+        <div class="course-viewer-header">
+          <h2 id="viewer-title" style="font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700"></h2>
+          <p id="viewer-desc" style="color:var(--text-muted);margin-top:8px"></p>
+        </div>
+        <div class="steps-nav" id="steps-nav"></div>
+        <div class="step-content-box" id="step-content"></div>
+        <div class="step-nav-btns">
+          <button class="btn btn-secondary" id="prev-step-btn" onclick="prevStep()">← Назад</button>
+          <button class="btn btn-primary" id="next-step-btn" onclick="nextStep()">Далее →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:3000';
+let publicMap, allZones = [], allNews = [], allCourses = [];
+let currentCourse = null, currentStepIdx = 0;
+
+// ── NAVIGATION ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.navbar-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const navEl = document.getElementById('nav-' + name);
+  if (navEl) navEl.classList.add('active');
+  if (name === 'map' && !publicMap) initPublicMap();
+  if (name === 'news' && !allNews.length) loadPublicNews();
+  if (name === 'courses' && !allCourses.length) loadPublicCourses();
+}
+
+// ── AUTH TABS ──
+function switchTab(tab) {
+  document.getElementById('tab-signin').style.display = tab === 'signin' ? 'block' : 'none';
+  document.getElementById('tab-signup').style.display = tab === 'signup' ? 'block' : 'none';
+  document.querySelectorAll('.login-tab').forEach((t,i) => t.classList.toggle('active', (tab==='signin'&&i===0)||(tab==='signup'&&i===1)));
+  document.getElementById('login-alert').innerHTML = '';
+}
+
+function showLoginAlert(msg, type='error') {
+  document.getElementById('login-alert').innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+}
+
+async function doLogin() {
+  const email = document.getElementById('signin-email').value.trim();
+  const password = document.getElementById('signin-password').value;
+  if (!email || !password) return showLoginAlert('Заполните все поля');
+  try {
+    const r = await fetch(`${API}/auth/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password}) });
+    const data = await r.json();
+    if (!r.ok) return showLoginAlert(data.error);
+    localStorage.setItem('skycheck_token', data.token);
+    localStorage.setItem('skycheck_user', JSON.stringify(data.user));
+    if (data.user.role === 'admin') { window.location.href = '/admin'; }
+    else { showLoginAlert('Добро пожаловать, ' + data.user.name + '!', 'success'); setTimeout(()=>showPage('home'),1200); }
+  } catch { showLoginAlert('Ошибка соединения с сервером'); }
+}
+
+async function doRegister() {
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  if (!name || !email || !password) return showLoginAlert('Заполните все поля');
+  try {
+    const r = await fetch(`${API}/auth/register`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, email, password}) });
+    const data = await r.json();
+    if (!r.ok) return showLoginAlert(data.error);
+    localStorage.setItem('skycheck_token', data.token);
+    localStorage.setItem('skycheck_user', JSON.stringify(data.user));
+    showLoginAlert('Аккаунт создан! Добро пожаловать, ' + data.user.name + '!', 'success');
+    setTimeout(()=>showPage('home'),1200);
+  } catch { showLoginAlert('Ошибка соединения с сервером'); }
+}
+
+// ── HOME STATS ──
+async function loadHomeStats() {
+  try {
+    const [zones, courses, news] = await Promise.all([
+      fetch(`${API}/zones`).then(r=>r.json()),
+      fetch(`${API}/courses`).then(r=>r.json()),
+      fetch(`${API}/news`).then(r=>r.json()),
+    ]);
+    document.getElementById('stat-zones').textContent = Array.isArray(zones) ? zones.length : 0;
+    document.getElementById('stat-courses').textContent = Array.isArray(courses) ? courses.length : 0;
+    document.getElementById('stat-news').textContent = Array.isArray(news) ? news.length : 0;
+    allZones = Array.isArray(zones) ? zones : [];
+    allCourses = Array.isArray(courses) ? courses : [];
+    allNews = Array.isArray(news) ? news : [];
+    renderHomeNews();
+    renderHomeCourses();
+  } catch(e) { console.error(e); }
+}
+
+// ── HOME NEWS ──
+function renderHomeNews() {
+  const grid = document.getElementById('home-news-grid');
+  const items = allNews.slice(0,3);
+  if (!items.length) { grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📰</div><p>Нет новостей</p></div>'; return; }
+  grid.innerHTML = items.map(n => `
+    <div class="card" onclick="openNewsDetail(${n.id})">
+      <div class="card-img-placeholder">${n.imageUrl ? `<img src="${n.imageUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">` : '📰'}</div>
+      <div class="card-body">
+        <div class="card-tag">Новость</div>
+        <div class="card-title">${escHtml(n.title)}</div>
+        <div class="card-text">${escHtml(n.content.substring(0,120))}...</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-date">${formatDate(n.publishedAt)}</span>
+        <span class="card-link">Читать →</span>
+      </div>
+    </div>`).join('');
+}
+
+// ── HOME COURSES ──
+function renderHomeCourses() {
+  const list = document.getElementById('home-courses-list');
+  const items = allCourses.slice(0,4);
+  if (!items.length) { list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><p>Нет курсов</p></div>'; return; }
+  list.innerHTML = items.map(c => `
+    <div class="course-card" onclick="openCourse(${c.id})">
+      <div class="course-icon" style="background:${c.color}22">${courseEmoji(c.iconType)}</div>
+      <div class="course-info">
+        <div class="course-title">${escHtml(c.title)}</div>
+        <div class="course-desc">${escHtml(c.description)}</div>
+      </div>
+      <span class="course-steps-badge">${c.steps?.length||0} шагов</span>
+    </div>`).join('');
+}
+
+// ── NEWS ──
+async function loadPublicNews() {
+  try {
+    const data = await fetch(`${API}/news`).then(r=>r.json());
+    allNews = Array.isArray(data) ? data : [];
+    renderNewsList();
+  } catch { document.getElementById('news-grid').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Ошибка загрузки</p></div>'; }
+}
+
+function renderNewsList() {
+  const grid = document.getElementById('news-grid');
+  if (!allNews.length) { grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📰</div><p>Нет новостей</p></div>'; return; }
+  grid.innerHTML = allNews.map(n => `
+    <div class="card" onclick="openNewsDetail(${n.id})">
+      <div class="card-img-placeholder">${n.imageUrl ? `<img src="${n.imageUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.textContent='📰'">` : '📰'}</div>
+      <div class="card-body">
+        <div class="card-tag">${n.author||'SkyCheck'}</div>
+        <div class="card-title">${escHtml(n.title)}</div>
+        <div class="card-text">${escHtml(n.content.substring(0,150))}...</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-date">${formatDate(n.publishedAt)}</span>
+        <span class="card-link">Читать →</span>
+      </div>
+    </div>`).join('');
+}
+
+function openNewsDetail(id) {
+  showPage('news');
+  const n = allNews.find(x=>x.id===id);
+  if (!n) return;
+  document.getElementById('news-list-view').style.display = 'none';
+  document.getElementById('news-detail-view').style.display = 'block';
+  document.getElementById('news-detail-content').innerHTML = `
+    <div class="news-detail">
+      ${n.imageUrl ? `<div class="news-detail-hero"><img src="${escHtml(n.imageUrl)}" alt="${escHtml(n.title)}" onerror="this.parentElement.style.display='none'"></div>` : ''}
+      <h1>${escHtml(n.title)}</h1>
+      <div class="news-detail-meta">
+        <span>📅 ${formatDate(n.publishedAt)}</span>
+        ${n.author ? `<span>✍️ ${escHtml(n.author)}</span>` : ''}
+      </div>
+      <div class="news-detail-content">${escHtml(n.content)}</div>
+    </div>`;
+}
+
+function showNewsList() {
+  document.getElementById('news-list-view').style.display = 'block';
+  document.getElementById('news-detail-view').style.display = 'none';
+}
+
+// ── COURSES ──
+async function loadPublicCourses() {
+  try {
+    const data = await fetch(`${API}/courses`).then(r=>r.json());
+    allCourses = Array.isArray(data) ? data : [];
+    renderCoursesList();
+  } catch { document.getElementById('courses-list').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Ошибка загрузки</p></div>'; }
+}
+
+function renderCoursesList() {
+  const list = document.getElementById('courses-list');
+  if (!allCourses.length) { list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><p>Курсы скоро появятся</p></div>'; return; }
+  list.innerHTML = allCourses.map(c => `
+    <div class="course-card" onclick="openCourse(${c.id})">
+      <div class="course-icon" style="background:${c.color}22">${courseEmoji(c.iconType)}</div>
+      <div class="course-info">
+        <div class="course-title">${escHtml(c.title)}</div>
+        <div class="course-desc">${escHtml(c.description)}</div>
+      </div>
+      <span class="course-steps-badge">${c.steps?.length||0} шагов</span>
+    </div>`).join('');
+}
+
+function showCoursesList() {
+  document.getElementById('courses-list-view').style.display = 'block';
+  document.getElementById('course-viewer-view').style.display = 'none';
+}
+
+function openCourse(id) {
+  showPage('courses');
+  const c = allCourses.find(x=>x.id===id);
+  if (!c || !c.steps?.length) return;
+  currentCourse = c; currentStepIdx = 0;
+  document.getElementById('courses-list-view').style.display = 'none';
+  document.getElementById('course-viewer-view').style.display = 'block';
+  document.getElementById('viewer-title').textContent = c.title;
+  document.getElementById('viewer-desc').textContent = c.description;
+  renderStepsNav();
+  renderStep();
+}
+
+function renderStepsNav() {
+  const nav = document.getElementById('steps-nav');
+  nav.innerHTML = currentCourse.steps.map((s,i) => `
+    <button class="step-btn ${i===currentStepIdx?'active':''}" onclick="goToStep(${i})">
+      ${i+1}. ${escHtml(s.title.substring(0,20))}
+    </button>`).join('');
+}
+
+function renderStep() {
+  const step = currentCourse.steps[currentStepIdx];
+  const box = document.getElementById('step-content');
+  const typeLabel = { text:'📄 Текст', video:'🎬 Видео', quiz:'📝 Тест' };
+  const typeClass = { text:'step-type-text', video:'step-type-video', quiz:'step-type-quiz' };
+  let body = '';
+  if (step.type === 'text') body = `<div class="step-text">${escHtml(step.content||'')}</div>`;
+  else if (step.type === 'video') {
+    const url = getYouTubeEmbed(step.content||'');
+    body = url ? `<iframe class="video-embed" src="${url}" allowfullscreen></iframe>` : `<p style="color:var(--text-muted)">URL видео: ${escHtml(step.content||'')}</p>`;
+  } else if (step.type === 'quiz') {
+    const qs = step.questions||[];
+    body = qs.map((q,qi) => `
+      <div style="margin-bottom:32px">
+        <div class="quiz-question">${qi+1}. ${escHtml(q.question)}</div>
+        <div class="quiz-options">
+          ${(q.options||[]).map((opt,oi) => `<div class="quiz-option" onclick="answerQuiz(this,${qi},${oi},${q.answer})">${escHtml(opt)}</div>`).join('')}
+        </div>
+        <div id="quiz-result-${qi}"></div>
+      </div>`).join('');
+  }
+  box.innerHTML = `
+    <span class="step-type-badge ${typeClass[step.type]}">${typeLabel[step.type]}</span>
+    <h2 class="step-title">${escHtml(step.title)}</h2>
+    ${body}`;
+  document.getElementById('prev-step-btn').disabled = currentStepIdx === 0;
+  document.getElementById('next-step-btn').textContent = currentStepIdx === currentCourse.steps.length-1 ? '✅ Завершить' : 'Далее →';
+  renderStepsNav();
+}
+
+function answerQuiz(el, qi, oi, correct) {
+  const opts = el.parentElement.querySelectorAll('.quiz-option');
+  opts.forEach(o => o.style.pointerEvents='none');
+  el.classList.add(oi===correct?'correct':'wrong');
+  opts[correct].classList.add('correct');
+  const res = document.getElementById('quiz-result-'+qi);
+  res.innerHTML = `<div class="quiz-result ${oi===correct?'pass':'fail'}">${oi===correct?'✅ Правильно!':'❌ Неверно. Правильный ответ выделен.'}</div>`;
+}
+
+function goToStep(i) { currentStepIdx=i; renderStep(); }
+function prevStep() { if(currentStepIdx>0){currentStepIdx--;renderStep();} }
+function nextStep() {
+  if(currentStepIdx<currentCourse.steps.length-1){currentStepIdx++;renderStep();}
+  else showCoursesList();
+}
+
+// ── MAP ──
+function initPublicMap() {
+  if (!window.google) { document.getElementById('public-map').innerHTML = '<div class="empty-state" style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column"><div class="empty-state-icon">🗺</div><p>Для карты нужен Google Maps API ключ</p></div>'; return; }
+  publicMap = new google.maps.Map(document.getElementById('public-map'), {
+    center: {lat:41.3111,lng:69.2406}, zoom: 12,
+    styles: darkMapStyle(), disableDefaultUI: false,
+    mapTypeControl: false, streetViewControl: false
+  });
+  allZones.forEach(z => drawZoneOnMap(z, publicMap));
+  if (!allZones.length) { fetch(`${API}/zones`).then(r=>r.json()).then(zones=>{ allZones=zones; zones.forEach(z=>drawZoneOnMap(z,publicMap)); }); }
+}
+
+function drawZoneOnMap(zone, map) {
+  const colors = { RED:'#EF4444', YELLOW:'#F59E0B', GREEN:'#10B981' };
+  const color = colors[zone.type]||'#6B7280';
+  let coords = zone.coordinates;
+  if (typeof coords==='string') try{coords=JSON.parse(coords);}catch(e){}
+  if (!Array.isArray(coords)) return;
+  const paths = coords.map(p => Array.isArray(p) ? {lat:p[1],lng:p[0]} : {lat:p.lat,lng:p.lng});
+  const poly = new google.maps.Polygon({ paths, strokeColor:color, strokeOpacity:0.9, strokeWeight:2, fillColor:color, fillOpacity:0.25, map });
+  poly.addListener('click', () => showZonePopup(zone));
+}
+
+function showZonePopup(zone) {
+  document.getElementById('popup-name').textContent = zone.name;
+  document.getElementById('popup-alt').textContent = zone.maxAltitude;
+  const typeEl = document.getElementById('popup-type');
+  typeEl.textContent = zone.type;
+  typeEl.className = 'zone-type-badge zone-' + zone.type.toLowerCase();
+  document.getElementById('zone-popup').style.display = 'flex';
+}
+function closeZonePopup() { document.getElementById('zone-popup').style.display = 'none'; }
+
+// ── UTILS ──
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function formatDate(d) { return d ? new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'}) : ''; }
+function courseEmoji(t) { return {beginner:'🚀',intermediate:'🎯',advanced:'⚡',pro:'🏆'}[t]||'📚'; }
+function getYouTubeEmbed(url) {
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/);
+  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+}
+function darkMapStyle() { return [{elementType:'geometry',stylers:[{color:'#1e2a3a'}]},{elementType:'labels.text.stroke',stylers:[{color:'#0f172a'}]},{elementType:'labels.text.fill',stylers:[{color:'#8898aa'}]},{featureType:'water',elementType:'geometry',stylers:[{color:'#0f2030'}]}]; }
+
+// ── INIT ──
+loadHomeStats();
+</script>
+
+<!-- Google Maps — замените YOUR_GOOGLE_MAPS_API_KEY на ваш ключ -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=Function.prototype" async defer></script>
+</body>
+</html>

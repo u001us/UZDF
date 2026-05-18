@@ -1,0 +1,12 @@
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcrypt');
+const p = new PrismaClient();
+bcrypt.hash('admin123', 10)
+  .then(h => p.user.upsert({
+    where: { email: 'admin@skycheck.uz' },
+    update: {},
+    create: { email: 'admin@skycheck.uz', password: h, name: 'Admin', role: 'admin' }
+  }))
+  .then(u => console.log('Admin created:', u.email, '| password: admin123'))
+  .catch(e => console.error(e))
+  .finally(() => p.$disconnect());

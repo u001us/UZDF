@@ -124,21 +124,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
                               state.translate('courses_all'),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'SF Pro Display',
-                                fontFamilyFallback: ['Sora'],
+                                fontFamilyFallback: const ['Sora'],
                                 fontSize: 22,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                                color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                                 letterSpacing: -0.8,
                               ),
                             ),
                           ),
                           const SizedBox(height: 32),
-                          const Center(
+                          Center(
                             child: Text(
                               'Нет доступных курсов',
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
                             ),
                           ),
                         ]),
@@ -178,12 +178,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 padding: const EdgeInsets.only(top: 24, bottom: 16, left: 16, right: 16),
                                 child: Text(
                                   state.translate('courses_all'),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontFamily: 'SF Pro Display',
-                                    fontFamilyFallback: ['Sora'],
+                                    fontFamilyFallback: const ['Sora'],
                                     fontSize: 22,
                                     fontWeight: FontWeight.w700,
-                                    color: Colors.white,
+                                    color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                                     letterSpacing: -0.8,
                                   ),
                                 ),
@@ -270,50 +270,50 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   SliverAppBar _buildSliverAppBar(AppState state) {
+    final isDark = AppState().isDarkMode.value;
+    final bgColor = isDark ? const Color(0xFF161B30) : Colors.white;
+    final textColor = isDark ? Colors.white : const Color(0xFF1C1C1E);
+    final borderColor = isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.06);
+
     return SliverAppBar(
       floating: true,
       snap: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: bgColor,
       elevation: 0,
       centerTitle: true,
-      expandedHeight: 90,
-      flexibleSpace: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            color: Colors.black.withOpacity(0.15),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const SizedBox(width: 48), // Spacer to balance refresh button
-                    Text(
-                      state.translate('courses_title'),
-                      style: const TextStyle(
-                        fontFamily: 'SF Pro Display',
-                        fontFamilyFallback: ['Sora'],
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    IconButton(
-                      icon: RotationTransition(
-                        turns: _refreshController,
-                        child: const Icon(Icons.refresh_rounded, color: Colors.white),
-                      ),
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        _refreshCourses();
-                      },
-                    ),
-                  ],
+      expandedHeight: 60,
+      shape: Border(
+        bottom: BorderSide(color: borderColor, width: 1.0),
+      ),
+      flexibleSpace: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(width: 48), // Spacer to balance refresh button
+              Text(
+                state.translate('courses_title'),
+                style: TextStyle(
+                  fontFamily: 'SF Pro Display',
+                  fontFamilyFallback: const ['Sora'],
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                  letterSpacing: -0.5,
                 ),
               ),
-            ),
+              IconButton(
+                icon: RotationTransition(
+                  turns: _refreshController,
+                  child: Icon(Icons.refresh_rounded, color: textColor),
+                ),
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _refreshCourses();
+                },
+              ),
+            ],
           ),
         ),
       ),
@@ -332,6 +332,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final title = bannerCourse?['title'] ?? 'Базовый курс пилотирования';
     final desc = bannerCourse?['description'] ?? 'Освойте основы управления дроном за 4 недели.';
 
+    final textColor = isDark ? Colors.white : const Color(0xFF1C1C1E);
+    final descColor = isDark ? Colors.white.withOpacity(0.75) : const Color(0xFF1C1C1E).withOpacity(0.75);
+    final progressBgColor = isDark ? Colors.white.withOpacity(0.2) : Colors.black.withOpacity(0.08);
+
     return FloatingHero(
       child: Container(
         height: 230,
@@ -348,13 +352,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 height: 300,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF007AFF).withOpacity(0.35),
-                ),
-                child: ClipOval(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
-                    child: Container(color: Colors.transparent),
-                  ),
+                  color: const Color(0xFF007AFF).withOpacity(isDark ? 0.35 : 0.08),
                 ),
               ),
             ),
@@ -367,13 +365,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 height: 150,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF5856D6).withOpacity(0.2),
-                ),
-                child: ClipOval(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-                    child: Container(color: Colors.transparent),
-                  ),
+                  color: const Color(0xFF5856D6).withOpacity(isDark ? 0.2 : 0.04),
                 ),
               ),
             ),
@@ -389,13 +381,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: progressBgColor,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Text(
+                      child: Text(
                         '▶ Продолжается',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: textColor,
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
                         ),
@@ -405,10 +397,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'SF Pro Display',
-                      fontFamilyFallback: ['Sora'],
-                      color: Colors.white,
+                      fontFamilyFallback: const ['Sora'],
+                      color: textColor,
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
                       letterSpacing: -1.2,
@@ -421,8 +413,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontFamily: 'SF Pro Display',
-                      fontFamilyFallback: ['Sora'],
-                      color: Colors.white.withOpacity(0.75),
+                      fontFamilyFallback: const ['Sora'],
+                      color: descColor,
                       height: 1.6,
                       fontWeight: FontWeight.w400,
                       fontSize: 14,
@@ -471,6 +463,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildCourseCard(String title, String desc, String status, double progress, bool isDark, {bool isLocked = false}) {
+    final textColor = isDark ? Colors.white : const Color(0xFF1C1C1E);
+    final descColor = isDark ? Colors.white.withOpacity(0.65) : const Color(0xFF1C1C1E).withOpacity(0.65);
+
     Widget card = LiquidGlassCard(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -482,12 +477,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'SF Pro Display',
-                    fontFamilyFallback: ['Sora'],
+                    fontFamilyFallback: const ['Sora'],
                     fontWeight: FontWeight.w600,
                     fontSize: 17,
-                    color: Colors.white,
+                    color: textColor,
                     letterSpacing: -0.8,
                   ),
                 ),
@@ -496,7 +491,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 const SizedBox(width: 8),
                 Icon(
                   Icons.lock_rounded,
-                  color: Colors.white.withOpacity(0.4),
+                  color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.3),
                   size: 20,
                 ),
               ],
@@ -507,8 +502,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             desc,
             style: TextStyle(
               fontFamily: 'SF Pro Display',
-              fontFamilyFallback: ['Sora'],
-              color: Colors.white.withOpacity(0.65),
+              fontFamilyFallback: const ['Sora'],
+              color: descColor,
               height: 1.6,
               fontWeight: FontWeight.w400,
               fontSize: 14,
@@ -524,21 +519,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: progress,
-                      backgroundColor: const Color(0xFF1B233D),
+                      backgroundColor: isDark ? const Color(0xFF1B233D) : const Color(0xFFE2E8F0),
                       valueColor: const AlwaysStoppedAnimation(Color(0xFF007AFF)),
                       minHeight: 6,
                     ),
                   ),
                 ),
                 const SizedBox(width: 16),
-                _buildStepsBadge(status),
+                _buildStepsBadge(status, isDark),
               ] else ...[
                 Text(
                   status,
                   style: TextStyle(
                     fontFamily: 'SF Pro Display',
-                    fontFamilyFallback: ['Sora'],
-                    color: Colors.white.withOpacity(0.4),
+                    fontFamilyFallback: const ['Sora'],
+                    color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.4),
                     fontWeight: FontWeight.w500,
                     fontSize: 12,
                   ),
@@ -559,13 +554,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return card;
   }
 
-  Widget _buildStepsBadge(String status) {
+  Widget _buildStepsBadge(String status, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.04),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.25), width: 0.5),
+        border: Border.all(color: isDark ? Colors.white.withOpacity(0.25) : Colors.black.withOpacity(0.12), width: 0.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -581,10 +576,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           const SizedBox(width: 6),
           Text(
             status,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'SF Pro Display',
-              fontFamilyFallback: ['Sora'],
-              color: Colors.white,
+              fontFamilyFallback: const ['Sora'],
+              color: isDark ? Colors.white : const Color(0xFF1C1C1E),
               fontWeight: FontWeight.w600,
               fontSize: 11,
             ),

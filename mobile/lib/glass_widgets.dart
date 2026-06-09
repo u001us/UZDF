@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'app_state.dart';
 
 // ═══════════════════════════════════════
 // ANIMATION CONSTANTS
@@ -150,7 +151,7 @@ class LiquidGlassCard extends StatelessWidget {
     super.key,
     required this.child,
     this.borderRadius = 28.0,
-    this.blur = 40.0,
+    this.blur = 0.0,
     this.padding,
     this.margin,
     this.width,
@@ -159,78 +160,50 @@ class LiquidGlassCard extends StatelessWidget {
     this.shadow,
     this.gradient,
     this.alignment,
-    this.showShimmer = true,
+    this.showShimmer = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    Widget cardContent = Container(
-      width: width,
-      height: height,
-      padding: padding,
-      alignment: alignment,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
-        gradient: gradient ?? LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.10),
-            Colors.white.withOpacity(0.03),
-          ],
-        ),
-      ),
-      child: child,
-    );
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppState().isDarkMode,
+      builder: (context, isDark, _) {
+        final cardColor = isDark ? const Color(0xFF161B30) : Colors.white;
+        
+        final defaultBorder = Border.all(
+          color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.06),
+          width: 1.0,
+        );
 
-    return Container(
-      width: width,
-      height: height,
-      margin: margin,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
-        boxShadow: shadow ?? [
+        final defaultShadow = shadow ?? [
           BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            blurRadius: 60,
-            spreadRadius: -10,
-            offset: const Offset(0, 20),
+            color: isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.04),
+            blurRadius: 24,
+            spreadRadius: 0,
+            offset: const Offset(0, 8),
           ),
-          BoxShadow(
-            color: const Color(0xFF007AFF).withOpacity(0.15),
-            blurRadius: 80,
-            spreadRadius: -20,
-            offset: const Offset(0, 30),
+        ];
+
+        return Container(
+          width: width,
+          height: height,
+          margin: margin,
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.circular(borderRadius),
+            border: border ?? defaultBorder,
+            boxShadow: defaultShadow,
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-          child: Stack(
-            children: [
-              // Core gradient content
-              cardContent,
-              // Top + left border highlight using CustomPaint to avoid Flutter borderRadius exception
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: border != null
-                      ? Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(borderRadius),
-                            border: border,
-                          ),
-                        )
-                      : CustomPaint(
-                          painter: LiquidBorderPainter(borderRadius: borderRadius),
-                        ),
-                ),
-              ),
-            ],
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(borderRadius),
+            child: Container(
+              padding: padding,
+              alignment: alignment,
+              child: child,
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -319,42 +292,55 @@ class _LiquidButtonState extends State<LiquidButton> {
   @override
   Widget build(BuildContext context) {
     final isClickable = widget.onTap != null;
-    return GestureDetector(
-      onTapDown: (_) {
-        if (isClickable) {
-          setState(() => _pressed = true);
-          HapticFeedback.lightImpact();
-        }
-      },
-      onTapUp: (_) {
-        if (isClickable) {
-          setState(() => _pressed = false);
-          widget.onTap!();
-        }
-      },
-      onTapCancel: () {
-        if (isClickable) {
-          setState(() => _pressed = false);
-        }
-      },
-      child: AnimatedScale(
-        scale: _pressed ? 0.94 : 1.0,
-        duration: kFast,
-        curve: kSpring,
-        child: AnimatedContainer(
-          duration: kFast,
-          decoration: BoxDecoration(
-            color: _pressed
-                ? Colors.white.withOpacity(widget.pressedOpacity)
-                : Colors.white.withOpacity(widget.normalOpacity),
-            borderRadius: BorderRadius.circular(widget.borderRadius),
-            border: Border.all(
-              color: Colors.white.withOpacity(_pressed ? 0.25 : 0.12),
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppState().isDarkMode,
+      builder: (context, isDark, _) {
+        final buttonColor = isDark
+            ? Colors.white.withOpacity(widget.normalOpacity)
+            : Colors.black.withOpacity(0.05);
+
+        final pressedColor = isDark
+            ? Colors.white.withOpacity(widget.pressedOpacity)
+            : Colors.black.withOpacity(0.12);
+
+        final borderColor = isDark
+            ? Colors.white.withOpacity(_pressed ? 0.25 : 0.12)
+            : Colors.black.withOpacity(_pressed ? 0.15 : 0.06);
+
+        return GestureDetector(
+          onTapDown: (_) {
+            if (isClickable) {
+              setState(() => _pressed = true);
+              HapticFeedback.lightImpact();
+            }
+          },
+          onTapUp: (_) {
+            if (isClickable) {
+              setState(() => _pressed = false);
+              widget.onTap!();
+            }
+          },
+          onTapCancel: () {
+            if (isClickable) {
+              setState(() => _pressed = false);
+            }
+          },
+          child: AnimatedScale(
+            scale: _pressed ? 0.94 : 1.0,
+            duration: kFast,
+            curve: kSpring,
+            child: AnimatedContainer(
+              duration: kFast,
+              decoration: BoxDecoration(
+                color: _pressed ? pressedColor : buttonColor,
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+                border: Border.all(color: borderColor),
+              ),
+              child: widget.child,
             ),
           ),
-          child: widget.child,
-        ),
-      ),
+        );
+      }
     );
   }
 }
@@ -371,38 +357,69 @@ class GlassButton extends StatelessWidget {
   final double opacity;
   final Gradient? gradient;
   final EdgeInsetsGeometry? padding;
+  final Color? color;
 
   const GlassButton({
     super.key,
     required this.onPressed,
     required this.child,
     this.borderRadius = 18.0,
-    this.blur = 40.0,
+    this.blur = 0.0,
     this.opacity = -1.0,
     this.gradient,
     this.padding,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return LiquidButton(
-      onTap: onPressed,
-      borderRadius: borderRadius,
-      normalOpacity: opacity >= 0 ? opacity : 0.14,
-      pressedOpacity: (opacity >= 0 ? opacity + 0.1 : 0.22).clamp(0.0, 1.0),
-      child: Container(
-        padding: padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        child: DefaultTextStyle(
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            fontFamily: 'SF Pro Display',
-            fontFamilyFallback: [GoogleFonts.sora().fontFamily ?? 'Sora'],
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppState().isDarkMode,
+      builder: (context, isDark, _) {
+        final btnColor = color ?? const Color(0xFF007AFF);
+        final isPrimary = btnColor == const Color(0xFF007AFF);
+        
+        final finalColor = isPrimary
+            ? btnColor
+            : (color ?? (isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.05)));
+
+        final textColor = isPrimary
+            ? Colors.white
+            : (isDark ? Colors.white : const Color(0xFF1C1C1E));
+
+        return GestureDetector(
+          onTap: onPressed,
+          child: Container(
+            padding: padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            decoration: BoxDecoration(
+              color: finalColor,
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: isPrimary ? null : Border.all(color: isDark ? Colors.white.withOpacity(0.12) : Colors.black.withOpacity(0.08)),
+              boxShadow: isPrimary
+                  ? [
+                      BoxShadow(
+                        color: btnColor.withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      )
+                    ]
+                  : null,
+            ),
+            child: Center(
+              child: DefaultTextStyle(
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'SF Pro Display',
+                  fontFamilyFallback: [GoogleFonts.sora().fontFamily ?? 'Sora'],
+                ),
+                child: child,
+              ),
+            ),
           ),
-          child: child,
-        ),
-      ),
+        );
+      }
     );
   }
 }
@@ -476,68 +493,80 @@ class _LiquidBackgroundState extends State<LiquidBackground> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        final color = Color.lerp(
-          const Color(0xFF0A0A1A),
-          const Color(0xFF0D1B3E),
-          _animation.value,
-        )!;
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppState().isDarkMode,
+      builder: (context, isDark, child) {
+        return AnimatedBuilder(
+          animation: _animation,
+          builder: (context, child) {
+            final color = isDark
+                ? Color.lerp(
+                    const Color(0xFF0A0A1A),
+                    const Color(0xFF0D1B3E),
+                    _animation.value,
+                  )!
+                : Color.lerp(
+                    const Color(0xFFF8FAFC),
+                    const Color(0xFFEEF2F6),
+                    _animation.value,
+                  )!;
 
-        return Stack(
-          children: [
-            // Base background color
-            Positioned.fill(
-              child: Container(color: color),
-            ),
-            // Glow mesh blob 1
-            Positioned(
-              top: -50 + 30 * _animation.value,
-              right: -50 + 20 * _animation.value,
-              child: Container(
-                width: 350,
-                height: 350,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFF007AFF).withOpacity(0.15 + 0.05 * _animation.value),
-                      Colors.transparent,
-                    ],
+            return Stack(
+              children: [
+                // Base background color
+                Positioned.fill(
+                  child: Container(color: color),
+                ),
+                // Glow mesh blob 1
+                Positioned(
+                  top: -50 + 30 * _animation.value,
+                  right: -50 + 20 * _animation.value,
+                  child: Container(
+                    width: 350,
+                    height: 350,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          const Color(0xFF007AFF).withOpacity(isDark ? 0.15 : 0.05 + 0.03 * _animation.value),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            // Glow mesh blob 2
-            Positioned(
-              bottom: -100 - 20 * _animation.value,
-              left: -100 + 40 * _animation.value,
-              child: Container(
-                width: 400,
-                height: 400,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFF5856D6).withOpacity(0.12 + 0.04 * (1.0 - _animation.value)),
-                      Colors.transparent,
-                    ],
+                // Glow mesh blob 2
+                Positioned(
+                  bottom: -100 - 20 * _animation.value,
+                  left: -100 + 40 * _animation.value,
+                  child: Container(
+                    width: 400,
+                    height: 400,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          (isDark ? const Color(0xFF5856D6) : const Color(0xFFE2E8F0)).withOpacity(isDark ? 0.12 : 0.04),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            // Noise overlay
-            Positioned.fill(
-              child: CustomPaint(
-                painter: NoisePainter(),
-              ),
-            ),
-            if (widget.child != null) widget.child!,
-          ],
+                // Noise overlay
+                if (isDark)
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: NoisePainter(),
+                    ),
+                  ),
+                if (widget.child != null) widget.child!,
+              ],
+            );
+          },
+          child: widget.child,
         );
-      },
-      child: widget.child,
+      }
     );
   }
 }
@@ -615,11 +644,20 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          color: Colors.black.withOpacity(0.15),
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppState().isDarkMode,
+      builder: (context, isDark, _) {
+        final bgColor = isDark ? const Color(0xFF161B30) : Colors.white;
+        final textColor = isDark ? Colors.white : const Color(0xFF1C1C1E);
+        final borderColor = isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.06);
+
+        return Container(
+          decoration: BoxDecoration(
+            color: bgColor,
+            border: Border(
+              bottom: BorderSide(color: borderColor, width: 1.0),
+            ),
+          ),
           child: SafeArea(
             child: AppBar(
               title: title,
@@ -634,19 +672,19 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
                 fontFamilyFallback: [GoogleFonts.sora().fontFamily ?? 'Sora'],
                 fontWeight: FontWeight.w600,
                 fontSize: 17,
-                color: Colors.white,
+                color: textColor,
                 letterSpacing: -0.5,
               ),
-              iconTheme: const IconThemeData(color: Colors.white),
+              iconTheme: IconThemeData(color: textColor),
             ),
           ),
-        ),
-      ),
+        );
+      }
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(90);
+  Size get preferredSize => const Size.fromHeight(60);
 }
 
 // ═══════════════════════════════════════
@@ -702,14 +740,15 @@ InputDecoration getGlassInputDecoration({
   Widget? suffixIcon,
   required BuildContext context,
 }) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
   return InputDecoration(
     hintText: hintText,
     prefixIcon: prefixIcon,
     suffixIcon: suffixIcon,
     filled: true,
-    fillColor: Colors.white.withOpacity(0.1),
+    fillColor: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.04),
     hintStyle: TextStyle(
-      color: Colors.white.withOpacity(0.4),
+      color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.4),
       fontFamily: 'SF Pro Display',
       fontFamilyFallback: [GoogleFonts.sora().fontFamily ?? 'Sora'],
     ),

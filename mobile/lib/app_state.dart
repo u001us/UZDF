@@ -6,13 +6,13 @@ class AppState {
   factory AppState() => _instance;
   AppState._internal();
 
-  final ValueNotifier<bool> isDarkMode = ValueNotifier<bool>(true);
+  final ValueNotifier<bool> isDarkMode = ValueNotifier<bool>(false);
   final ValueNotifier<String> currentLanguage = ValueNotifier<String>('ru');
 
   Future<void> init() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      isDarkMode.value = prefs.getBool('isDarkMode') ?? true;
+      isDarkMode.value = prefs.getBool('isDarkMode') ?? false;
       currentLanguage.value = prefs.getString('currentLanguage') ?? 'ru';
     } catch (e) {
       debugPrint('Failed to load shared preferences: $e');

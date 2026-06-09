@@ -415,7 +415,7 @@ class _MapScreenState extends State<MapScreen> {
               heroTag: 'weatherBtn',
               backgroundColor: _isWeatherPanelOpen
                   ? const Color(0xFF007AFF)
-                  : (isDark ? Colors.white.withOpacity(0.12) : Colors.white.withOpacity(0.6)),
+                  : (isDark ? const Color(0xFF161B30) : Colors.white),
               foregroundColor: _isWeatherPanelOpen
                   ? Colors.white
                   : (isDark ? Colors.white : const Color(0xFF1C1C1E)),

@@ -28,39 +28,43 @@ class UzdfApp extends StatelessWidget {
     return ValueListenableBuilder<bool>(
       valueListenable: AppState().isDarkMode,
       builder: (context, isDark, child) {
-        final baseTheme = ThemeData(brightness: Brightness.dark);
+        final baseTheme = ThemeData(brightness: isDark ? Brightness.dark : Brightness.light);
         final soraTheme = GoogleFonts.soraTextTheme(baseTheme.textTheme);
+        
+        final textColor = isDark ? Colors.white : const Color(0xFF1E293B);
+        final subtitleColor = isDark ? Colors.white70 : const Color(0xFF475569);
+        
         final customTextTheme = soraTheme.copyWith(
-          displayLarge: soraTheme.displayLarge?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
-          displayMedium: soraTheme.displayMedium?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
-          displaySmall: soraTheme.displaySmall?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
-          headlineLarge: soraTheme.headlineLarge?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
-          headlineMedium: soraTheme.headlineMedium?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
-          headlineSmall: soraTheme.headlineSmall?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
-          titleLarge: soraTheme.titleLarge?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
-          titleMedium: soraTheme.titleMedium?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w600, letterSpacing: -0.8, color: Colors.white),
-          titleSmall: soraTheme.titleSmall?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w600, letterSpacing: -0.8, color: Colors.white),
-          bodyLarge: soraTheme.bodyLarge?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w400, letterSpacing: -0.3, height: 1.6, color: Colors.white),
-          bodyMedium: soraTheme.bodyMedium?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w400, letterSpacing: -0.3, height: 1.6, color: Colors.white),
-          bodySmall: soraTheme.bodySmall?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w400, letterSpacing: -0.3, height: 1.6, color: Colors.white),
-          labelLarge: soraTheme.labelLarge?.copyWith(fontFamily: 'SF Pro Display', color: Colors.white),
-          labelMedium: soraTheme.labelMedium?.copyWith(fontFamily: 'SF Pro Display', color: Colors.white),
-          labelSmall: soraTheme.labelSmall?.copyWith(fontFamily: 'SF Pro Display', color: Colors.white),
+          displayLarge: soraTheme.displayLarge?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: textColor),
+          displayMedium: soraTheme.displayMedium?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: textColor),
+          displaySmall: soraTheme.displaySmall?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: textColor),
+          headlineLarge: soraTheme.headlineLarge?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: textColor),
+          headlineMedium: soraTheme.headlineMedium?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: textColor),
+          headlineSmall: soraTheme.headlineSmall?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: textColor),
+          titleLarge: soraTheme.titleLarge?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: textColor),
+          titleMedium: soraTheme.titleMedium?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w600, letterSpacing: -0.8, color: textColor),
+          titleSmall: soraTheme.titleSmall?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w600, letterSpacing: -0.8, color: textColor),
+          bodyLarge: soraTheme.bodyLarge?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w400, letterSpacing: -0.3, height: 1.6, color: textColor),
+          bodyMedium: soraTheme.bodyMedium?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w400, letterSpacing: -0.3, height: 1.6, color: subtitleColor),
+          bodySmall: soraTheme.bodySmall?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w400, letterSpacing: -0.3, height: 1.6, color: subtitleColor),
+          labelLarge: soraTheme.labelLarge?.copyWith(fontFamily: 'SF Pro Display', color: textColor),
+          labelMedium: soraTheme.labelMedium?.copyWith(fontFamily: 'SF Pro Display', color: subtitleColor),
+          labelSmall: soraTheme.labelSmall?.copyWith(fontFamily: 'SF Pro Display', color: subtitleColor),
         );
 
         return MaterialApp(
           title: 'UZDF',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            brightness: Brightness.dark,
-            scaffoldBackgroundColor: const Color(0xFF0A0A1A),
+            brightness: isDark ? Brightness.dark : Brightness.light,
+            scaffoldBackgroundColor: isDark ? const Color(0xFF0A0A1A) : const Color(0xFFF8FAFC),
             primaryColor: const Color(0xFF007AFF),
             colorScheme: ColorScheme.fromSeed(
               seedColor: const Color(0xFF007AFF),
-              brightness: Brightness.dark,
+              brightness: isDark ? Brightness.dark : Brightness.light,
               primary: const Color(0xFF007AFF),
               secondary: const Color(0xFF007AFF),
-              surface: const Color(0xFF0A0A1A),
+              surface: isDark ? const Color(0xFF0A0A1A) : const Color(0xFFF8FAFC),
             ),
             cardTheme: const CardThemeData(
               elevation: 0,
@@ -72,13 +76,13 @@ class UzdfApp extends StatelessWidget {
               backgroundColor: Colors.transparent,
               elevation: 0,
               centerTitle: true,
-              iconTheme: const IconThemeData(color: Colors.white),
+              iconTheme: IconThemeData(color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
               titleTextStyle: TextStyle(
                 fontFamily: 'SF Pro Display',
                 fontFamilyFallback: [GoogleFonts.sora().fontFamily ?? 'Sora'],
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                 letterSpacing: -0.5,
               ),
             ),
@@ -456,7 +460,7 @@ class _MainNavigationState extends State<MainNavigation> {
                 icon,
                 color: isSelected
                     ? const Color(0xFF007AFF)
-                    : Colors.white.withOpacity(0.45),
+                    : (isDark ? Colors.white.withOpacity(0.45) : Colors.black.withOpacity(0.4)),
                 size: 24,
               ),
             ),
@@ -489,9 +493,18 @@ class _MainNavigationState extends State<MainNavigation> {
               body: LiquidBackground(
                 child: Stack(
                   children: [
-                    IndexedStack(
-                      index: _currentIndex,
-                      children: _screens,
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                      child: KeyedSubtree(
+                        key: ValueKey<int>(_currentIndex),
+                        child: _screens[_currentIndex],
+                      ),
                     ),
                     Positioned(
                       left: 20,

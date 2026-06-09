@@ -150,7 +150,7 @@ class LiquidGlassCard extends StatelessWidget {
   const LiquidGlassCard({
     super.key,
     required this.child,
-    this.borderRadius = 28.0,
+    this.borderRadius = 18.0,
     this.blur = 0.0,
     this.padding,
     this.margin,
@@ -168,21 +168,22 @@ class LiquidGlassCard extends StatelessWidget {
     return ValueListenableBuilder<bool>(
       valueListenable: AppState().isDarkMode,
       builder: (context, isDark, _) {
-        final cardColor = isDark ? const Color(0xFF161B30) : Colors.white;
+        final cardColor = isDark ? const Color(0xFF111527) : Colors.white;
         
         final defaultBorder = Border.all(
-          color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.06),
+          color: isDark ? const Color(0x0FFFFFFF) : Colors.black.withOpacity(0.06),
           width: 1.0,
         );
 
-        final defaultShadow = shadow ?? [
-          BoxShadow(
-            color: isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.04),
-            blurRadius: 24,
-            spreadRadius: 0,
-            offset: const Offset(0, 8),
-          ),
-        ];
+        final defaultShadow = shadow ?? (isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ]);
 
         return Container(
           width: width,
@@ -376,8 +377,8 @@ class GlassButton extends StatelessWidget {
     return ValueListenableBuilder<bool>(
       valueListenable: AppState().isDarkMode,
       builder: (context, isDark, _) {
-        final btnColor = color ?? const Color(0xFF007AFF);
-        final isPrimary = btnColor == const Color(0xFF007AFF);
+        final btnColor = color ?? const Color(0xFF2979FF);
+        final isPrimary = btnColor == const Color(0xFF2979FF);
         
         final finalColor = isPrimary
             ? btnColor
@@ -499,25 +500,32 @@ class _LiquidBackgroundState extends State<LiquidBackground> with SingleTickerPr
         return AnimatedBuilder(
           animation: _animation,
           builder: (context, child) {
-            final color = isDark
-                ? Color.lerp(
-                    const Color(0xFF0A0A1A),
-                    const Color(0xFF0D1B3E),
-                    _animation.value,
-                  )!
-                : Color.lerp(
-                    const Color(0xFFF8FAFC),
-                    const Color(0xFFEEF2F6),
-                    _animation.value,
-                  )!;
+            final bgDecoration = isDark
+                ? const BoxDecoration(
+                    gradient: RadialGradient(
+                      center: Alignment.center,
+                      radius: 1.2,
+                      colors: [
+                        Color(0xFF0A0D1A), // deep navy center
+                        Color(0xFF0D0F2B), // very dark indigo/purple edges
+                      ],
+                    ),
+                  )
+                : BoxDecoration(
+                    color: Color.lerp(
+                      const Color(0xFFF8FAFC),
+                      const Color(0xFFEEF2F6),
+                      _animation.value,
+                    )!,
+                  );
 
             return Stack(
               children: [
-                // Base background color
+                // Base background gradient/color
                 Positioned.fill(
-                  child: Container(color: color),
+                  child: Container(decoration: bgDecoration),
                 ),
-                // Glow mesh blob 1
+                // Glow mesh blob 1 (Primary Accent #2979FF)
                 Positioned(
                   top: -50 + 30 * _animation.value,
                   right: -50 + 20 * _animation.value,
@@ -528,14 +536,14 @@ class _LiquidBackgroundState extends State<LiquidBackground> with SingleTickerPr
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          const Color(0xFF007AFF).withOpacity(isDark ? 0.15 : 0.05 + 0.03 * _animation.value),
+                          const Color(0xFF2979FF).withOpacity(isDark ? 0.08 : 0.05 + 0.03 * _animation.value),
                           Colors.transparent,
                         ],
                       ),
                     ),
                   ),
                 ),
-                // Glow mesh blob 2
+                // Glow mesh blob 2 (Gradient Secondary Accent #7B61FF)
                 Positioned(
                   bottom: -100 - 20 * _animation.value,
                   left: -100 + 40 * _animation.value,
@@ -546,7 +554,7 @@ class _LiquidBackgroundState extends State<LiquidBackground> with SingleTickerPr
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          (isDark ? const Color(0xFF5856D6) : const Color(0xFFE2E8F0)).withOpacity(isDark ? 0.12 : 0.04),
+                          (isDark ? const Color(0xFF7B61FF) : const Color(0xFFE2E8F0)).withOpacity(isDark ? 0.06 : 0.04),
                           Colors.transparent,
                         ],
                       ),
@@ -764,9 +772,80 @@ InputDecoration getGlassInputDecoration({
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
       borderSide: BorderSide(
-        color: const Color(0xFF007AFF).withOpacity(0.5),
+        color: const Color(0xFF2979FF).withOpacity(0.5),
         width: 1.5,
       ),
     ),
   );
+}
+
+// ═══════════════════════════════════════
+// AVIATION PROGRESS BAR
+// ═══════════════════════════════════════
+
+class AviationProgressBar extends StatelessWidget {
+  final double value;
+
+  const AviationProgressBar({super.key, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 4.0,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.06), // Track
+        borderRadius: BorderRadius.circular(2.0),
+      ),
+      child: FractionallySizedBox(
+        alignment: Alignment.centerLeft,
+        widthFactor: value.clamp(0.0, 1.0),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [
+                Color(0xFF2979FF),
+                Color(0xFF7B61FF),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(2.0),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════
+// AVIATION BADGE / STATUS TAG
+// ═══════════════════════════════════════
+
+class AviationBadge extends StatelessWidget {
+  final String text;
+  final Color color;
+
+  const AviationBadge({super.key, required this.text, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          fontFamily: 'SF Pro Text',
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
 }

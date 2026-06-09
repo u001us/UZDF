@@ -5,6 +5,8 @@ const coursesData = [
   {
     title: "Введение в БПЛА",
     description: "Устройство квадрокоптера, основы аэродинамики и базовые правила безопасности.",
+    miniDescription: "Основы безопасности и физика полета",
+    authorName: "Авиашкола UZDF",
     iconType: "beginner",
     color: "#2563EB",
     steps: [
@@ -99,6 +101,8 @@ const coursesData = [
   {
     title: "Метеорология и Полеты",
     description: "Анализ ветра, температуры и геомагнитной активности (K-индекса) для безопасного пилотирования.",
+    miniDescription: "Влияние ветра, температуры и K-индекса",
+    authorName: "Капитан ВВС",
     iconType: "intermediate",
     color: "#10B981",
     steps: [
@@ -174,6 +178,8 @@ const coursesData = [
   {
     title: "Воздушное пространство и Карты",
     description: "Разбор ограничений воздушных зон Ташкента и предполетный чеклист пилота.",
+    miniDescription: "Красные/желтые/зеленые зоны и чеклисты",
+    authorName: "Авиадиспетчер",
     iconType: "advanced",
     color: "#F59E0B",
     steps: [
@@ -249,6 +255,8 @@ const coursesData = [
   {
     title: "Дрон-Рейсинг и Спорт",
     description: "Правила игры в Drone Soccer и особенности маневрирования в ручном режиме Acro.",
+    miniDescription: "Режимы Acro, трюки и дрон-соккер",
+    authorName: "Мастер FPV",
     iconType: "pro",
     color: "#EC4899",
     steps: [
@@ -324,6 +332,8 @@ const coursesData = [
   {
     title: "Техобслуживание БПЛА",
     description: "Правильное хранение литий-полимерных батарей и уход за пропеллерами и рамой.",
+    miniDescription: "LiPo аккумуляторы, пайка и замена деталей",
+    authorName: "Инженер UZDF",
     iconType: "advanced",
     color: "#8B5CF6",
     steps: [
@@ -413,6 +423,8 @@ async function main() {
       data: {
         title: c.title,
         description: c.description,
+        miniDescription: c.miniDescription || '',
+        authorName: c.authorName || '',
         iconType: c.iconType,
         color: c.color
       }

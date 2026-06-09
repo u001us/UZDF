@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -297,7 +298,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _showZoneDetails(String name, String type, String maxAltitude) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
     HapticFeedback.lightImpact();
     showModalBottomSheet(
       context: context,
@@ -324,7 +325,7 @@ class _MapScreenState extends State<MapScreen> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w900,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -341,14 +342,14 @@ class _MapScreenState extends State<MapScreen> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  const Icon(Icons.height, color: Color(0xFF0066FF)),
+                  Icon(Icons.height, color: colorScheme.primary),
                   const SizedBox(width: 8),
                   Text(
                     'Макс. высота полета: $maxAltitude м',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.grey[300] : Colors.black87,
+                      color: colorScheme.onSurface.withOpacity(0.8),
                     ),
                   ),
                 ],
@@ -376,7 +377,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: GlassAppBar(
@@ -395,7 +396,7 @@ class _MapScreenState extends State<MapScreen> {
       body: Stack(
         children: [
           _isLoading
-              ? const Center(child: CircularProgressIndicator(color: Color(0xFF0066FF)))
+              ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
               : GoogleMap(
                   initialCameraPosition: const CameraPosition(
                     target: _initialCenter,
@@ -414,11 +415,11 @@ class _MapScreenState extends State<MapScreen> {
             child: FloatingActionButton.small(
               heroTag: 'weatherBtn',
               backgroundColor: _isWeatherPanelOpen
-                  ? const Color(0xFF007AFF)
-                  : (isDark ? const Color(0xFF161B30) : Colors.white),
+                  ? colorScheme.primary
+                  : colorScheme.surface,
               foregroundColor: _isWeatherPanelOpen
-                  ? Colors.white
-                  : (isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                  ? colorScheme.onPrimary
+                  : colorScheme.onSurface,
               onPressed: () {
                 HapticFeedback.lightImpact();
                 _toggleWeatherPanel();
@@ -429,19 +430,32 @@ class _MapScreenState extends State<MapScreen> {
 
           // Legend bar
           Positioned(
-            bottom: 80,
+            bottom: MediaQuery.of(context).padding.bottom + 68 + 24 + 16,
             left: 24,
             right: 24,
-            child: GlassContainer(
-              borderRadius: 16,
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildLegend(Colors.red, 'Запрещено', isDark),
-                  _buildLegend(Colors.amber, 'Ограничено', isDark),
-                  _buildLegend(Colors.green, 'Разрешено', isDark),
-                ],
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface.withOpacity(0.85),
+                    borderRadius: BorderRadius.circular(100),
+                    border: Border.all(
+                      color: colorScheme.onSurface.withOpacity(0.08),
+                      width: 1.0,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildLegend(const Color(0xFFFF1744), 'Запрещено'),
+                      _buildLegend(const Color(0xFFFFC400), 'Ограничено'),
+                      _buildLegend(const Color(0xFF00E676), 'Разрешено'),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -466,7 +480,7 @@ class _MapScreenState extends State<MapScreen> {
                           width: 40,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: Colors.grey[400],
+                            color: colorScheme.onSurfaceVariant.withOpacity(0.4),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -484,14 +498,14 @@ class _MapScreenState extends State<MapScreen> {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 17,
-                                  color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                                  color: colorScheme.onSurface,
                                 ),
                               ),
                             ],
                           ),
                           IconButton(
                             icon: const Icon(Icons.close, size: 20),
-                            color: Colors.grey,
+                            color: colorScheme.onSurfaceVariant,
                             onPressed: () {
                               HapticFeedback.lightImpact();
                               setState(() => _isWeatherPanelOpen = false);
@@ -502,14 +516,14 @@ class _MapScreenState extends State<MapScreen> {
                       const SizedBox(height: 4),
                       Text(
                         'Ташкент, Узбекистан',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
                       ),
                       const SizedBox(height: 16),
                       if (!_isWeatherLoaded || _weatherData == null)
-                        const Center(
+                        Center(
                           child: Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: CircularProgressIndicator(color: Color(0xFF007AFF)),
+                            padding: const EdgeInsets.all(20.0),
+                            child: CircularProgressIndicator(color: colorScheme.primary),
                           ),
                         )
                       else ...[
@@ -542,12 +556,12 @@ class _MapScreenState extends State<MapScreen> {
                           crossAxisSpacing: 10,
                           mainAxisSpacing: 10,
                           children: [
-                            _buildWeatherCard('Температура', _weatherData!['temp'], Icons.thermostat, Colors.orange, isDark),
-                            _buildWeatherCard('Ветер', _weatherData!['wind'], Icons.air, Colors.blue, isDark),
-                            _buildWeatherCard('Влажность', _weatherData!['humidity'], Icons.water_drop, Colors.cyan, isDark),
-                            _buildWeatherCard('Видимость', _weatherData!['visibility'], Icons.visibility, Colors.purple, isDark),
-                            _buildWeatherCard('Давление', _weatherData!['pressure'], Icons.compress, Colors.teal, isDark),
-                            _buildWeatherCard('K-Индекс', 'Kp ${_weatherData!['kIndex']}', Icons.gps_off, Colors.redAccent, isDark),
+                            _buildWeatherCard('Температура', _weatherData!['temp'], Icons.thermostat, Colors.orange),
+                            _buildWeatherCard('Ветер', _weatherData!['wind'], Icons.air, Colors.blue),
+                            _buildWeatherCard('Влажность', _weatherData!['humidity'], Icons.water_drop, Colors.cyan),
+                            _buildWeatherCard('Видимость', _weatherData!['visibility'], Icons.visibility, Colors.purple),
+                            _buildWeatherCard('Давление', _weatherData!['pressure'], Icons.compress, Colors.teal),
+                            _buildWeatherCard('K-Индекс', 'Kp ${_weatherData!['kIndex']}', Icons.gps_off, Colors.redAccent),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -556,10 +570,9 @@ class _MapScreenState extends State<MapScreen> {
                         GlassContainer(
                           padding: const EdgeInsets.all(14),
                           borderRadius: 12,
-                          opacity: isDark ? 0.05 : 0.35,
                           child: Row(
                             children: [
-                              const Icon(Icons.flight_takeoff, color: Color(0xFF007AFF)),
+                              Icon(Icons.flight_takeoff, color: colorScheme.primary),
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Column(
@@ -569,7 +582,7 @@ class _MapScreenState extends State<MapScreen> {
                                       'Пригодность для БПЛА',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                                        color: colorScheme.onSurface,
                                         fontSize: 13,
                                       ),
                                     ),
@@ -580,7 +593,7 @@ class _MapScreenState extends State<MapScreen> {
                                           : _weatherData!['kIndex'] <= 5
                                               ? 'Только опытные пилоты'
                                               : 'Полеты не рекомендованы',
-                                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                                      style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
                                     ),
                                   ],
                                 ),
@@ -600,11 +613,11 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Widget _buildWeatherCard(String label, String value, IconData icon, Color color, bool isDark) {
+  Widget _buildWeatherCard(String label, String value, IconData icon, Color color) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GlassContainer(
       padding: const EdgeInsets.all(10),
       borderRadius: 12,
-      opacity: isDark ? 0.08 : 0.4,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -615,13 +628,13 @@ class _MapScreenState extends State<MapScreen> {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(fontSize: 10, color: Colors.grey),
+            style: TextStyle(fontSize: 10, color: colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
         ],
@@ -629,14 +642,15 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Widget _buildLegend(Color color, String text, bool isDark) {
+  Widget _buildLegend(Color color, String text) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       children: [
         Container(
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.3),
+            color: color.withOpacity(0.3),
             border: Border.all(color: color),
             borderRadius: BorderRadius.circular(2),
           ),
@@ -645,7 +659,7 @@ class _MapScreenState extends State<MapScreen> {
         Text(
           text,
           style: TextStyle(
-            color: isDark ? Colors.white : Colors.black87,
+            color: colorScheme.onSurface,
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),

@@ -70,7 +70,12 @@ class _BlogScreenState extends State<BlogScreen> {
 
                 final newsList = snapshot.data!;
                 return ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                    bottom: MediaQuery.of(context).padding.bottom + 68 + 24 + 20,
+                  ),
                   itemCount: newsList.length,
                   itemBuilder: (context, index) {
                     final item = newsList[index];

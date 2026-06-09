@@ -72,7 +72,12 @@ class _StoreScreenState extends State<StoreScreen> {
 
                 final products = snapshot.data!;
                 return GridView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                    bottom: MediaQuery.of(context).padding.bottom + 68 + 24 + 20,
+                  ),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 16,
@@ -95,6 +100,7 @@ class _StoreScreenState extends State<StoreScreen> {
                       },
                       child: GlassContainer(
                         padding: EdgeInsets.zero,
+                        borderRadius: 18,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -102,11 +108,11 @@ class _StoreScreenState extends State<StoreScreen> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.2),
-                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
                                 ),
                                 child: p['imageUrl'] != null && (p['imageUrl'] as String).isNotEmpty
                                     ? ClipRRect(
-                                        borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+                                        borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
                                         child: Image.network(
                                           p['imageUrl'],
                                           fit: BoxFit.cover,
@@ -119,34 +125,35 @@ class _StoreScreenState extends State<StoreScreen> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(12),
+                              padding: const EdgeInsets.all(15), // 20% increase
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     p['title'] as String? ?? '',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: -0.5,
-                                      color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                                      fontFamily: 'SF Pro Display',
+                                      fontWeight: FontWeight.w700, // weight: 700 for titles
+                                      letterSpacing: -0.3, // letter-spacing: -0.3px
+                                      color: isDark ? Colors.white : const Color(0xFF1E293B),
                                       fontSize: 15,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 6),
                                   Text(
                                     '\$${p['price']}',
-                                    style: const TextStyle(color: Color(0xFF007AFF), fontWeight: FontWeight.w900, fontSize: 16),
+                                    style: const TextStyle(
+                                      color: Color(0xFF2979FF), // Price highlight: #2979FF
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                   const SizedBox(height: 8),
-                                  Text(
-                                    inStock ? state.translate('shop_in_stock') : state.translate('shop_out_of_stock'),
-                                    style: TextStyle(
-                                      color: inStock ? Colors.green : Colors.red,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w900,
-                                    ),
+                                  AviationBadge(
+                                    text: inStock ? state.translate('shop_in_stock') : state.translate('shop_out_of_stock'),
+                                    color: inStock ? const Color(0xFF00E676) : const Color(0xFFFF1744),
                                   ),
                                 ],
                               ),
@@ -263,14 +270,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                     Text(
                       '\$${product['price']}',
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF007AFF)),
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF2979FF)),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      inStock ? '${state.translate('shop_in_stock')} ($stock шт.)' : state.translate('shop_out_of_stock'),
-                      style: TextStyle(color: inStock ? Colors.green : Colors.red, fontWeight: FontWeight.bold),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        AviationBadge(
+                          text: inStock ? '${state.translate('shop_in_stock')} ($stock шт.)' : state.translate('shop_out_of_stock'),
+                          color: inStock ? const Color(0xFF00E676) : const Color(0xFFFF1744),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     Text(

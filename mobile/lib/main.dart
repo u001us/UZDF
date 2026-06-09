@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -57,14 +58,14 @@ class UzdfApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             brightness: isDark ? Brightness.dark : Brightness.light,
-            scaffoldBackgroundColor: isDark ? const Color(0xFF0A0A1A) : const Color(0xFFF8FAFC),
-            primaryColor: const Color(0xFF007AFF),
+            scaffoldBackgroundColor: isDark ? const Color(0xFF0A0D1A) : const Color(0xFFF8FAFC),
+            primaryColor: const Color(0xFF2979FF),
             colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF007AFF),
+              seedColor: const Color(0xFF2979FF),
               brightness: isDark ? Brightness.dark : Brightness.light,
-              primary: const Color(0xFF007AFF),
-              secondary: const Color(0xFF007AFF),
-              surface: isDark ? const Color(0xFF0A0A1A) : const Color(0xFFF8FAFC),
+              primary: const Color(0xFF2979FF),
+              secondary: const Color(0xFF2979FF),
+              surface: isDark ? const Color(0xFF0A0D1A) : const Color(0xFFF8FAFC),
             ),
             cardTheme: const CardThemeData(
               elevation: 0,
@@ -430,6 +431,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
   Widget _buildNavIcon(IconData icon, int index, bool isDark) {
     final isSelected = _currentIndex == index;
+    final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -443,26 +445,30 @@ class _MainNavigationState extends State<MainNavigation> {
           alignment: Alignment.center,
           children: [
             AnimatedContainer(
-              duration: kNormal,
-              curve: kSpring,
-              width: isSelected ? 48 : 0,
-              height: isSelected ? 48 : 0,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              width: isSelected ? 44 : 0,
+              height: isSelected ? 44 : 0,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF007AFF).withOpacity(0.2),
+                color: isSelected
+                    ? colorScheme.primary
+                    : Colors.transparent,
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: colorScheme.primary.withOpacity(0.4),
+                          blurRadius: 12,
+                          spreadRadius: 2,
+                        ),
+                      ]
+                    : null,
               ),
             ),
-            AnimatedScale(
-              scale: isSelected ? 1.15 : 1.0,
-              duration: kNormal,
-              curve: kBounce,
-              child: Icon(
-                icon,
-                color: isSelected
-                    ? const Color(0xFF007AFF)
-                    : (isDark ? Colors.white.withOpacity(0.45) : Colors.black.withOpacity(0.4)),
-                size: 24,
-              ),
+            Icon(
+              icon,
+              color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+              size: 22,
             ),
           ],
         ),
@@ -473,6 +479,7 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
     return ValueListenableBuilder<String?>(
       valueListenable: ApiService.tokenNotifier,
       builder: (context, token, child) {
@@ -509,20 +516,40 @@ class _MainNavigationState extends State<MainNavigation> {
                     Positioned(
                       left: 20,
                       right: 20,
-                      bottom: 24,
-                      child: LiquidGlassCard(
-                        borderRadius: 36,
-                        height: 68,
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildNavIcon(Icons.school, 0, isDark),
-                            _buildNavIcon(Icons.article, 1, isDark),
-                            _buildNavIcon(Icons.map, 2, isDark),
-                            _buildNavIcon(Icons.shopping_cart, 3, isDark),
-                            _buildNavIcon(Icons.person, 4, isDark),
-                          ],
+                      bottom: 24 + MediaQuery.of(context).padding.bottom,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(36),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                          child: Container(
+                            height: 68,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: colorScheme.surface.withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(36),
+                              border: Border.all(
+                                color: colorScheme.onSurface.withOpacity(0.08),
+                                width: 1.0,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: colorScheme.shadow.withOpacity(isDark ? 0.2 : 0.05),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _buildNavIcon(Icons.school, 0, isDark),
+                                _buildNavIcon(Icons.article, 1, isDark),
+                                _buildNavIcon(Icons.map, 2, isDark),
+                                _buildNavIcon(Icons.shopping_cart, 3, isDark),
+                                _buildNavIcon(Icons.person, 4, isDark),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),

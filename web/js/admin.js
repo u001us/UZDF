@@ -1028,7 +1028,8 @@ function openAdminCourse(id) {
     <div class="course-editor-header">
       <div>
         <div style="font-weight:700;font-size:1.1rem">${esc(c.title)}</div>
-        <div style="color:var(--text-muted);font-size:0.82rem">${esc(c.description)}</div>
+        <div style="color:var(--text-muted);font-size:0.82rem;margin-bottom:4px">${esc(c.description)}</div>
+        <div style="color:var(--text-muted);font-size:0.8rem;font-style:italic">Мини: ${esc(c.miniDescription || '—')} | Автор: ${esc(c.authorName || '—')}</div>
       </div>
       <div style="display:flex;gap:8px">
         <button class="btn btn-secondary btn-sm" onclick="openCourseModal(${c.id})">✏ Изм.</button>
@@ -1138,6 +1139,8 @@ function openCourseModal(id=null) {
   document.getElementById('cm-id').value=c?.id||'';
   document.getElementById('cm-name').value=c?.title||'';
   document.getElementById('cm-desc').value=c?.description||'';
+  document.getElementById('cm-mini-desc').value=c?.miniDescription||'';
+  document.getElementById('cm-author-name').value=c?.authorName||'';
   document.getElementById('cm-icon').value=c?.iconType||'beginner';
   document.getElementById('cm-color').value=c?.color||'#2563EB';
   document.getElementById('cm-alert').innerHTML='';
@@ -1147,7 +1150,14 @@ function closeCourseModal(){ document.getElementById('course-modal').style.displ
 
 async function saveCourse() {
   const id=document.getElementById('cm-id').value;
-  const body={title:document.getElementById('cm-name').value.trim(),description:document.getElementById('cm-desc').value.trim(),iconType:document.getElementById('cm-icon').value,color:document.getElementById('cm-color').value};
+  const body={
+    title:document.getElementById('cm-name').value.trim(),
+    description:document.getElementById('cm-desc').value.trim(),
+    miniDescription:document.getElementById('cm-mini-desc').value.trim(),
+    authorName:document.getElementById('cm-author-name').value.trim(),
+    iconType:document.getElementById('cm-icon').value,
+    color:document.getElementById('cm-color').value
+  };
   if(!body.title) return showModalAlert('cm-alert','Название обязательно');
   if(id) await api(`/courses/${id}`,{method:'PUT',body:JSON.stringify(body)});
   else await api('/courses',{method:'POST',body:JSON.stringify(body)});

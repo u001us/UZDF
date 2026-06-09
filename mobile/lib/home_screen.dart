@@ -156,7 +156,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   slivers: [
                     _buildSliverAppBar(state),
                     SliverPadding(
-                      padding: const EdgeInsets.only(top: 16, bottom: 100), // padding bottom to clear the floating navigation
+                      padding: EdgeInsets.only(
+                        top: 16,
+                        bottom: MediaQuery.of(context).padding.bottom + 68 + 24 + 20,
+                      ),
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
@@ -230,7 +233,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   },
                                   child: _buildCourseCard(
                                     course['title'] ?? '',
-                                    course['description'] ?? '',
+                                    course['miniDescription'] != null && course['miniDescription'].toString().trim().isNotEmpty
+                                        ? course['miniDescription'].toString()
+                                        : (course['description'] ?? ''),
+                                    course['authorName'] ?? '',
                                     statusLabel,
                                     progress.toDouble(),
                                     isDark,
@@ -462,85 +468,123 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCourseCard(String title, String desc, String status, double progress, bool isDark, {bool isLocked = false}) {
+  Widget _buildCourseCard(String title, String desc, String authorName, String status, double progress, bool isDark, {bool isLocked = false}) {
     final textColor = isDark ? Colors.white : const Color(0xFF1C1C1E);
     final descColor = isDark ? Colors.white.withOpacity(0.65) : const Color(0xFF1C1C1E).withOpacity(0.65);
 
-    Widget card = LiquidGlassCard(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontFamily: 'SF Pro Display',
-                    fontFamilyFallback: const ['Sora'],
-                    fontWeight: FontWeight.w600,
-                    fontSize: 17,
-                    color: textColor,
-                    letterSpacing: -0.8,
+    Widget cardContent = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: 'SF Pro Display',
+                      fontFamilyFallback: const ['Inter'],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: textColor,
+                      letterSpacing: -0.3,
+                    ),
                   ),
+                  if (authorName.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF007AFF).withOpacity(0.12),
+                        border: Border.all(color: const Color(0xFF007AFF).withOpacity(0.3), width: 1.0),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Text(
+                        authorName,
+                        style: const TextStyle(
+                          color: Color(0xFF007AFF),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (isLocked) ...[
+              const SizedBox(width: 8),
+              Icon(
+                Icons.lock_rounded,
+                color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.3),
+                size: 20,
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          desc,
+          style: TextStyle(
+            fontFamily: 'SF Pro Text',
+            color: descColor,
+            height: 1.6,
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+          ),
+        ),
+        if (!isLocked) ...[
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Прогресс: ${(progress * 100).toInt()}%",
+                style: TextStyle(
+                  fontFamily: 'SF Pro Text',
+                  color: isDark ? Colors.white.withOpacity(0.7) : const Color(0xFF1C1C1E).withOpacity(0.7),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
                 ),
               ),
-              if (isLocked) ...[
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.lock_rounded,
-                  color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.3),
-                  size: 20,
-                ),
-              ],
+              _buildStepsBadge(status, isDark),
             ],
           ),
           const SizedBox(height: 8),
+          AviationProgressBar(value: progress),
+        ] else ...[
+          const SizedBox(height: 20),
           Text(
-            desc,
+            status,
             style: TextStyle(
-              fontFamily: 'SF Pro Display',
-              fontFamilyFallback: const ['Sora'],
-              color: descColor,
-              height: 1.6,
-              fontWeight: FontWeight.w400,
-              fontSize: 14,
-              letterSpacing: -0.3,
+              fontFamily: 'SF Pro Text',
+              color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.4),
+              fontWeight: FontWeight.w500,
+              fontSize: 12,
             ),
           ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              if (!isLocked) ...[
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      backgroundColor: isDark ? const Color(0xFF1B233D) : const Color(0xFFE2E8F0),
-                      valueColor: const AlwaysStoppedAnimation(Color(0xFF007AFF)),
-                      minHeight: 6,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                _buildStepsBadge(status, isDark),
-              ] else ...[
-                Text(
-                  status,
-                  style: TextStyle(
-                    fontFamily: 'SF Pro Display',
-                    fontFamilyFallback: const ['Sora'],
-                    color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.4),
-                    fontWeight: FontWeight.w500,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ],
-          )
+        ],
+      ],
+    );
+
+    Widget card = LiquidGlassCard(
+      padding: const EdgeInsets.all(24), // 20% increase
+      child: Row(
+        children: [
+          Expanded(
+            child: cardContent,
+          ),
+          if (!isLocked) ...[
+            const SizedBox(width: 12),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: isDark ? Colors.white.withOpacity(0.3) : Colors.black.withOpacity(0.2),
+              size: 16,
+            ),
+          ],
         ],
       ),
     );
@@ -555,33 +599,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildStepsBadge(String status, bool isDark) {
+    final badgeColor = isDark ? const Color(0xFF2979FF) : const Color(0xFF007AFF);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.04),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? Colors.white.withOpacity(0.25) : Colors.black.withOpacity(0.12), width: 0.5),
+        color: badgeColor.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(100), // Pill shape
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: const BoxDecoration(
-              color: Color(0xFF34C759),
-              shape: BoxShape.circle,
-            ),
+          Icon(
+            Icons.check_circle_outline_rounded,
+            color: badgeColor,
+            size: 12,
           ),
           const SizedBox(width: 6),
           Text(
             status,
             style: TextStyle(
-              fontFamily: 'SF Pro Display',
-              fontFamilyFallback: const ['Sora'],
-              color: isDark ? Colors.white : const Color(0xFF1C1C1E),
-              fontWeight: FontWeight.w600,
-              fontSize: 11,
+              fontFamily: 'SF Pro Text',
+              color: badgeColor,
+              fontWeight: FontWeight.w700,
+              fontSize: 10,
+              letterSpacing: 0.5,
             ),
           ),
         ],

@@ -61,12 +61,14 @@ model News {
 }
 
 model Course {
-  id          Int          @id @default(autoincrement())
-  title       String
-  description String
-  iconType    String       // "beginner" | "intermediate" | "advanced" | "pro"
-  color       String
-  steps       CourseStep[]
+  id              Int          @id @default(autoincrement())
+  title           String
+  description     String
+  miniDescription String       @default("")
+  authorName      String       @default("")
+  iconType        String       // "beginner" | "intermediate" | "advanced" | "pro"
+  color           String
+  steps           CourseStep[]
   
   courseBlocks UserCourseBlock[]
 }

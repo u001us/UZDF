@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'app_state.dart';
 import 'api_service.dart';
@@ -51,6 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showOrdersDialog(AppState state, bool isDark) {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (context) {
@@ -67,7 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Text(
                   state.translate('profile_orders'),
                   style: TextStyle(
-                    color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                    color: colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
@@ -80,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     future: ApiService.fetchMyOrders(),
                     builder: (ctx, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator(color: Color(0xFF007AFF)));
+                        return Center(child: CircularProgressIndicator(color: colorScheme.primary));
                       }
                       final orders = snapshot.data ?? [];
                       if (orders.isEmpty) {
@@ -88,11 +90,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.shopping_bag_outlined, size: 48, color: Colors.grey),
+                              Icon(Icons.shopping_bag_outlined, size: 48, color: colorScheme.onSurfaceVariant),
                               const SizedBox(height: 12),
                               Text(
                                 'У вас пока нет заказов',
-                                style: TextStyle(color: isDark ? Colors.grey[400] : Colors.black54),
+                                style: TextStyle(color: colorScheme.onSurfaceVariant),
                               ),
                             ],
                           ),
@@ -135,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         HapticFeedback.lightImpact();
                         Navigator.pop(context);
                       },
-                      child: const Text('Закрыть', style: TextStyle(color: Color(0xFF007AFF), fontWeight: FontWeight.bold)),
+                      child: Text('Закрыть', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -151,6 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final addressCtrl = TextEditingController();
     final cityCtrl = TextEditingController();
     final contactCtrl = TextEditingController();
+    final colorScheme = Theme.of(context).colorScheme;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -167,25 +170,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Text(
                 'Данные доставки — Заказ #${order['id']}',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: addressCtrl,
-                style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                style: TextStyle(color: colorScheme.onSurface),
                 decoration: getGlassInputDecoration(
                   hintText: 'Адрес доставки',
-                  prefixIcon: const Icon(Icons.location_on_outlined, color: Colors.grey),
+                  prefixIcon: Icon(Icons.location_on_outlined, color: colorScheme.onSurfaceVariant),
                   context: context,
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: cityCtrl,
-                style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                style: TextStyle(color: colorScheme.onSurface),
                 decoration: getGlassInputDecoration(
                   hintText: 'Город',
-                  prefixIcon: const Icon(Icons.location_city_outlined, color: Colors.grey),
+                  prefixIcon: Icon(Icons.location_city_outlined, color: colorScheme.onSurfaceVariant),
                   context: context,
                 ),
               ),
@@ -193,10 +196,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               TextField(
                 controller: contactCtrl,
                 keyboardType: TextInputType.phone,
-                style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                style: TextStyle(color: colorScheme.onSurface),
                 decoration: getGlassInputDecoration(
                   hintText: 'Контактный телефон',
-                  prefixIcon: const Icon(Icons.phone_outlined, color: Colors.grey),
+                  prefixIcon: Icon(Icons.phone_outlined, color: colorScheme.onSurfaceVariant),
                   context: context,
                 ),
               ),
@@ -232,19 +235,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildOrderTile(String title, String price, String status, Color statusColor, bool isDark) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GlassContainer(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
-      opacity: isDark ? 0.08 : 0.45,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1C1C1E))),
+              Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
               const SizedBox(height: 4),
-              Text(price, style: const TextStyle(color: Color(0xFF007AFF), fontWeight: FontWeight.w600)),
+              Text(price, style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.w600)),
             ],
           ),
           Container(
@@ -264,6 +267,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showSupportDialog(AppState state, bool isDark) {
+    final colorScheme = Theme.of(context).colorScheme;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -288,12 +292,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 16),
               Text(
                 'Техническая поддержка',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Наш бот поддержки доступен 24/7 в Telegram. Опишите вашу проблему и мы ответим в кратчайшие сроки.',
-                style: TextStyle(color: Colors.grey, height: 1.4, fontSize: 14),
+                style: TextStyle(color: colorScheme.onSurfaceVariant, height: 1.4, fontSize: 14),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -336,7 +340,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   HapticFeedback.lightImpact();
                   Navigator.pop(ctx);
                 },
-                child: const Text('Закрыть', style: TextStyle(color: Colors.grey)),
+                child: Text('Закрыть', style: TextStyle(color: colorScheme.onSurfaceVariant)),
               ),
             ],
           ),
@@ -350,6 +354,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final nameCtrl = TextEditingController(text: user['name'] ?? '');
     final emailCtrl = TextEditingController(text: user['email'] ?? '');
     final phoneCtrl = TextEditingController(text: user['phone'] ?? '');
+    final colorScheme = Theme.of(context).colorScheme;
 
     showModalBottomSheet(
       context: context,
@@ -367,15 +372,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Text(
                 state.translate('profile_settings'),
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: nameCtrl,
-                style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                style: TextStyle(color: colorScheme.onSurface),
                 decoration: getGlassInputDecoration(
                   hintText: state.translate('form_name'),
-                  prefixIcon: const Icon(Icons.person_outline, color: Colors.grey),
+                  prefixIcon: Icon(Icons.person_outline, color: colorScheme.onSurfaceVariant),
                   context: context,
                 ),
               ),
@@ -383,10 +388,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               TextField(
                 controller: emailCtrl,
                 keyboardType: TextInputType.emailAddress,
-                style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                style: TextStyle(color: colorScheme.onSurface),
                 decoration: getGlassInputDecoration(
                   hintText: 'Email',
-                  prefixIcon: const Icon(Icons.email_outlined, color: Colors.grey),
+                  prefixIcon: Icon(Icons.email_outlined, color: colorScheme.onSurfaceVariant),
                   context: context,
                 ),
               ),
@@ -394,10 +399,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               TextField(
                 controller: phoneCtrl,
                 keyboardType: TextInputType.phone,
-                style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                style: TextStyle(color: colorScheme.onSurface),
                 decoration: getGlassInputDecoration(
                   hintText: state.translate('form_phone'),
-                  prefixIcon: const Icon(Icons.phone_outlined, color: Colors.grey),
+                  prefixIcon: Icon(Icons.phone_outlined, color: colorScheme.onSurfaceVariant),
                   context: context,
                 ),
               ),
@@ -449,6 +454,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showTermsBottomSheet(AppState state, bool isDark) {
+    final colorScheme = Theme.of(context).colorScheme;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -462,7 +468,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Text(
                 state.translate('profile_terms'),
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -475,7 +481,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     'Приложение предоставляет информационные карты зон полетов (зеленые, желтые и красные зоны). Пользователь несет персональную юридическую ответственность за соблюдение правил безопасности пилотирования БПЛА.\n\n'
                     '3. Конфиденциальность\n'
                     'Мы сохраняем данные вашего профиля и историю заказов исключительно для обеспечения функционала приложения.',
-                    style: TextStyle(color: isDark ? Colors.grey[300] : const Color(0xFF1C1C1E).withOpacity(0.8), height: 1.5),
+                    style: TextStyle(color: colorScheme.onSurface.withOpacity(0.8), height: 1.5),
                   ),
                 ),
               ),
@@ -515,6 +521,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final name = user['name'] ?? 'Иван Иванов';
     final email = user['email'] ?? 'ivan@uzdf.uz';
     final lives = user['courseLives'] ?? 3;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: GlassAppBar(
@@ -524,7 +531,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(context).padding.bottom + 68 + 24 + 20,
+        ),
         children: [
           // Profile Card
           Stack(
@@ -537,14 +549,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: 70,
                       height: 70,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF007AFF).withOpacity(0.15),
+                        color: colorScheme.primary.withOpacity(0.15),
                         shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFF007AFF), width: 1.5),
+                        border: Border.all(color: colorScheme.primary, width: 1.5),
                       ),
                       child: Center(
                         child: Text(
                           name.isNotEmpty ? name[0].toUpperCase() : 'U',
-                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF007AFF)),
+                          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: colorScheme.primary),
                         ),
                       ),
                     ),
@@ -558,24 +570,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                              color: colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             email,
-                            style: const TextStyle(color: Colors.grey, fontSize: 13),
+                            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13),
                             overflow: TextOverflow.ellipsis,
                           ),
                           if (user['phone'] != null && user['phone'].toString().isNotEmpty) ...[
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                const Icon(Icons.phone, color: Colors.grey, size: 14),
+                                Icon(Icons.phone, color: colorScheme.onSurfaceVariant, size: 14),
                                 const SizedBox(width: 4),
                                 Text(
                                   user['phone'],
-                                  style: const TextStyle(color: Colors.grey, fontSize: 13),
+                                  style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13),
                                 ),
                               ],
                             ),
@@ -601,7 +613,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 top: 8,
                 right: 8,
                 child: IconButton(
-                  icon: const Icon(Icons.edit_outlined, color: Color(0xFF007AFF), size: 20),
+                  icon: Icon(Icons.edit_outlined, color: colorScheme.primary, size: 20),
                   onPressed: () {
                     HapticFeedback.lightImpact();
                     _showEditProfileBottomSheet(state, isDark);
@@ -620,28 +632,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               // Theme
               ListTile(
-                leading: Icon(isDark ? Icons.dark_mode : Icons.light_mode, color: const Color(0xFF007AFF)),
+                leading: Icon(isDark ? Icons.dark_mode : Icons.light_mode, color: colorScheme.primary),
                 title: Text(
                   isDark ? state.translate('theme_dark') : state.translate('theme_light'),
-                  style: TextStyle(fontWeight: FontWeight.w600, color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                  style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onSurface),
                 ),
                 trailing: Switch(
                   value: isDark,
-                  activeThumbColor: Colors.white,
-                  activeTrackColor: const Color(0xFF007AFF),
+                  activeThumbColor: colorScheme.onPrimary,
+                  activeTrackColor: colorScheme.primary,
                   onChanged: (val) {
                     HapticFeedback.lightImpact();
                     state.toggleTheme();
                   },
                 ),
               ),
-              Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.15)),
+              Divider(height: 1, indent: 56, color: colorScheme.outlineVariant),
               // Language
               ListTile(
-                leading: const Icon(Icons.language, color: Color(0xFF007AFF)),
+                leading: Icon(Icons.language, color: colorScheme.primary),
                 title: Text(
                   state.translate('profile_lang'),
-                  style: TextStyle(fontWeight: FontWeight.w600, color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                  style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onSurface),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -657,17 +669,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         margin: const EdgeInsets.only(left: 6),
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFF007AFF) : Colors.white.withOpacity(0.1),
+                          color: isSelected ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isSelected ? const Color(0xFF007AFF) : Colors.white.withOpacity(0.15),
+                            color: isSelected ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.12),
                             width: 1.2,
                           ),
                         ),
                         child: Text(
                           code,
                           style: TextStyle(
-                            color: isSelected ? Colors.white : (isDark ? Colors.grey : const Color(0xFF1C1C1E)),
+                            color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.bold,
                             fontSize: 11,
                           ),
@@ -677,14 +689,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }).toList(),
                 ),
               ),
-              Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.15)),
+              Divider(height: 1, indent: 56, color: colorScheme.outlineVariant),
               ListTile(
-                leading: const Icon(Icons.wifi, color: Color(0xFF007AFF)),
+                leading: Icon(Icons.wifi, color: colorScheme.primary),
                 title: Text(
                   'Настройка подключения',
-                  style: TextStyle(fontWeight: FontWeight.w600, color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                  style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onSurface),
                 ),
-                trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                trailing: Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
                 onTap: () {
                   HapticFeedback.lightImpact();
                   _showConnectionDialog(context, isDark);
@@ -704,21 +716,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 isDark,
                 () => _showOrdersDialog(state, isDark),
               ),
-              Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.15)),
+              Divider(height: 1, indent: 56, color: colorScheme.outlineVariant),
               _buildListRow(
                 Icons.support_agent_outlined,
                 state.translate('profile_support'),
                 isDark,
                 () => _showSupportDialog(state, isDark),
               ),
-              Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.15)),
+              Divider(height: 1, indent: 56, color: colorScheme.outlineVariant),
               _buildListRow(
                 Icons.description_outlined,
                 state.translate('profile_terms'),
                 isDark,
                 () => _showTermsBottomSheet(state, isDark),
               ),
-              Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.15)),
+              Divider(height: 1, indent: 56, color: colorScheme.outlineVariant),
               _buildListRow(
                 Icons.help_outline,
                 state.translate('profile_faq'),
@@ -763,6 +775,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final range = nextLevelExp - prevLevelExp;
     final progress = exp - prevLevelExp;
     final percent = range > 0 ? (progress / range).clamp(0.0, 1.0) : 0.0;
+    final colorScheme = Theme.of(context).colorScheme;
     
     final userAchievements = user['achievements'] as List<dynamic>? ?? [];
 
@@ -784,29 +797,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   Text(
                     '$exp / $nextLevelExp EXP',
-                    style: const TextStyle(
+                    style: GoogleFonts.spaceMono(
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF007AFF),
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.primary,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: percent,
-                  minHeight: 8,
-                  backgroundColor: isDark ? const Color(0xFF050814).withOpacity(0.3) : const Color(0xFFE2E8F0),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF007AFF)),
-                ),
-              ),
+              AviationProgressBar(value: percent),
             ],
           ),
         ),
@@ -821,58 +826,96 @@ class _ProfileScreenState extends State<ProfileScreen> {
             itemCount: _allAchievements.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
               childAspectRatio: 1.1,
             ),
             itemBuilder: (context, idx) {
               final ach = _allAchievements[idx];
               final isUnlocked = userAchievements.any((ua) => ua['achievementId'] == ach['id']);
               
-              return GlassContainer(
-                padding: const EdgeInsets.all(8),
-                opacity: isUnlocked ? (isDark ? 0.22 : 0.75) : (isDark ? 0.08 : 0.35),
-                border: Border.all(
-                  color: isUnlocked 
-                      ? Colors.green.withOpacity(0.5) 
-                      : Colors.white.withOpacity(0.15),
-                ),
+              return LiquidGlassCard(
+                borderRadius: 18,
+                padding: const EdgeInsets.all(12), // 20% increase in padding
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      isUnlocked ? ach['icon'] : '🔒',
-                      style: const TextStyle(fontSize: 22),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        if (isUnlocked)
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: colorScheme.primary.withOpacity(0.35),
+                                  blurRadius: 12,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                          ),
+                        Opacity(
+                          opacity: isUnlocked ? 1.0 : 0.4,
+                          child: isUnlocked
+                              ? Text(
+                                  ach['icon'],
+                                  style: const TextStyle(fontSize: 24),
+                                )
+                              : ColorFiltered(
+                                  colorFilter: const ColorFilter.matrix(<double>[
+                                    0.2126, 0.7152, 0.0722, 0, 0,
+                                    0.2126, 0.7152, 0.0722, 0, 0,
+                                    0.2126, 0.7152, 0.0722, 0, 0,
+                                    0,      0,      0,      1, 0,
+                                  ]),
+                                  child: Text(
+                                    ach['icon'],
+                                    style: const TextStyle(fontSize: 24),
+                                  ),
+                                ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     Text(
                       ach['name'],
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        fontFamily: 'SF Pro Display',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                        color: colorScheme.onSurface,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Expanded(
                       child: Text(
                         ach['desc'],
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 9, color: Colors.grey),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'SF Pro Text',
+                          fontSize: 10,
+                          fontWeight: FontWeight.w400,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 6),
                     Text(
                       ach['reward'],
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                        color: isUnlocked ? Colors.green : const Color(0xFF007AFF),
+                      style: GoogleFonts.spaceMono(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: colorScheme.primary,
                       ),
                     ),
                   ],
@@ -886,6 +929,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildGroupHeader(String text) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(left: 8, bottom: 8),
       child: Text(
@@ -893,7 +937,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.bold,
-          color: Colors.grey.withOpacity(0.8),
+          color: colorScheme.onSurfaceVariant.withOpacity(0.8),
           letterSpacing: 1.0,
         ),
       ),
@@ -911,16 +955,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildListRow(IconData icon, String title, bool isDark, VoidCallback onTap) {
+    final colorScheme = Theme.of(context).colorScheme;
     return ListTile(
-      leading: Icon(icon, color: const Color(0xFF007AFF)),
+      leading: Icon(icon, color: colorScheme.primary),
       title: Text(
         title,
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+          color: colorScheme.onSurface,
         ),
       ),
-      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+      trailing: Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
       onTap: () {
         HapticFeedback.lightImpact();
         onTap();
@@ -933,6 +978,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     bool isTesting = false;
     String statusMessage = '';
     Color statusColor = Colors.grey;
+    final colorScheme = Theme.of(context).colorScheme;
 
     showDialog(
       context: context,
@@ -951,14 +997,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.wifi, color: Color(0xFF007AFF)),
+                        Icon(Icons.wifi, color: colorScheme.primary),
                         const SizedBox(width: 10),
                         Text(
                           'Подключение к ПК',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
-                            color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                            color: colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -972,7 +1018,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           'Текущий адрес: $url',
                           style: TextStyle(
                             fontSize: 13,
-                            color: isDark ? Colors.white.withOpacity(0.6) : Colors.black54,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                         );
                       },
@@ -983,13 +1029,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: controller,
-                      style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                      style: TextStyle(color: colorScheme.onSurface),
                       decoration: getGlassInputDecoration(
                         hintText: 'например, 192.168.1.100:3000',
                         context: context,
@@ -1018,7 +1064,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               setState(() {});
                             }
                           },
-                          child: const Text('Сбросить', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                          child: Text('Сбросить', style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
                         ),
                         const SizedBox(width: 8),
                         SizedBox(
@@ -1033,7 +1079,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     setStateDialog(() {
                                       isTesting = true;
                                       statusMessage = 'Проверка подключения...';
-                                      statusColor = const Color(0xFF007AFF);
+                                      statusColor = colorScheme.primary;
                                     });
                                     final success = await ApiService.testAndSetCustomBaseUrl(input);
                                     setStateDialog(() {

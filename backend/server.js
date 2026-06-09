@@ -1504,8 +1504,17 @@ app.post('/users/action/trigger-weather', authMiddleware, async (req, res) => {
 
 app.post('/courses', adminMiddleware, async (req, res) => {
   try {
-    const { title, description, iconType, color } = req.body;
-    const course = await prisma.course.create({ data: { title, description, iconType, color } });
+    const { title, description, iconType, color, miniDescription, authorName } = req.body;
+    const course = await prisma.course.create({
+      data: {
+        title,
+        description,
+        iconType,
+        color,
+        miniDescription: miniDescription || '',
+        authorName: authorName || ''
+      }
+    });
     res.json(course);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -1514,10 +1523,17 @@ app.post('/courses', adminMiddleware, async (req, res) => {
 
 app.put('/courses/:id', adminMiddleware, async (req, res) => {
   try {
-    const { title, description, iconType, color } = req.body;
+    const { title, description, iconType, color, miniDescription, authorName } = req.body;
     const course = await prisma.course.update({
       where: { id: parseInt(req.params.id) },
-      data: { title, description, iconType, color },
+      data: {
+        title,
+        description,
+        iconType,
+        color,
+        miniDescription: miniDescription ?? '',
+        authorName: authorName ?? ''
+      },
     });
     res.json(course);
   } catch (e) {

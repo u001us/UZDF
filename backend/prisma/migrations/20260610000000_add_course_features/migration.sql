@@ -1,32 +1,32 @@
--- AlterTable
-ALTER TABLE "Course" ADD COLUMN     "authorName" TEXT NOT NULL DEFAULT '',
-ADD COLUMN     "miniDescription" TEXT NOT NULL DEFAULT '';
+-- AlterTable Course
+ALTER TABLE "Course" ADD COLUMN IF NOT EXISTS "authorName" TEXT NOT NULL DEFAULT '';
+ALTER TABLE "Course" ADD COLUMN IF NOT EXISTS "miniDescription" TEXT NOT NULL DEFAULT '';
 
--- AlterTable
-ALTER TABLE "CourseStep" ADD COLUMN     "imageUrl" TEXT,
-ADD COLUMN     "isFinalExam" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "videoDurationSeconds" INTEGER,
-ADD COLUMN     "videoUrl" TEXT;
+-- AlterTable CourseStep
+ALTER TABLE "CourseStep" ADD COLUMN IF NOT EXISTS "imageUrl" TEXT;
+ALTER TABLE "CourseStep" ADD COLUMN IF NOT EXISTS "isFinalExam" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "CourseStep" ADD COLUMN IF NOT EXISTS "videoDurationSeconds" INTEGER;
+ALTER TABLE "CourseStep" ADD COLUMN IF NOT EXISTS "videoUrl" TEXT;
 
--- AlterTable
-ALTER TABLE "Product" ADD COLUMN     "images" TEXT[] DEFAULT ARRAY[]::TEXT[],
-ADD COLUMN     "isDeleted" BOOLEAN NOT NULL DEFAULT false;
+-- AlterTable Product
+ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "images" TEXT[] DEFAULT ARRAY[]::TEXT[];
+ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "isDeleted" BOOLEAN NOT NULL DEFAULT false;
 
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "avatar" TEXT,
-ADD COLUMN     "blockReason" TEXT,
-ADD COLUMN     "blockedAt" TIMESTAMP(3),
-ADD COLUMN     "blockedBy" TEXT,
-ADD COLUMN     "courseLives" INTEGER NOT NULL DEFAULT 3,
-ADD COLUMN     "exp" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "isBlocked" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "language" TEXT NOT NULL DEFAULT 'ru',
-ADD COLUMN     "level" INTEGER NOT NULL DEFAULT 1,
-ADD COLUMN     "livesRestoredAt" TIMESTAMP(3),
-ADD COLUMN     "phone" TEXT;
+-- AlterTable User
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "avatar" TEXT;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "blockReason" TEXT;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "blockedAt" TIMESTAMP(3);
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "blockedBy" TEXT;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "courseLives" INTEGER NOT NULL DEFAULT 3;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "exp" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "isBlocked" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "language" TEXT NOT NULL DEFAULT 'ru';
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "level" INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "livesRestoredAt" TIMESTAMP(3);
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "phone" TEXT;
 
--- CreateTable
-CREATE TABLE "Review" (
+-- CreateTable Review
+CREATE TABLE IF NOT EXISTS "Review" (
     "id" SERIAL NOT NULL,
     "productId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
@@ -37,8 +37,8 @@ CREATE TABLE "Review" (
     CONSTRAINT "Review_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "SupportRequest" (
+-- CreateTable SupportRequest
+CREATE TABLE IF NOT EXISTS "SupportRequest" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER,
     "message" TEXT NOT NULL,
@@ -48,8 +48,8 @@ CREATE TABLE "SupportRequest" (
     CONSTRAINT "SupportRequest_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "CourseCompletion" (
+-- CreateTable CourseCompletion
+CREATE TABLE IF NOT EXISTS "CourseCompletion" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
     "courseId" INTEGER NOT NULL,
@@ -63,8 +63,8 @@ CREATE TABLE "CourseCompletion" (
     CONSTRAINT "CourseCompletion_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "UserAchievement" (
+-- CreateTable UserAchievement
+CREATE TABLE IF NOT EXISTS "UserAchievement" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
     "achievementId" TEXT NOT NULL,
@@ -73,8 +73,8 @@ CREATE TABLE "UserAchievement" (
     CONSTRAINT "UserAchievement_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "AboutSection" (
+-- CreateTable AboutSection
+CREATE TABLE IF NOT EXISTS "AboutSection" (
     "id" SERIAL NOT NULL,
     "key" TEXT NOT NULL,
     "titleRu" TEXT NOT NULL,
@@ -90,8 +90,8 @@ CREATE TABLE "AboutSection" (
     CONSTRAINT "AboutSection_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "UserBlock" (
+-- CreateTable UserBlock
+CREATE TABLE IF NOT EXISTS "UserBlock" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
     "blockedBy" TEXT NOT NULL,
@@ -102,8 +102,8 @@ CREATE TABLE "UserBlock" (
     CONSTRAINT "UserBlock_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "AdminAction" (
+-- CreateTable AdminAction
+CREATE TABLE IF NOT EXISTS "AdminAction" (
     "id" SERIAL NOT NULL,
     "adminId" INTEGER NOT NULL,
     "actionType" TEXT NOT NULL,
@@ -114,8 +114,8 @@ CREATE TABLE "AdminAction" (
     CONSTRAINT "AdminAction_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "UserLessonProgress" (
+-- CreateTable UserLessonProgress
+CREATE TABLE IF NOT EXISTS "UserLessonProgress" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
     "stepId" INTEGER NOT NULL,
@@ -131,8 +131,8 @@ CREATE TABLE "UserLessonProgress" (
     CONSTRAINT "UserLessonProgress_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "UserCourseBlock" (
+-- CreateTable UserCourseBlock
+CREATE TABLE IF NOT EXISTS "UserCourseBlock" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
     "courseId" INTEGER NOT NULL,
@@ -142,8 +142,8 @@ CREATE TABLE "UserCourseBlock" (
     CONSTRAINT "UserCourseBlock_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "ScreenshotViolation" (
+-- CreateTable ScreenshotViolation
+CREATE TABLE IF NOT EXISTS "ScreenshotViolation" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
     "stepId" INTEGER NOT NULL,
@@ -152,8 +152,8 @@ CREATE TABLE "ScreenshotViolation" (
     CONSTRAINT "ScreenshotViolation_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "TelegramUser" (
+-- CreateTable TelegramUser
+CREATE TABLE IF NOT EXISTS "TelegramUser" (
     "id" BIGINT NOT NULL,
     "username" TEXT,
     "firstName" TEXT,
@@ -164,8 +164,8 @@ CREATE TABLE "TelegramUser" (
     CONSTRAINT "TelegramUser_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "TelegramMessage" (
+-- CreateTable TelegramMessage
+CREATE TABLE IF NOT EXISTS "TelegramMessage" (
     "id" SERIAL NOT NULL,
     "telegramUserId" BIGINT NOT NULL,
     "text" TEXT NOT NULL,
@@ -176,8 +176,8 @@ CREATE TABLE "TelegramMessage" (
     CONSTRAINT "TelegramMessage_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "TelegramBotLog" (
+-- CreateTable TelegramBotLog
+CREATE TABLE IF NOT EXISTS "TelegramBotLog" (
     "id" SERIAL NOT NULL,
     "level" TEXT NOT NULL,
     "message" TEXT NOT NULL,
@@ -187,64 +187,55 @@ CREATE TABLE "TelegramBotLog" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "CourseCompletion_certificateUuid_key" ON "CourseCompletion"("certificateUuid");
-
--- CreateIndex
-CREATE UNIQUE INDEX "CourseCompletion_userId_courseId_key" ON "CourseCompletion"("userId", "courseId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "UserAchievement_userId_achievementId_key" ON "UserAchievement"("userId", "achievementId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "AboutSection_key_key" ON "AboutSection"("key");
-
--- CreateIndex
-CREATE UNIQUE INDEX "UserLessonProgress_userId_stepId_key" ON "UserLessonProgress"("userId", "stepId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "UserCourseBlock_userId_courseId_key" ON "UserCourseBlock"("userId", "courseId");
+CREATE UNIQUE INDEX IF NOT EXISTS "CourseCompletion_certificateUuid_key" ON "CourseCompletion"("certificateUuid");
+CREATE UNIQUE INDEX IF NOT EXISTS "CourseCompletion_userId_courseId_key" ON "CourseCompletion"("userId", "courseId");
+CREATE UNIQUE INDEX IF NOT EXISTS "UserAchievement_userId_achievementId_key" ON "UserAchievement"("userId", "achievementId");
+CREATE UNIQUE INDEX IF NOT EXISTS "AboutSection_key_key" ON "AboutSection"("key");
+CREATE UNIQUE INDEX IF NOT EXISTS "UserLessonProgress_userId_stepId_key" ON "UserLessonProgress"("userId", "stepId");
+CREATE UNIQUE INDEX IF NOT EXISTS "UserCourseBlock_userId_courseId_key" ON "UserCourseBlock"("userId", "courseId");
 
 -- AddForeignKey
+ALTER TABLE "Review" DROP CONSTRAINT IF EXISTS "Review_productId_fkey";
 ALTER TABLE "Review" ADD CONSTRAINT "Review_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "Review" DROP CONSTRAINT IF EXISTS "Review_userId_fkey";
 ALTER TABLE "Review" ADD CONSTRAINT "Review_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "SupportRequest" DROP CONSTRAINT IF EXISTS "SupportRequest_userId_fkey";
 ALTER TABLE "SupportRequest" ADD CONSTRAINT "SupportRequest_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "UserAchievement" DROP CONSTRAINT IF EXISTS "UserAchievement_userId_fkey";
 ALTER TABLE "UserAchievement" ADD CONSTRAINT "UserAchievement_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "UserBlock" DROP CONSTRAINT IF EXISTS "UserBlock_userId_fkey";
 ALTER TABLE "UserBlock" ADD CONSTRAINT "UserBlock_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "AdminAction" DROP CONSTRAINT IF EXISTS "AdminAction_adminId_fkey";
 ALTER TABLE "AdminAction" ADD CONSTRAINT "AdminAction_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "AdminAction" DROP CONSTRAINT IF EXISTS "AdminAction_targetUserId_fkey";
 ALTER TABLE "AdminAction" ADD CONSTRAINT "AdminAction_targetUserId_fkey" FOREIGN KEY ("targetUserId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "UserLessonProgress" DROP CONSTRAINT IF EXISTS "UserLessonProgress_userId_fkey";
 ALTER TABLE "UserLessonProgress" ADD CONSTRAINT "UserLessonProgress_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "UserLessonProgress" DROP CONSTRAINT IF EXISTS "UserLessonProgress_stepId_fkey";
 ALTER TABLE "UserLessonProgress" ADD CONSTRAINT "UserLessonProgress_stepId_fkey" FOREIGN KEY ("stepId") REFERENCES "CourseStep"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "UserCourseBlock" DROP CONSTRAINT IF EXISTS "UserCourseBlock_userId_fkey";
 ALTER TABLE "UserCourseBlock" ADD CONSTRAINT "UserCourseBlock_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "UserCourseBlock" DROP CONSTRAINT IF EXISTS "UserCourseBlock_courseId_fkey";
 ALTER TABLE "UserCourseBlock" ADD CONSTRAINT "UserCourseBlock_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "ScreenshotViolation" DROP CONSTRAINT IF EXISTS "ScreenshotViolation_userId_fkey";
 ALTER TABLE "ScreenshotViolation" ADD CONSTRAINT "ScreenshotViolation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "ScreenshotViolation" DROP CONSTRAINT IF EXISTS "ScreenshotViolation_stepId_fkey";
 ALTER TABLE "ScreenshotViolation" ADD CONSTRAINT "ScreenshotViolation_stepId_fkey" FOREIGN KEY ("stepId") REFERENCES "CourseStep"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "TelegramMessage" DROP CONSTRAINT IF EXISTS "TelegramMessage_telegramUserId_fkey";
 ALTER TABLE "TelegramMessage" ADD CONSTRAINT "TelegramMessage_telegramUserId_fkey" FOREIGN KEY ("telegramUserId") REFERENCES "TelegramUser"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
+ALTER TABLE "TelegramMessage" DROP CONSTRAINT IF EXISTS "TelegramMessage_adminId_fkey";
 ALTER TABLE "TelegramMessage" ADD CONSTRAINT "TelegramMessage_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

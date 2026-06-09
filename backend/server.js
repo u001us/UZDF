@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -5,10 +6,17 @@ const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const { spawn } = require('child_process');
+const https = require('https');
 
 const app = express();
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'skycheck-super-secret-2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'uzdf-super-secret-2024';
+const { OAuth2Client } = require('google-auth-library');
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '623890287900-og7m9d6pi7i6ptk525afmc7kdalp2php.apps.googleusercontent.com';
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+
 
 const pendingRegistrations = new Map();
 
@@ -28,24 +36,24 @@ if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
 
 async function sendVerificationEmail(email, code) {
   const mailOptions = {
-    from: process.env.SMTP_FROM || '"SkyCheck" <noreply@skycheck.uz>',
+    from: process.env.SMTP_FROM || '"UZDF" <noreply@uzdf.uz>',
     to: email,
-    subject: 'Код подтверждения регистрации SkyCheck',
+    subject: 'Код подтверждения регистрации UZDF',
     html: `
       <div style="font-family: Arial, sans-serif; background-color: #050814; color: #ffffff; padding: 30px; border-radius: 10px; max-width: 500px; margin: 0 auto; border: 1px solid #0066FF;">
         <div style="text-align: center; margin-bottom: 20px;">
-          <h1 style="color: #0066FF; margin: 0; font-size: 28px; letter-spacing: 2px;">SKYCHECK</h1>
+          <h1 style="color: #0066FF; margin: 0; font-size: 28px; letter-spacing: 2px;">UZDF</h1>
           <p style="color: #00E5FF; margin: 5px 0 0 0; font-size: 10px; letter-spacing: 4px; font-weight: bold;">УЗБЕКИСТАН</p>
         </div>
         <hr style="border-color: #0066FF; opacity: 0.3; margin-bottom: 25px;">
         <p style="font-size: 16px; line-height: 1.5;">Здравствуйте!</p>
-        <p style="font-size: 16px; line-height: 1.5;">Спасибо за регистрацию в SkyCheck Uzbekistan. Для подтверждения вашей почты используйте следующий код подтверждения:</p>
+        <p style="font-size: 16px; line-height: 1.5;">Спасибо за регистрацию в UZDF Uzbekistan. Для подтверждения вашей почты используйте следующий код подтверждения:</p>
         <div style="background-color: #0A0D1A; border: 1px solid #00E5FF; border-radius: 8px; padding: 15px; text-align: center; margin: 30px 0; letter-spacing: 6px;">
           <span style="font-size: 32px; font-weight: bold; color: #00E5FF;">${code}</span>
         </div>
         <p style="font-size: 14px; color: #94A3B8; line-height: 1.5;">Код действителен в течение 10 минут. Если вы не запрашивали этот код, просто проигнорируйте это письмо.</p>
         <hr style="border-color: #0066FF; opacity: 0.3; margin-top: 25px; margin-bottom: 15px;">
-        <p style="font-size: 12px; color: #64748B; text-align: center; margin: 0;">&copy; 2026 SkyCheck Uzbekistan. Все права защищены.</p>
+        <p style="font-size: 12px; color: #64748B; text-align: center; margin: 0;">&copy; 2026 UZDF Uzbekistan. Все права защищены.</p>
       </div>
     `,
   };
@@ -80,8 +88,11 @@ app.use(express.static(path.join(__dirname, '../web')));
 // ─────────────────────────────────────────────
 // MIDDLEWARE
 // ─────────────────────────────────────────────
+const ADMIN_ROLES = ['superadmin', 'admin', 'supersupport', 'support'];
+const STAFF_ROLES = ['superadmin', 'admin', 'supersupport', 'support'];
+
 const authMiddleware = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
+  const token = req.headers.authorization?.split(' ')[1] || req.query.token;
   if (!token) return res.status(401).json({ error: 'Токен не найден' });
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -90,6 +101,31 @@ const authMiddleware = async (req, res, next) => {
     if (user.isBlocked) {
       return res.status(403).json({ error: 'Ваш доступ временно приостановлен. Обратитесь к администратору' });
     }
+
+    if (['superadmin', 'admin', 'supersupport', 'support', 'superuser'].includes(user.role)) {
+      user.courseLives = 3;
+    }
+
+    // Auto-restore lives: +1 life every 24 hours (max 3)
+    if (user.courseLives < 3) {
+      const lastRestore = user.livesRestoredAt || user.createdAt;
+      const hoursSinceRestore = (Date.now() - new Date(lastRestore).getTime()) / (1000 * 60 * 60);
+      if (hoursSinceRestore >= 24) {
+        const livesToAdd = Math.min(Math.floor(hoursSinceRestore / 24), 3 - user.courseLives);
+        if (livesToAdd > 0) {
+          const updatedUser = await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              courseLives: user.courseLives + livesToAdd,
+              livesRestoredAt: new Date()
+            }
+          });
+          user.courseLives = updatedUser.courseLives;
+          user.livesRestoredAt = updatedUser.livesRestoredAt;
+        }
+      }
+    }
+
     req.user = user;
     next();
   } catch (e) {
@@ -97,16 +133,34 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
+// Any staff role (superadmin, admin, supersupport, support)
 const adminMiddleware = (req, res, next) => {
   authMiddleware(req, res, () => {
-    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') return res.status(403).json({ error: 'Только для администраторов' });
+    if (!STAFF_ROLES.includes(req.user.role)) return res.status(403).json({ error: 'Только для администраторов' });
     next();
   });
 };
 
+// superadmin only
 const superAdminMiddleware = (req, res, next) => {
   authMiddleware(req, res, () => {
     if (req.user.role !== 'superadmin') return res.status(403).json({ error: 'Только для суперадминистраторов' });
+    next();
+  });
+};
+
+// superadmin + admin only (not support roles)
+const fullAdminMiddleware = (req, res, next) => {
+  authMiddleware(req, res, () => {
+    if (req.user.role !== 'superadmin' && req.user.role !== 'admin') return res.status(403).json({ error: 'Только для администраторов' });
+    next();
+  });
+};
+
+// support and above (supersupport, admin, superadmin)
+const supportMiddleware = (req, res, next) => {
+  authMiddleware(req, res, () => {
+    if (!STAFF_ROLES.includes(req.user.role)) return res.status(403).json({ error: 'Только для поддержки' });
     next();
   });
 };
@@ -292,6 +346,8 @@ app.post('/auth/verify-code', async (req, res) => {
         role: user.role,
         exp: user.exp,
         level: user.level,
+        courseLives: 3,
+        livesRestoredAt: null,
         achievements: []
       }
     });
@@ -311,6 +367,7 @@ app.post('/auth/login', async (req, res) => {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ error: 'Неверный Email или пароль' });
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    const isSpecialRole = ['superadmin', 'admin', 'supersupport', 'support', 'superuser'].includes(user.role);
     res.json({
       token,
       user: {
@@ -320,6 +377,8 @@ app.post('/auth/login', async (req, res) => {
         role: user.role,
         exp: user.exp,
         level: user.level,
+        courseLives: isSpecialRole ? 3 : user.courseLives,
+        livesRestoredAt: user.livesRestoredAt,
         achievements: user.achievements.map(a => ({ achievementId: a.achievementId, unlockedAt: a.unlockedAt }))
       }
     });
@@ -352,6 +411,7 @@ app.post('/auth/google', async (req, res) => {
     }
 
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    const isSpecialRole = ['superadmin', 'admin', 'supersupport', 'support', 'superuser'].includes(user.role);
     res.json({
       token,
       user: {
@@ -361,6 +421,8 @@ app.post('/auth/google', async (req, res) => {
         role: user.role,
         exp: user.exp,
         level: user.level,
+        courseLives: isSpecialRole ? 3 : user.courseLives,
+        livesRestoredAt: user.livesRestoredAt,
         achievements: user.achievements.map(a => ({ achievementId: a.achievementId, unlockedAt: a.unlockedAt }))
       }
     });
@@ -368,6 +430,73 @@ app.post('/auth/google', async (req, res) => {
     res.status(500).json({ error: 'Ошибка сервера при авторизации через Google' });
   }
 });
+
+app.post('/auth/google-real', async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) return res.status(400).json({ error: 'idToken обязателен' });
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: idToken,
+      audience: GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, picture } = payload;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Не удалось получить email из Google аккаунта' });
+    }
+
+    let user = await prisma.user.findUnique({
+      where: { email },
+      include: { achievements: true }
+    });
+
+    if (!user) {
+      const dummyPassword = await bcrypt.hash(Math.random().toString(36), 10);
+      user = await prisma.user.create({
+        data: {
+          email,
+          name: name || email.split('@')[0],
+          avatar: picture || null,
+          password: dummyPassword,
+          role: 'user'
+        },
+        include: { achievements: true }
+      });
+    } else if (picture && user.avatar !== picture) {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { avatar: picture },
+        include: { achievements: true }
+      });
+    }
+
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    const isSpecialRole = ['superadmin', 'admin', 'supersupport', 'support', 'superuser'].includes(user.role);
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        exp: user.exp,
+        level: user.level,
+        courseLives: isSpecialRole ? 3 : user.courseLives,
+        livesRestoredAt: user.livesRestoredAt,
+        achievements: user.achievements.map(a => ({ achievementId: a.achievementId, unlockedAt: a.unlockedAt }))
+      }
+    });
+  } catch (error) {
+    console.error('Ошибка верификации Google Token:', error);
+    res.status(500).json({ error: 'Ошибка верификации токена авторизации Google' });
+  }
+});
+
 
 app.get('/auth/me', authMiddleware, async (req, res) => {
   try {
@@ -384,9 +513,14 @@ app.get('/auth/me', authMiddleware, async (req, res) => {
         createdAt: true,
         exp: true,
         level: true,
+        courseLives: true,
+        livesRestoredAt: true,
         achievements: { select: { achievementId: true, unlockedAt: true } }
       },
     });
+    if (user && ['superadmin', 'admin', 'supersupport', 'support', 'superuser'].includes(user.role)) {
+      user.courseLives = 3;
+    }
     res.json(user);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -416,9 +550,14 @@ app.put('/auth/me', authMiddleware, async (req, res) => {
         createdAt: true,
         exp: true,
         level: true,
+        courseLives: true,
+        livesRestoredAt: true,
         achievements: { select: { achievementId: true, unlockedAt: true } }
       },
     });
+    if (user && ['superadmin', 'admin', 'supersupport', 'support', 'superuser'].includes(user.role)) {
+      user.courseLives = 3;
+    }
     res.json(user);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -626,8 +765,13 @@ app.get('/courses', async (req, res) => {
     });
 
     const userId = getUserIdFromToken(req);
+    let userRole = 'user';
     let completedCourseIds = [];
     if (userId) {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (user) {
+        userRole = user.role;
+      }
       const completions = await prisma.courseCompletion.findMany({
         where: { userId }
       });
@@ -639,6 +783,9 @@ app.get('/courses', async (req, res) => {
       if (index > 0) {
         const prevCourse = courses[index - 1];
         isLocked = !completedCourseIds.includes(prevCourse.id);
+      }
+      if (['superuser', 'superadmin', 'admin', 'supersupport', 'support'].includes(userRole)) {
+        isLocked = false;
       }
       return {
         ...course,
@@ -677,6 +824,22 @@ function shuffleArray(array) {
 
 // Helper to verify step access sequence & course blocks
 async function verifyStepAccessHelper(userId, step) {
+  // Check if user has lives remaining (❤️ system)
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return;
+
+  // Bypass everything for superusers and staff roles
+  if (['superuser', 'superadmin', 'admin', 'supersupport', 'support'].includes(user.role)) {
+    return;
+  }
+
+  if (user.courseLives <= 0) {
+    const lastRestore = user.livesRestoredAt || user.createdAt;
+    const nextRestoreMs = new Date(lastRestore).getTime() + 24 * 60 * 60 * 1000;
+    const hoursLeft = Math.max(0, Math.ceil((nextRestoreMs - Date.now()) / 1000 / 60 / 60));
+    throw new Error(`У вас закончились попытки (❤️ 0). Новая попытка через ${hoursLeft} ч. Обратитесь к администратору для получения дополнительных попыток.`);
+  }
+
   // Check if course block exists
   const courseBlock = await prisma.userCourseBlock.findFirst({
     where: {
@@ -1152,6 +1315,20 @@ app.post('/courses/steps/:stepId/quiz-submit', authMiddleware, async (req, res) 
     const passingScore = step.isFinalExam ? 95 : 80;
     const passed = scorePercent >= passingScore;
 
+    let updatedLives = req.user.courseLives;
+    const isRegularUser = !['superadmin', 'admin', 'supersupport', 'support', 'superuser'].includes(req.user.role);
+    if (correctCount < originalQuestions.length && isRegularUser) {
+      updatedLives = Math.max(0, req.user.courseLives - 1);
+      await prisma.user.update({
+        where: { id: req.user.id },
+        data: {
+          courseLives: updatedLives,
+          livesRestoredAt: req.user.courseLives === 3 ? new Date() : req.user.livesRestoredAt
+        }
+      });
+      req.user.courseLives = updatedLives;
+    }
+
     const newAttempts = (progress ? progress.quizAttempts : 0) + 1;
     let cooldownUntil = null;
 
@@ -1226,7 +1403,8 @@ app.post('/courses/steps/:stepId/quiz-submit', authMiddleware, async (req, res) 
       currentLevel: levelResult?.level,
       certificateIssued,
       certificateUuid,
-      errorIssuingCertificate
+      errorIssuingCertificate,
+      courseLives: updatedLives
     });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -1506,7 +1684,7 @@ app.get('/admin/users/:id/detail', adminMiddleware, async (req, res) => {
     const userId = parseInt(req.params.id);
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, name: true, email: true, role: true, isBlocked: true, blockedAt: true, blockedBy: true, blockReason: true }
+      select: { id: true, name: true, email: true, role: true, isBlocked: true, blockedAt: true, blockedBy: true, blockReason: true, courseLives: true, livesRestoredAt: true }
     });
     if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
 
@@ -1614,6 +1792,10 @@ app.get('/admin/users/:id/detail', adminMiddleware, async (req, res) => {
       if (daysInactive > 7 && incompleteCourseExists) {
         inactiveAlert = true;
       }
+    }
+
+    if (user && ['superadmin', 'admin', 'supersupport', 'support', 'superuser'].includes(user.role)) {
+      user.courseLives = 3;
     }
 
     res.json({
@@ -1824,6 +2006,286 @@ app.delete('/admin/users/:id', adminMiddleware, async (req, res) => {
   }
 });
 
+// New Lives/Course admin management routes
+app.post('/admin/users/:id/add-lives', adminMiddleware, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { amount } = req.body;
+    const addAmount = parseInt(amount) || 1;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
+
+    const newLives = Math.min(3, user.courseLives + addAmount);
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        courseLives: newLives,
+        livesRestoredAt: newLives === 3 ? null : user.livesRestoredAt
+      }
+    });
+
+    await prisma.adminAction.create({
+      data: {
+        adminId: req.user.id,
+        actionType: 'ADD_LIVES',
+        targetUserId: userId,
+        details: `Добавлено жизней: ${addAmount}. Текущее кол-во: ${newLives}`
+      }
+    });
+
+    res.json({ success: true, courseLives: updated.courseLives });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/admin/users/:id/complete-course', adminMiddleware, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { courseId } = req.body;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
+
+    const course = await prisma.course.findUnique({
+      where: { id: parseInt(courseId) },
+      include: { steps: true }
+    });
+    if (!course) return res.status(404).json({ error: 'Курс не найден' });
+
+    const queries = [];
+    for (const step of course.steps) {
+      queries.push(
+        prisma.userLessonProgress.upsert({
+          where: { userId_stepId: { userId, stepId: step.id } },
+          update: {
+            status: 'completed',
+            isTimerCompleted: step.type === 'video',
+            scrollCompleted: step.type === 'text',
+            timeSpentSeconds: step.type === 'quiz' ? 100 : (step.videoDurationSeconds || 60),
+            updatedAt: new Date()
+          },
+          create: {
+            userId,
+            stepId: step.id,
+            status: 'completed',
+            isTimerCompleted: step.type === 'video',
+            scrollCompleted: step.type === 'text',
+            timeSpentSeconds: step.type === 'quiz' ? 100 : (step.videoDurationSeconds || 60),
+            lessonStartedAt: new Date()
+          }
+        })
+      );
+    }
+
+    queries.push(
+      prisma.courseCompletion.upsert({
+        where: { userId_courseId: { userId, courseId: course.id } },
+        update: {
+          lessonsCompletionPercent: 100,
+          finalScore: 100,
+          studentName: user.name,
+          certificateIssuedAt: new Date(),
+          certificateUuid: crypto.randomUUID()
+        },
+        create: {
+          userId,
+          courseId: course.id,
+          lessonsCompletionPercent: 100,
+          finalScore: 100,
+          studentName: user.name,
+          certificateIssuedAt: new Date(),
+          certificateUuid: crypto.randomUUID()
+        }
+      })
+    );
+
+    queries.push(
+      prisma.userCourseBlock.deleteMany({
+        where: { userId, courseId: course.id }
+      })
+    );
+
+    queries.push(
+      prisma.adminAction.create({
+        data: {
+          adminId: req.user.id,
+          actionType: 'COMPLETE_COURSE',
+          targetUserId: userId,
+          details: `Курс: ${course.title}`
+        }
+      })
+    );
+
+    await prisma.$transaction(queries);
+
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/admin/users/:id/reset-course', adminMiddleware, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { courseId } = req.body;
+
+    const course = await prisma.course.findUnique({
+      where: { id: parseInt(courseId) },
+      include: { steps: true }
+    });
+    if (!course) return res.status(404).json({ error: 'Курс не найден' });
+
+    const stepIds = course.steps.map(s => s.id);
+
+    await prisma.$transaction([
+      prisma.userLessonProgress.deleteMany({
+        where: { userId, stepId: { in: stepIds } }
+      }),
+      prisma.courseCompletion.deleteMany({
+        where: { userId, courseId: course.id }
+      }),
+      prisma.userCourseBlock.deleteMany({
+        where: { userId, courseId: course.id }
+      }),
+      prisma.adminAction.create({
+        data: {
+          adminId: req.user.id,
+          actionType: 'RESET_COURSE',
+          targetUserId: userId,
+          details: `Курс: ${course.title}`
+        }
+      })
+    ]);
+
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/admin/users/:id/complete-all-courses', adminMiddleware, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
+
+    const courses = await prisma.course.findMany({
+      include: { steps: true }
+    });
+
+    const queries = [];
+    for (const course of courses) {
+      for (const step of course.steps) {
+        queries.push(
+          prisma.userLessonProgress.upsert({
+            where: { userId_stepId: { userId, stepId: step.id } },
+            update: {
+              status: 'completed',
+              isTimerCompleted: step.type === 'video',
+              scrollCompleted: step.type === 'text',
+              timeSpentSeconds: step.type === 'quiz' ? 100 : (step.videoDurationSeconds || 60),
+              updatedAt: new Date()
+            },
+            create: {
+              userId,
+              stepId: step.id,
+              status: 'completed',
+              isTimerCompleted: step.type === 'video',
+              scrollCompleted: step.type === 'text',
+              timeSpentSeconds: step.type === 'quiz' ? 100 : (step.videoDurationSeconds || 60),
+              lessonStartedAt: new Date()
+            }
+          })
+        );
+      }
+
+      queries.push(
+        prisma.courseCompletion.upsert({
+          where: { userId_courseId: { userId, courseId: course.id } },
+          update: {
+            lessonsCompletionPercent: 100,
+            finalScore: 100,
+            studentName: user.name,
+            certificateIssuedAt: new Date(),
+            certificateUuid: crypto.randomUUID()
+          },
+          create: {
+            userId,
+            courseId: course.id,
+            lessonsCompletionPercent: 100,
+            finalScore: 100,
+            studentName: user.name,
+            certificateIssuedAt: new Date(),
+            certificateUuid: crypto.randomUUID()
+          }
+        })
+      );
+    }
+
+    queries.push(
+      prisma.userCourseBlock.deleteMany({
+        where: { userId }
+      })
+    );
+
+    queries.push(
+      prisma.adminAction.create({
+        data: {
+          adminId: req.user.id,
+          actionType: 'COMPLETE_ALL_COURSES',
+          targetUserId: userId
+        }
+      })
+    );
+
+    await prisma.$transaction(queries);
+
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/admin/create-superuser', superAdminMiddleware, async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) return res.status(400).json({ error: 'Все поля обязательны' });
+
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) return res.status(400).json({ error: 'Пользователь с таким email уже существует' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const superuser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role: 'superuser',
+        courseLives: 3
+      }
+    });
+
+    await prisma.adminAction.create({
+      data: {
+        adminId: req.user.id,
+        actionType: 'CREATE_SUPERUSER',
+        targetUserId: superuser.id,
+        details: `Создан суперюзер: ${email}`
+      }
+    });
+
+    res.json({ success: true, user: { id: superuser.id, name: superuser.name, email: superuser.email, role: superuser.role } });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+
 app.get('/admin/stats', adminMiddleware, async (req, res) => {
   try {
     const [users, news, courses, zones, products, orders, completedOrders] = await Promise.all([
@@ -1847,7 +2309,10 @@ app.get('/admin/stats', adminMiddleware, async (req, res) => {
 // ─────────────────────────────────────────────
 app.get('/products', async (req, res) => {
   try {
-    const products = await prisma.product.findMany({ orderBy: { createdAt: 'desc' } });
+    const products = await prisma.product.findMany({
+      where: { isDeleted: false },
+      orderBy: { createdAt: 'desc' }
+    });
     res.json(products);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -1865,7 +2330,7 @@ app.get('/products/:id', async (req, res) => {
         }
       }
     });
-    if (!product) return res.status(404).json({ error: 'Товар не найден' });
+    if (!product || product.isDeleted) return res.status(404).json({ error: 'Товар не найден' });
     res.json(product);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -1935,11 +2400,10 @@ app.put('/admin/products/:id', adminMiddleware, async (req, res) => {
 app.delete('/admin/products/:id', adminMiddleware, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const ordersCount = await prisma.orderItem.count({ where: { productId: id } });
-    if (ordersCount > 0) {
-      return res.status(400).json({ error: 'Невозможно удалить товар, так как он содержится в существующих заказах. Вы можете обнулить его остаток на складе.' });
-    }
-    await prisma.product.delete({ where: { id } });
+    await prisma.product.update({
+      where: { id },
+      data: { isDeleted: true }
+    });
     res.json({ success: true });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -1957,7 +2421,7 @@ app.post('/orders', authMiddleware, async (req, res) => {
 
       for (const item of items) {
         const product = await tx.product.findUnique({ where: { id: parseInt(item.productId) } });
-        if (!product) throw new Error(`Товар ID ${item.productId} не найден`);
+        if (!product || product.isDeleted) throw new Error(`Товар ID ${item.productId} не найден`);
         if (product.stock < item.quantity) {
           throw new Error(`Недостаточно товара "${product.title}" на складе`);
         }
@@ -2257,7 +2721,7 @@ app.get('/verify-certificate/:uuid', async (req, res) => {
         <body>
           <div class="card">
             <h1>Сертификат не найден</h1>
-            <p>Указанный уникальный идентификатор сертификата не зарегистрирован в системе SkyCheck Uzbekistan. Пожалуйста, проверьте правильность ссылки.</p>
+            <p>Указанный уникальный идентификатор сертификата не зарегистрирован в системе UZDF Uzbekistan. Пожалуйста, проверьте правильность ссылки.</p>
             <a href="/" class="btn">На главную</a>
           </div>
         </body>
@@ -2280,7 +2744,7 @@ app.get('/verify-certificate/:uuid', async (req, res) => {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Подлинность сертификата - SkyCheck</title>
+        <title>Подлинность сертификата - UZDF</title>
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
         <style>
           body {
@@ -2419,7 +2883,7 @@ app.get('/verify-certificate/:uuid', async (req, res) => {
             </svg>
           </div>
           <h1>Сертификат Подтвержден</h1>
-          <div class="subtitle">SkyCheck Uzbekistan</div>
+          <div class="subtitle">UZDF Uzbekistan</div>
           
           <p style="color: #9ca3af; font-size: 15px; line-height: 1.6; margin-bottom: 32px;">
             Данный веб-интерфейс подтверждает, что указанный ниже выпускник успешно завершил специализированный учебный курс и сдал квалификационные экзамены.
@@ -2458,6 +2922,351 @@ app.get('/verify-certificate/:uuid', async (req, res) => {
   }
 });
 
+// ─────────────────────────────────────────────
+// TELEGRAM BOT HELPERS & ENDPOINTS
+// ─────────────────────────────────────────────
+
+function sendTelegramMessage(token, chatId, text) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify({
+      chat_id: chatId.toString(),
+      text: text
+    });
+
+    const options = {
+      hostname: 'api.telegram.org',
+      port: 443,
+      path: `/bot${token}/sendMessage`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Content-Length': Buffer.byteLength(data, 'utf8')
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let body = '';
+      res.on('data', (chunk) => body += chunk);
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(body);
+          if (parsed.ok) {
+            resolve(parsed.result);
+          } else {
+            reject(new Error(parsed.description || 'Failed to send message'));
+          }
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+
+    req.on('error', (e) => reject(e));
+    req.write(data);
+    req.end();
+  });
+}
+
+function startTelegramBot() {
+  const botPath = path.join(__dirname, '../telegram_bot/main.py');
+  if (!fs.existsSync(botPath)) {
+    console.log(`⚠️ [Bot Manager] Telegram Bot не найден по пути: ${botPath}. Пропускаем автозапуск.`);
+    return;
+  }
+
+  // Detect virtual environment executable if it exists
+  let pythonCmd = 'python';
+  const venvPythonWin = path.join(__dirname, '../telegram_bot/venv/Scripts/python.exe');
+  const venvPythonUnix = path.join(__dirname, '../telegram_bot/venv/bin/python');
+
+  if (fs.existsSync(venvPythonWin)) {
+    pythonCmd = venvPythonWin;
+  } else if (fs.existsSync(venvPythonUnix)) {
+    pythonCmd = venvPythonUnix;
+  }
+
+  console.log(`🤖 [Bot Manager] Запуск Telegram Bot: ${pythonCmd} ${botPath}`);
+  const botProcess = spawn(pythonCmd, [botPath], {
+    stdio: 'inherit',
+    env: process.env
+  });
+
+  botProcess.on('error', (err) => {
+    console.error('❌ [Bot Manager] Не удалось запустить Telegram Bot:', err.message);
+  });
+
+  process.on('exit', () => {
+    botProcess.kill();
+  });
+}
+
+// 1. Get Bot Stats
+app.get('/admin/bot/stats', adminMiddleware, async (req, res) => {
+  try {
+    const totalUsers = await prisma.telegramUser.count();
+    const totalMessages = await prisma.telegramMessage.count();
+    const unansweredChats = await prisma.telegramUser.count({
+      where: {
+        messages: {
+          some: { isFromUser: true }
+        }
+      }
+    });
+    
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    // Daily activity chart — only USER messages (exclude admin replies)
+    const userMessages = await prisma.telegramMessage.findMany({
+      where: { 
+        createdAt: { gte: thirtyDaysAgo },
+        isFromUser: true
+      },
+      select: { createdAt: true }
+    });
+
+    const countsByDate = {};
+    userMessages.forEach(m => {
+      const dateStr = m.createdAt.toISOString().slice(0, 10);
+      countsByDate[dateStr] = (countsByDate[dateStr] || 0) + 1;
+    });
+
+    // Fill in missing days with 0
+    const chartData = [];
+    for (let d = new Date(thirtyDaysAgo); d <= new Date(); d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().slice(0, 10);
+      chartData.push({ date: dateStr, count: countsByDate[dateStr] || 0 });
+    }
+
+    // Hourly activity chart — when the bot is most active (user messages only)
+    const allUserMessages = await prisma.telegramMessage.findMany({
+      where: { isFromUser: true },
+      select: { createdAt: true }
+    });
+    
+    const hourlyActivity = new Array(24).fill(0);
+    allUserMessages.forEach(m => {
+      const hour = m.createdAt.getHours();
+      hourlyActivity[hour]++;
+    });
+
+    res.json({
+      totalUsers,
+      totalMessages,
+      unansweredChats,
+      chartData,
+      hourlyActivity
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// 2. Get Bot Users
+app.get('/admin/bot/users', adminMiddleware, async (req, res) => {
+  try {
+    const users = await prisma.telegramUser.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        _count: { select: { messages: true } }
+      }
+    });
+    const serializedUsers = users.map(u => ({
+      id: u.id.toString(),
+      username: u.username,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      createdAt: u.createdAt,
+      messageCount: u._count.messages
+    }));
+    res.json(serializedUsers);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// 3. Get Active Chats (Support Ticket List)
+app.get('/admin/bot/chats', adminMiddleware, async (req, res) => {
+  try {
+    const users = await prisma.telegramUser.findMany({
+      include: {
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1
+        }
+      }
+    });
+    
+    const chats = users.map(u => {
+      const lastMsg = u.messages[0];
+      return {
+        id: u.id.toString(),
+        username: u.username,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        lastMessageText: lastMsg ? lastMsg.text : '',
+        lastMessageTime: lastMsg ? lastMsg.createdAt : u.createdAt,
+        isLastFromUser: lastMsg ? lastMsg.isFromUser : false
+      };
+    });
+
+    chats.sort((a, b) => {
+      if (a.isLastFromUser !== b.isLastFromUser) {
+        return a.isLastFromUser ? -1 : 1;
+      }
+      return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
+    });
+
+    res.json(chats);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// 4. Get Chat History
+app.get('/admin/bot/chats/:id/history', adminMiddleware, async (req, res) => {
+  try {
+    const tgUserId = BigInt(req.params.id);
+    const messages = await prisma.telegramMessage.findMany({
+      where: { telegramUserId: tgUserId },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        admin: {
+          select: { name: true }
+        }
+      }
+    });
+    
+    const serializedMessages = messages.map(m => ({
+      id: m.id,
+      telegramUserId: m.telegramUserId.toString(),
+      text: m.text,
+      isFromUser: m.isFromUser,
+      adminName: m.admin ? m.admin.name : null,
+      createdAt: m.createdAt
+    }));
+
+    res.json(serializedMessages);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// 5. Send Admin Reply
+app.post('/admin/bot/chats/:id/reply', adminMiddleware, async (req, res) => {
+  try {
+    const tgUserId = BigInt(req.params.id);
+    const { text } = req.body;
+    if (!text) return res.status(400).json({ error: 'Текст ответа не может быть пустым' });
+
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (!botToken) {
+      return res.status(500).json({ error: 'Токен Telegram бота не настроен на сервере' });
+    }
+
+    try {
+      await sendTelegramMessage(botToken, tgUserId, text);
+    } catch (telegramErr) {
+      return res.status(400).json({ error: `Ошибка отправки в Telegram: ${telegramErr.message}` });
+    }
+
+    const savedMessage = await prisma.telegramMessage.create({
+      data: {
+        telegramUserId: tgUserId,
+        text: text,
+        isFromUser: false,
+        adminId: req.user.id
+      },
+      include: {
+        admin: {
+          select: { name: true }
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      message: {
+        id: savedMessage.id,
+        telegramUserId: savedMessage.telegramUserId.toString(),
+        text: savedMessage.text,
+        isFromUser: false,
+        adminName: savedMessage.admin ? savedMessage.admin.name : null,
+        createdAt: savedMessage.createdAt
+      }
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// 6. Download All Logs as CSV (must be before /admin/bot/logs to avoid conflict)
+app.get('/admin/bot/logs/download', adminMiddleware, async (req, res) => {
+  try {
+    const logs = await prisma.telegramBotLog.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    const csvHeader = 'ID,Время,Уровень,Сообщение\n';
+    const csvRows = logs.map(l => {
+      const escapedMsg = `"${l.message.replace(/"/g, '""')}"`;
+      return `${l.id},${l.createdAt.toISOString()},${l.level},${escapedMsg}`;
+    }).join('\n');
+    
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename=bot_logs_${new Date().toISOString().slice(0,10)}.csv`);
+    res.send('\uFEFF' + csvHeader + csvRows); // BOM for Excel UTF-8
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// 7. Get Bot Logs (with optional user filter)
+app.get('/admin/bot/logs', adminMiddleware, async (req, res) => {
+  try {
+    const { userId } = req.query;
+    const where = {};
+    if (userId) {
+      where.message = { contains: userId };
+    }
+    const logs = await prisma.telegramBotLog.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: 200
+    });
+    res.json(logs);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// 8. Get user-specific chat logs for export
+app.get('/admin/bot/chats/:id/export', adminMiddleware, async (req, res) => {
+  try {
+    const tgUserId = BigInt(req.params.id);
+    const user = await prisma.telegramUser.findUnique({ where: { id: tgUserId } });
+    const messages = await prisma.telegramMessage.findMany({
+      where: { telegramUserId: tgUserId },
+      orderBy: { createdAt: 'asc' },
+      include: { admin: { select: { name: true } } }
+    });
+    
+    const userName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || tgUserId.toString();
+    const csvHeader = 'ID,Время,Отправитель,Текст\n';
+    const csvRows = messages.map(m => {
+      const sender = m.isFromUser ? userName : (m.admin?.name || 'Админ');
+      const escapedText = `"${m.text.replace(/"/g, '""')}"`;
+      return `${m.id},${m.createdAt.toISOString()},${sender},${escapedText}`;
+    }).join('\n');
+    
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename=chat_${tgUserId}_${new Date().toISOString().slice(0,10)}.csv`);
+    res.send('\uFEFF' + csvHeader + csvRows);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // SPA fallback — admin
 app.get('/admin/*', (req, res) => {
   res.sendFile(path.join(__dirname, '../web/admin/index.html'));
@@ -2470,7 +3279,8 @@ app.get('*', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ SkyCheck Backend запущен на порту ${PORT}`);
+  console.log(`✅ UZDF Backend запущен на порту ${PORT}`);
   console.log(`🌐 Публичный сайт: http://localhost:${PORT}`);
   console.log(`🔐 Admin панель:  http://localhost:${PORT}/admin`);
+  startTelegramBot();
 });

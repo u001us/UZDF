@@ -27,7 +27,7 @@ class AppState {
       'nav_shop': 'Магазин',
       'nav_profile': 'Профиль',
       
-      'courses_title': 'SkyCheck Курсы',
+      'courses_title': 'UZDF Курсы',
       'courses_all': 'Все курсы',
       'courses_start': 'Начать обучение',
       
@@ -50,6 +50,12 @@ class AppState {
       'profile_support': 'Поддержка',
       'profile_terms': 'Соглашение',
       'profile_logout': 'Выйти',
+      'profile_save': 'Сохранить',
+      'profile_save_success': 'Профиль успешно обновлен',
+      'profile_save_error': 'Ошибка сохранения',
+      'form_name': 'Имя',
+      'form_phone': 'Телефон',
+      'profile_faq': 'Инструкция и FAQ',
       
       'settings_title': 'Настройки',
       'settings_achievements': 'Достижения',
@@ -66,7 +72,7 @@ class AppState {
       'nav_shop': 'Do\'kon',
       'nav_profile': 'Profil',
       
-      'courses_title': 'SkyCheck Kurslari',
+      'courses_title': 'UZDF Kurslari',
       'courses_all': 'Barcha kurslar',
       'courses_start': 'O\'rganishni boshlash',
       
@@ -89,6 +95,12 @@ class AppState {
       'profile_support': 'Qo\'llab-quvvatlash',
       'profile_terms': 'Shartnoma',
       'profile_logout': 'Chiqish',
+      'profile_save': 'Saqlash',
+      'profile_save_success': 'Profil muvaffaqiyatli yangilandi',
+      'profile_save_error': 'Saqlashda xatolik',
+      'form_name': 'Ism',
+      'form_phone': 'Telefon raqami',
+      'profile_faq': 'Qo\'llanma va FAQ',
       
       'settings_title': 'Sozlamalar',
       'settings_achievements': 'Yutuqlar',
@@ -105,7 +117,7 @@ class AppState {
       'nav_shop': 'Shop',
       'nav_profile': 'Profile',
       
-      'courses_title': 'SkyCheck Courses',
+      'courses_title': 'UZDF Courses',
       'courses_all': 'All Courses',
       'courses_start': 'Start Learning',
       
@@ -128,6 +140,12 @@ class AppState {
       'profile_support': 'Support',
       'profile_terms': 'Agreement',
       'profile_logout': 'Logout',
+      'profile_save': 'Save',
+      'profile_save_success': 'Profile updated successfully',
+      'profile_save_error': 'Error saving profile',
+      'form_name': 'Name',
+      'form_phone': 'Phone Number',
+      'profile_faq': 'Guidelines & FAQ',
       
       'settings_title': 'Settings',
       'settings_achievements': 'Achievements',

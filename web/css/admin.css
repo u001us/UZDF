@@ -28,6 +28,116 @@
   --bg-secondary: rgba(30, 30, 30, 0.6);
 }
 
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --bg-gradient: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+  --bg-grid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000' viewBox='0 0 1000 1000'%3E%3Cpath d='M 100,0 C 200,300 800,400 900,1000 M 0,200 C 300,500 500,800 1000,900 M 0,500 C 400,600 600,400 1000,500' fill='none' stroke='rgba(0,102,255,0.06)' stroke-width='1.5'/%3E%3C/svg%3E");
+  --bg-card: rgba(255, 255, 255, 0.75);
+  --bg-card2: rgba(241, 245, 249, 0.9);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.18);
+  --blue: #0066ff;
+  --blue-hover: #0052cc;
+  --blue-dim: rgba(0, 102, 255, 0.1);
+  --red: #0066ff;
+  --red-hover: #0052cc;
+  --text: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #64748b;
+  --success: #059669;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.05);
+  --green: #059669;
+  --amber: #d97706;
+  --accent: #0066ff;
+  --bg-secondary: rgba(226, 232, 240, 0.8);
+}
+
+[data-theme="light"] .sidebar {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="light"] .sidebar-user {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .topbar {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="light"] thead th {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] tbody tr:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .step-editor-card {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .zone-form-panel {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .tg-chat-history-container {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .tg-msg-bubble.user {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text);
+}
+
+[data-theme="light"] .tg-date-separator span {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .form-group select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+[data-theme="light"] #tg-log-filter-user {
+  background: var(--bg-card2) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="light"] .tg-chat-input-bar input {
+  background: var(--bg-card2);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+[data-theme="light"] .tg-msg-bubble.admin.error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+}
+
+.btn-theme {
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+  outline: none;
+}
+.btn-theme:hover {
+  background: var(--blue-dim);
+  border-color: var(--blue);
+  transform: scale(1.05);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -43,6 +153,7 @@ body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 body::before {
@@ -137,6 +248,7 @@ body::before {
   z-index: 50;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .sidebar-logo {
@@ -300,6 +412,7 @@ body::before {
   z-index: 40;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .topbar-title {
@@ -444,6 +557,7 @@ body::before {
   overflow: hidden;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .table-header {
@@ -1128,3 +1242,269 @@ tbody tr:hover {
     transform: rotate(360deg);
   }
 }
+
+/* ── TELEGRAM BOT CUSTOM STYLES ── */
+
+/* Tab Bar */
+.tg-tabs-bar {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid rgba(255,255,255,0.06);
+  margin-bottom: 20px;
+  padding-bottom: 0;
+}
+
+.tg-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+  border-radius: 8px 8px 0 0;
+}
+
+.tg-tab-btn:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.03);
+}
+
+.tg-tab-btn.active {
+  color: #00E5FF;
+  border-bottom-color: #00E5FF;
+  background: rgba(0, 229, 255, 0.05);
+}
+
+.tg-tab-icon {
+  font-size: 1rem;
+}
+
+/* Chat Header */
+.tg-chat-header-bar {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #00E5FF;
+  min-height: 48px;
+}
+
+/* Chat History Container */
+.tg-chat-history-container {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 380px;
+  min-height: 280px;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  margin: 12px 0;
+}
+
+/* Chat Input Bar */
+.tg-chat-input-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.tg-chat-input-bar input {
+  flex: 1;
+  padding: 12px 16px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: white;
+  outline: none;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.tg-chat-input-bar input:focus {
+  border-color: #00E5FF;
+}
+
+.tg-chat-input-bar button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Chat Items */
+.tg-chat-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tg-chat-item:hover {
+  background: var(--bg-card2);
+  border-color: var(--border-hover);
+  transform: translateX(2px);
+}
+
+.tg-chat-item.active {
+  background: var(--blue-dim);
+  border-color: var(--blue);
+}
+
+.tg-chat-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tg-chat-item-name {
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tg-chat-item-time {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.tg-chat-item-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Message Bubbles */
+.tg-msg-bubble {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  word-break: break-word;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  animation: bubbleIn 0.2s ease;
+}
+
+.tg-msg-bubble.user {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
+  color: var(--text);
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+}
+
+.tg-msg-bubble.admin {
+  background: var(--blue);
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+}
+
+.tg-msg-bubble.admin.sending {
+  opacity: 0.6;
+}
+
+.tg-msg-bubble.admin.error {
+  background: rgba(239, 68, 68, 0.3);
+  border: 1px solid #EF4444;
+}
+
+.tg-msg-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.7rem;
+  margin-top: 4px;
+  opacity: 0.75;
+}
+
+.tg-msg-admin-name {
+  font-weight: bold;
+}
+
+/* Date Separator */
+.tg-date-separator {
+  text-align: center;
+  margin: 8px 0;
+  position: relative;
+}
+
+.tg-date-separator::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+}
+
+.tg-date-separator span {
+  position: relative;
+  background: rgba(0,0,0,0.4);
+  padding: 2px 14px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  border-radius: 10px;
+}
+
+/* Log Badges */
+.tg-log-badge {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.tg-log-badge.info {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.tg-log-badge.warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.tg-log-badge.error, .tg-log-badge.critical {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* Animations */
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+

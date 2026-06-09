@@ -25,3 +25,13 @@ Thumbs.db
 # Local tools and logs
 chat_history.md
 save_history.py
+pinggy.log
+
+# Python cache
+**/__pycache__/
+*.pyc
+
+# Temporary root images
+/*.png
+/*.jpeg
+

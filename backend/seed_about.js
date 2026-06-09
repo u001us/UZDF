@@ -19,9 +19,9 @@ const data = [
     titleRu: "История создания",
     titleUz: "Yaratilish tarixi",
     titleEn: "Our Story",
-    descRu: "Проект SkyCheck зародился в 2024 году, когда мы столкнулись со сложностями согласования воздушных зон. Мы объединили усилия с экспертами отрасли, чтобы создать единую платформу с интерактивной картой и обучением.",
-    descUz: "SkyCheck loyihasi 2024-yilda havo zonalarini muvofiqlashtirish qiyinchiliklariga duch kelganimizda paydo bo'lgan. Biz interaktiv xarita va o'qitish bilan yagona platforma yaratish XML ekspertlari bilan kuchlarni birlashtirdik.",
-    descEn: "The SkyCheck project was born in 2024 when we faced difficulties in coordinating airspace zones. We joined forces with industry experts to create a single platform featuring an interactive map and training courses.",
+    descRu: "Проект UZDF зародился в 2024 году, когда мы столкнулись со сложностями согласования воздушных зон. Мы объединили усилия с экспертами отрасли, чтобы создать единую платформу с интерактивной картой и обучением.",
+    descUz: "UZDF loyihasi 2024-yilda havo zonalarini muvofiqlashtirish qiyinchiliklariga duch kelganimizda paydo bo'lgan. Biz interaktiv xarita va o'qitish bilan yagona platforma yaratish XML ekspertlari bilan kuchlarni birlashtirdik.",
+    descEn: "The UZDF project was born in 2024 when we faced difficulties in coordinating airspace zones. We joined forces with industry experts to create a single platform featuring an interactive map and training courses.",
     imageUrl: "/img/drone_tech.png",
     mapIframe: "",
     order: 2

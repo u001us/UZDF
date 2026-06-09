@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'glass_widgets.dart';
 import 'app_state.dart';
 import 'map_screen.dart';
 import 'home_screen.dart';
@@ -13,60 +16,113 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ApiService.init();
   await AppState().init();
-  runApp(const SkyCheckApp());
+  runApp(const UzdfApp());
 }
 
-class SkyCheckApp extends StatelessWidget {
-  const SkyCheckApp({super.key});
+
+class UzdfApp extends StatelessWidget {
+  const UzdfApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
       valueListenable: AppState().isDarkMode,
       builder: (context, isDark, child) {
+        final baseTheme = ThemeData(brightness: Brightness.dark);
+        final soraTheme = GoogleFonts.soraTextTheme(baseTheme.textTheme);
+        final customTextTheme = soraTheme.copyWith(
+          displayLarge: soraTheme.displayLarge?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
+          displayMedium: soraTheme.displayMedium?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
+          displaySmall: soraTheme.displaySmall?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
+          headlineLarge: soraTheme.headlineLarge?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
+          headlineMedium: soraTheme.headlineMedium?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
+          headlineSmall: soraTheme.headlineSmall?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
+          titleLarge: soraTheme.titleLarge?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w700, letterSpacing: -1.2, color: Colors.white),
+          titleMedium: soraTheme.titleMedium?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w600, letterSpacing: -0.8, color: Colors.white),
+          titleSmall: soraTheme.titleSmall?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w600, letterSpacing: -0.8, color: Colors.white),
+          bodyLarge: soraTheme.bodyLarge?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w400, letterSpacing: -0.3, height: 1.6, color: Colors.white),
+          bodyMedium: soraTheme.bodyMedium?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w400, letterSpacing: -0.3, height: 1.6, color: Colors.white),
+          bodySmall: soraTheme.bodySmall?.copyWith(fontFamily: 'SF Pro Display', fontWeight: FontWeight.w400, letterSpacing: -0.3, height: 1.6, color: Colors.white),
+          labelLarge: soraTheme.labelLarge?.copyWith(fontFamily: 'SF Pro Display', color: Colors.white),
+          labelMedium: soraTheme.labelMedium?.copyWith(fontFamily: 'SF Pro Display', color: Colors.white),
+          labelSmall: soraTheme.labelSmall?.copyWith(fontFamily: 'SF Pro Display', color: Colors.white),
+        );
+
         return MaterialApp(
-          title: 'SkyCheck Tashkent',
+          title: 'UZDF',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            brightness: isDark ? Brightness.dark : Brightness.light,
-            scaffoldBackgroundColor: isDark ? const Color(0xFF050814) : const Color(0xFFF0F4FF),
-            primaryColor: const Color(0xFF0066FF),
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: const Color(0xFF0A0A1A),
+            primaryColor: const Color(0xFF007AFF),
             colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF0066FF),
-              brightness: isDark ? Brightness.dark : Brightness.light,
-              primary: const Color(0xFF0066FF),
-              secondary: const Color(0xFF0066FF),
-              surface: isDark ? const Color(0xFF0A0D1A) : Colors.white,
+              seedColor: const Color(0xFF007AFF),
+              brightness: Brightness.dark,
+              primary: const Color(0xFF007AFF),
+              secondary: const Color(0xFF007AFF),
+              surface: const Color(0xFF0A0A1A),
             ),
             cardTheme: const CardThemeData(
-              elevation: 4,
+              elevation: 0,
               shadowColor: Colors.black12,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(22))),
               clipBehavior: Clip.antiAlias,
             ),
             appBarTheme: AppBarTheme(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              centerTitle: false,
-              iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
+              centerTitle: true,
+              iconTheme: const IconThemeData(color: Colors.white),
               titleTextStyle: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 20,
-                fontWeight: FontWeight.w900,
-                color: isDark ? Colors.white : Colors.black87,
+                fontFamily: 'SF Pro Display',
+                fontFamilyFallback: [GoogleFonts.sora().fontFamily ?? 'Sora'],
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                letterSpacing: -0.5,
               ),
             ),
-            bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              backgroundColor: isDark ? const Color(0xFF0A0D1A) : Colors.white,
-              selectedItemColor: const Color(0xFF0066FF),
-              unselectedItemColor: const Color(0xFF94A3B8),
-              elevation: 10,
-              type: BottomNavigationBarType.fixed,
-            ),
-            fontFamily: 'Inter',
+            fontFamily: 'SF Pro Display',
+            fontFamilyFallback: [GoogleFonts.sora().fontFamily ?? 'Sora'],
+            textTheme: customTextTheme,
             useMaterial3: true,
           ),
           home: const SplashScreen(),
+          onGenerateRoute: (settings) {
+            Widget? screen;
+            if (settings.name == '/navigation') {
+              screen = const MainNavigation();
+            }
+            if (screen == null) return null;
+            return PageRouteBuilder(
+              transitionDuration: kSlow,
+              reverseTransitionDuration: kNormal,
+              pageBuilder: (context, animation, secondaryAnimation) => screen!,
+              transitionsBuilder: (_, animation, secondary, child) {
+                final slide = Tween<Offset>(
+                  begin: const Offset(0, 0.06),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation, curve: kSpring
+                ));
+                final secondarySlide = Tween<Offset>(
+                  begin: Offset.zero,
+                  end: const Offset(-0.08, 0),
+                ).animate(CurvedAnimation(
+                  parent: secondary, curve: kSmooth
+                ));
+                return SlideTransition(
+                  position: secondarySlide,
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: slide, child: child
+                    )
+                  )
+                );
+              }
+            );
+          },
         );
       },
     );
@@ -218,10 +274,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     final backgroundColor2 = isDark ? const Color(0xFF0B1530) : const Color(0xFFFFFFFF);
     
     final primaryColor = isDark ? const Color(0xFF00E5FF) : const Color(0xFF0066FF);
-    final shadowColor = isDark ? const Color(0xFF00E5FF).withValues(alpha: 0.4) : const Color(0xFF0066FF).withValues(alpha: 0.15);
-    final cardBgColor = isDark ? const Color(0xFF0A0D1A).withValues(alpha: 0.8) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF00E5FF).withValues(alpha: 0.3) : const Color(0xFF0066FF).withValues(alpha: 0.1);
-    
+
     final titleColor = isDark ? Colors.white : const Color(0xFF1E293B);
     final subtitleColor = isDark ? const Color(0xFF00E5FF) : const Color(0xFF0066FF);
 
@@ -284,24 +337,17 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                           // Main Flight Logo Card
                           RotationTransition(
                             turns: _logoRotate,
-                            child: Container(
+                            child: GlassContainer(
+                              borderRadius: 100,
                               padding: const EdgeInsets.all(26),
-                              decoration: BoxDecoration(
-                                color: cardBgColor,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: borderColor, width: 2),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: shadowColor,
-                                    blurRadius: isDark ? 45 : 30,
-                                    spreadRadius: isDark ? 5 : 2,
-                                  ),
-                                ],
-                              ),
-                              child: Icon(
-                                Icons.flight_takeoff,
-                                size: 64,
-                                color: primaryColor,
+                              opacity: isDark ? 0.15 : 0.6,
+                              child: ClipOval(
+                                child: Image.asset(
+                                  'assets/logo.png',
+                                  width: 64,
+                                  height: 64,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ),
@@ -314,14 +360,14 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               
               const SizedBox(height: 54),
               
-              // Animated Text (SkyCheck)
+              // Animated Text (UZDF)
               AnimatedBuilder(
                 animation: Listenable.merge([_textFade, _textLetterSpacing]),
                 builder: (context, child) {
                   return Opacity(
                     opacity: _textFade.value,
                     child: Text(
-                      'SkyCheck',
+                      'UZDF',
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 42,
@@ -340,13 +386,14 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               FadeTransition(
                 opacity: _subtitleFade,
                 child: Text(
-                  'УЗБЕКИСТАН',
+                  'Uzbekistan Drone Federation',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: FontWeight.w800,
                     color: subtitleColor.withValues(alpha: 0.9),
-                    letterSpacing: 8,
+                    letterSpacing: 1.5,
                   ),
                 ),
               ),
@@ -377,8 +424,51 @@ class _MainNavigationState extends State<MainNavigation> {
     const ProfileScreen(),
   ];
 
+  Widget _buildNavIcon(IconData icon, int index, bool isDark) {
+    final isSelected = _currentIndex == index;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        setState(() => _currentIndex = index);
+      },
+      child: Container(
+        width: 56,
+        height: 56,
+        color: Colors.transparent, // Expand hit test target
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            AnimatedContainer(
+              duration: kNormal,
+              curve: kSpring,
+              width: isSelected ? 48 : 0,
+              height: isSelected ? 48 : 0,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF007AFF).withOpacity(0.2),
+              ),
+            ),
+            AnimatedScale(
+              scale: isSelected ? 1.15 : 1.0,
+              duration: kNormal,
+              curve: kBounce,
+              child: Icon(
+                icon,
+                color: isSelected
+                    ? const Color(0xFF007AFF)
+                    : Colors.white.withOpacity(0.45),
+                size: 24,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ValueListenableBuilder<String?>(
       valueListenable: ApiService.tokenNotifier,
       builder: (context, token, child) {
@@ -395,22 +485,36 @@ class _MainNavigationState extends State<MainNavigation> {
         return ValueListenableBuilder<String>(
           valueListenable: AppState().currentLanguage,
           builder: (context, lang, child) {
-            final state = AppState();
             return Scaffold(
-              body: IndexedStack(
-                index: _currentIndex,
-                children: _screens,
-              ),
-              bottomNavigationBar: BottomNavigationBar(
-                currentIndex: _currentIndex,
-                onTap: (index) => setState(() => _currentIndex = index),
-                items: [
-                  BottomNavigationBarItem(icon: const Icon(Icons.school), label: state.translate('nav_courses')),
-                  BottomNavigationBarItem(icon: const Icon(Icons.article), label: state.translate('nav_news')),
-                  BottomNavigationBarItem(icon: const Icon(Icons.map), label: state.translate('nav_map')),
-                  BottomNavigationBarItem(icon: const Icon(Icons.shopping_cart), label: state.translate('nav_shop')),
-                  BottomNavigationBarItem(icon: const Icon(Icons.person), label: state.translate('nav_profile')),
-                ],
+              body: LiquidBackground(
+                child: Stack(
+                  children: [
+                    IndexedStack(
+                      index: _currentIndex,
+                      children: _screens,
+                    ),
+                    Positioned(
+                      left: 20,
+                      right: 20,
+                      bottom: 24,
+                      child: LiquidGlassCard(
+                        borderRadius: 36,
+                        height: 68,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildNavIcon(Icons.school, 0, isDark),
+                            _buildNavIcon(Icons.article, 1, isDark),
+                            _buildNavIcon(Icons.map, 2, isDark),
+                            _buildNavIcon(Icons.shopping_cart, 3, isDark),
+                            _buildNavIcon(Icons.person, 4, isDark),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },

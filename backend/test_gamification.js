@@ -76,7 +76,7 @@ async function runTests() {
     // 1. Login as admin user
     console.log('\n1. Logging in as admin...');
     const loginRes = await post('/auth/login', {
-      email: 'admin@skycheck.uz',
+      email: 'admin@uzdf.uz',
       password: 'admin123'
     });
     

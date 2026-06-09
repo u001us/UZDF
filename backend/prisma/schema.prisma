@@ -12,7 +12,7 @@ model User {
   email     String   @unique
   password  String
   name      String
-  role      String   @default("user") // "user" | "admin"
+  role      String   @default("user") // "user" | "superuser" | "support" | "supersupport" | "admin" | "superadmin"
   avatar    String?
   phone     String?
   language  String   @default("ru")
@@ -25,6 +25,10 @@ model User {
   level        Int               @default(1)
   achievements UserAchievement[]
 
+  // Course lives system (hearts ❤️)
+  courseLives     Int       @default(3)
+  livesRestoredAt DateTime?
+
   // Security and admin properties
   isBlocked      Boolean              @default(false)
   blockedAt      DateTime?
@@ -36,6 +40,7 @@ model User {
   lessonProgress UserLessonProgress[]
   courseBlocks   UserCourseBlock[]
   violations     ScreenshotViolation[]
+  telegramReplies TelegramMessage[]   @relation("AdminReplies")
 }
 
 model Zone {
@@ -92,6 +97,7 @@ model Product {
   imageUrl    String?
   images      String[]    @default([])
   stock       Int         @default(0)
+  isDeleted   Boolean     @default(false)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   orders      OrderItem[]
@@ -238,4 +244,32 @@ model ScreenshotViolation {
   stepId    Int
   step      CourseStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
   timestamp DateTime   @default(now())
+}
+
+model TelegramUser {
+  id        BigInt   @id
+  username  String?
+  firstName String?
+  lastName  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  messages  TelegramMessage[]
+}
+
+model TelegramMessage {
+  id             Int          @id @default(autoincrement())
+  telegramUserId BigInt
+  telegramUser   TelegramUser @relation(fields: [telegramUserId], references: [id], onDelete: Cascade)
+  text           String
+  isFromUser     Boolean
+  adminId        Int?
+  admin          User?        @relation("AdminReplies", fields: [adminId], references: [id])
+  createdAt      DateTime     @default(now())
+}
+
+model TelegramBotLog {
+  id        Int      @id @default(autoincrement())
+  level     String
+  message   String
+  createdAt DateTime @default(now())
 }

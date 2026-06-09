@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'app_state.dart';
 import 'api_service.dart';
+import 'glass_widgets.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -16,161 +18,229 @@ class SettingsScreen extends StatelessWidget {
             final state = AppState();
 
             return Scaffold(
-              appBar: AppBar(
+              appBar: GlassAppBar(
                 title: Text(
                   state.translate('settings_title'),
-                  style: const TextStyle(fontWeight: FontWeight.w900),
+                  style: const TextStyle(fontWeight: FontWeight.w400, letterSpacing: -0.5),
                 ),
-                backgroundColor: Colors.transparent,
-                elevation: 0,
               ),
               body: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 children: [
-                  const SizedBox(height: 16),
-                  Center(
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundColor: const Color(0xFF2563EB),
-                      child: Text(
-                        'U',
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.white,
+                  // Profile Quick Panel
+                  GlassContainer(
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF007AFF).withOpacity(0.15),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: const Color(0xFF007AFF), width: 1.5),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'U',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF007AFF),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 16),
+                        Text(
+                          "Иван Иванов",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          "+998 90 123 45 67",
+                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: Text(
-                      "Иван Иванов",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                  ),
-                  const Center(
-                    child: Text(
-                      "+998 90 123 45 67",
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 24),
                   
-                  // Theme toggler
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF111111) : Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: isDark ? const Color(0xFF222222) : const Color(0xFFE5E7EB)),
-                    ),
-                    child: ListTile(
-                      leading: Icon(
-                        isDark ? Icons.dark_mode : Icons.light_mode,
-                        color: const Color(0xFF2563EB),
-                      ),
-                      title: Text(
-                        isDark ? state.translate('theme_dark') : state.translate('theme_light'),
-                        style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black87,
-                          fontWeight: FontWeight.w600,
+                  _buildGroupHeader('Настройки приложения'),
+                  // Group 1: Theme & Language & Connection Config
+                  _buildCardGroup(
+                    isDark: isDark,
+                    children: [
+                      // Theme toggler
+                      ListTile(
+                        leading: Icon(
+                          isDark ? Icons.dark_mode : Icons.light_mode,
+                          color: const Color(0xFF007AFF),
+                        ),
+                        title: Text(
+                          isDark ? state.translate('theme_dark') : state.translate('theme_light'),
+                          style: TextStyle(
+                            color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        trailing: Switch(
+                          value: isDark,
+                          activeThumbColor: Colors.white,
+                          activeTrackColor: const Color(0xFF007AFF),
+                          onChanged: (val) {
+                            HapticFeedback.lightImpact();
+                            state.toggleTheme();
+                          },
                         ),
                       ),
-                      trailing: Switch(
-                        value: isDark,
-                        activeTrackColor: const Color(0xFF2563EB),
-                        onChanged: (val) {
-                          state.toggleTheme();
+                      Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.15)),
+                      // Language selector
+                      ListTile(
+                        leading: const Icon(
+                          Icons.language,
+                          color: Color(0xFF007AFF),
+                        ),
+                        title: Text(
+                          state.translate('profile_lang'),
+                          style: TextStyle(
+                            color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        trailing: DropdownButton<String>(
+                          value: lang,
+                          underline: const SizedBox(),
+                          dropdownColor: isDark ? const Color(0xFF1A1F36) : Colors.white,
+                          iconEnabledColor: const Color(0xFF007AFF),
+                          style: TextStyle(
+                            color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                            fontWeight: FontWeight.bold,
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: 'ru', child: Text('RU')),
+                            DropdownMenuItem(value: 'uz', child: Text('UZ')),
+                            DropdownMenuItem(value: 'en', child: Text('EN')),
+                          ],
+                          onChanged: (newLang) {
+                            HapticFeedback.lightImpact();
+                            if (newLang != null) {
+                              state.setLanguage(newLang);
+                            }
+                          },
+                        ),
+                      ),
+                      Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.15)),
+                      // Connection config
+                      ListTile(
+                        leading: const Icon(
+                          Icons.settings,
+                          color: Color(0xFF007AFF),
+                        ),
+                        title: Text(
+                          state.translate('settings_app_config'),
+                          style: TextStyle(
+                            color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          _showConnectionDialog(context, isDark);
                         },
                       ),
-                    ),
+                    ],
                   ),
 
-                  // Language selector
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF111111) : Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: isDark ? const Color(0xFF222222) : const Color(0xFFE5E7EB)),
-                    ),
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.language,
-                        color: Color(0xFF2563EB),
-                      ),
-                      title: Text(
-                        state.translate('profile_lang'),
-                        style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black87,
-                          fontWeight: FontWeight.w600,
+                  _buildGroupHeader('Информация и действия'),
+                  // Group 2: Achievements, Cart, Support
+                  _buildCardGroup(
+                    isDark: isDark,
+                    children: [
+                      _settingItem(Icons.emoji_events, state.translate('settings_achievements'), isDark),
+                      Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.15)),
+                      _settingItem(Icons.shopping_cart, state.translate('settings_cart'), isDark),
+                      Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.15)),
+                      _settingItem(Icons.help_outline, state.translate('settings_support'), isDark),
+                    ],
+                  ),
+                  
+                  // Group 3: Logout
+                  _buildCardGroup(
+                    isDark: isDark,
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.logout, color: Colors.red),
+                        title: Text(
+                          state.translate('profile_logout'),
+                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
                         ),
-                      ),
-                      trailing: DropdownButton<String>(
-                        value: lang,
-                        underline: const SizedBox(),
-                        dropdownColor: isDark ? const Color(0xFF111111) : Colors.white,
-                        style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black87,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        items: const [
-                          DropdownMenuItem(value: 'ru', child: Text('RU')),
-                          DropdownMenuItem(value: 'uz', child: Text('UZ')),
-                          DropdownMenuItem(value: 'en', child: Text('EN')),
-                        ],
-                        onChanged: (newLang) {
-                          if (newLang != null) {
-                            state.setLanguage(newLang);
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red),
+                        onTap: () async {
+                          HapticFeedback.lightImpact();
+                          await ApiService.clearSession();
+                          if (context.mounted) {
+                            Navigator.pop(context);
                           }
                         },
                       ),
-                    ),
-                  ),
-
-                  _settingItem(Icons.emoji_events, state.translate('settings_achievements'), isDark),
-                  _settingItem(Icons.shopping_cart, state.translate('settings_cart'), isDark),
-                  _settingItem(
-                    Icons.settings,
-                    state.translate('settings_app_config'),
-                    isDark,
-                    onTap: () => _showConnectionDialog(context, isDark),
-                  ),
-                  _settingItem(Icons.help_outline, state.translate('settings_support'), isDark),
-                  const Divider(color: Color(0xFF222222)),
-                  
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF111111) : Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: isDark ? const Color(0xFF222222) : const Color(0xFFE5E7EB)),
-                    ),
-                    child: ListTile(
-                      leading: const Icon(Icons.logout, color: Colors.red),
-                      title: Text(
-                        state.translate('profile_logout'),
-                        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-                      onTap: () async {
-                        await ApiService.clearSession();
-                        if (context.mounted) {
-                          Navigator.pop(context);
-                        }
-                      },
-                    ),
+                    ],
                   ),
                 ],
               ),
             );
           },
         );
+      },
+    );
+  }
+
+  Widget _buildGroupHeader(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, bottom: 8),
+      child: Text(
+        text.toUpperCase(),
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey.withOpacity(0.8),
+          letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardGroup({required List<Widget> children, required bool isDark}) {
+    return GlassContainer(
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: EdgeInsets.zero,
+      child: Column(
+        children: children,
+      ),
+    );
+  }
+
+  Widget _settingItem(IconData icon, String title, bool isDark, {VoidCallback? onTap}) {
+    return ListTile(
+      leading: Icon(icon, color: const Color(0xFF007AFF)),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        if (onTap != null) {
+          onTap();
+        }
       },
     );
   }
@@ -185,158 +255,144 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder: (context) {
         return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: isDark ? const Color(0xFF111111) : Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(color: isDark ? const Color(0xFF222222) : const Color(0xFFE5E7EB)),
-              ),
-              title: const Row(
-                children: [
-                  Icon(Icons.wifi, color: Color(0xFF2563EB)),
-                  SizedBox(width: 10),
-                  Text(
-                    'Подключение к ПК',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  FutureBuilder<String>(
-                    future: ApiService.getBaseUrl(),
-                    builder: (context, snapshot) {
-                      final url = snapshot.data ?? 'Определяется...';
-                      return Text(
-                        'Текущий адрес: $url',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: isDark ? Colors.grey : Colors.black54,
+          builder: (context, setStateDialog) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              child: GlassContainer(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.wifi, color: Color(0xFF007AFF)),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Подключение к ПК',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                          ),
                         ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Введите IP-адрес вашего компьютера:',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: controller,
-                    style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                    decoration: InputDecoration(
-                      hintText: 'например, 192.168.1.100:3000',
-                      hintStyle: const TextStyle(color: Colors.grey),
-                      filled: true,
-                      fillColor: isDark ? const Color(0xFF1B1B1B) : const Color(0xFFF3F4F6),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      ],
                     ),
-                  ),
-                  if (statusMessage.isNotEmpty) ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
+                    FutureBuilder<String>(
+                      future: ApiService.getBaseUrl(),
+                      builder: (context, snapshot) {
+                        final url = snapshot.data ?? 'Определяется...';
+                        return Text(
+                          'Текущий адрес: $url',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDark ? Colors.white.withOpacity(0.6) : Colors.black54,
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     Text(
-                      statusMessage,
-                      style: TextStyle(color: statusColor, fontSize: 13, fontWeight: FontWeight.w500),
+                      'Введите IP-адрес вашего компьютера:',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                      ),
                     ),
-                  ],
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () async {
-                    await ApiService.resetBaseUrl();
-                    if (context.mounted) {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Сброшено к автоматическому поиску')),
-                      );
-                    }
-                  },
-                  child: const Text('Сбросить', style: TextStyle(color: Colors.grey)),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  onPressed: isTesting
-                      ? null
-                      : () async {
-                          final input = controller.text.trim();
-                          if (input.isEmpty) return;
-                          setState(() {
-                            isTesting = true;
-                            statusMessage = 'Проверка подключения...';
-                            statusColor = const Color(0xFF2563EB);
-                          });
-                          final success = await ApiService.testAndSetCustomBaseUrl(input);
-                          setState(() {
-                            isTesting = false;
-                          });
-                          if (success) {
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: controller,
+                      style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
+                      decoration: getGlassInputDecoration(
+                        hintText: 'например, 192.168.1.100:3000',
+                        context: context,
+                      ),
+                    ),
+                    if (statusMessage.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        statusMessage,
+                        style: TextStyle(color: statusColor, fontSize: 13, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () async {
+                            HapticFeedback.lightImpact();
+                            await ApiService.resetBaseUrl();
                             if (context.mounted) {
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  backgroundColor: Colors.green,
-                                  content: Text('Подключено! Новый адрес сохранен.'),
-                                ),
+                                const SnackBar(content: Text('Сброшено к автоматическому поиску')),
                               );
                             }
-                          } else {
-                            setState(() {
-                              statusMessage = '❌ Ошибка соединения! Проверьте IP и Firewall на ПК.';
-                              statusColor = Colors.red;
-                            });
-                          }
-                        },
-                  child: isTesting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
+                          },
+                          child: const Text('Сбросить', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 120,
+                          child: GlassButton(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            onPressed: isTesting
+                                ? null
+                                : () async {
+                                    final input = controller.text.trim();
+                                    if (input.isEmpty) return;
+                                    setStateDialog(() {
+                                      isTesting = true;
+                                      statusMessage = 'Проверка подключения...';
+                                      statusColor = const Color(0xFF007AFF);
+                                    });
+                                    final success = await ApiService.testAndSetCustomBaseUrl(input);
+                                    setStateDialog(() {
+                                      isTesting = false;
+                                    });
+                                    if (success) {
+                                      if (context.mounted) {
+                                        Navigator.pop(context);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            backgroundColor: Colors.green,
+                                            content: Text('Подключено! Новый адрес сохранен.'),
+                                          ),
+                                        );
+                                      }
+                                    } else {
+                                      setStateDialog(() {
+                                        statusMessage = '❌ Ошибка соединения! Проверьте IP и Firewall на ПК.';
+                                        statusColor = Colors.red;
+                                      });
+                                    }
+                                  },
+                            child: isTesting
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Text('Сохранить', style: TextStyle(fontSize: 14)),
                           ),
-                        )
-                      : const Text('Сохранить', style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
+              ),
             );
           },
         );
       },
-    );
-  }
-
-  Widget _settingItem(IconData icon, String title, bool isDark, {VoidCallback? onTap}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF111111) : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isDark ? const Color(0xFF222222) : const Color(0xFFE5E7EB)),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: const Color(0xFF2563EB)),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isDark ? Colors.white : Colors.black87,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-        onTap: onTap ?? () {},
-      ),
     );
   }
 }

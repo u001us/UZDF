@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'glass_widgets.dart';
 import 'api_service.dart';
 
 class MapScreen extends StatefulWidget {
@@ -247,7 +249,7 @@ class _MapScreenState extends State<MapScreen> {
     setState(() {
       _isWeatherLoaded = true;
       _weatherData = {
-        'temp': '${tempBase}°C',
+        'temp': '$tempBase°C',
         'humidity': '$humidity%',
         'wind': '${windSpeed.toStringAsFixed(1)} м/с',
         'windDirection': 'СВ',
@@ -296,16 +298,18 @@ class _MapScreenState extends State<MapScreen> {
 
   void _showZoneDetails(String name, String type, String maxAltitude) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    HapticFeedback.lightImpact();
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDark ? const Color(0xFF0A0D1A) : Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      backgroundColor: Colors.transparent,
+      elevation: 0,
       builder: (context) {
         Color badgeColor = Colors.red;
         if (type == 'GREEN') badgeColor = Colors.green;
         if (type == 'YELLOW') badgeColor = Colors.amber;
 
-        return Padding(
+        return GlassContainer(
+          borderRadius: 22,
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -350,14 +354,11 @@ class _MapScreenState extends State<MapScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0066FF),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  elevation: 0,
-                ),
-                onPressed: () => Navigator.pop(context),
+              GlassButton(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.pop(context);
+                },
                 child: const Text('Понятно', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ],
@@ -378,14 +379,13 @@ class _MapScreenState extends State<MapScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Карта зон БПЛА', style: TextStyle(fontWeight: FontWeight.w900)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+      appBar: GlassAppBar(
+        title: const Text('Карта зон БПЛА', style: TextStyle(fontWeight: FontWeight.w400, letterSpacing: -0.5)),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
+              HapticFeedback.lightImpact();
               setState(() => _isLoading = true);
               _loadZones();
             },
@@ -405,45 +405,36 @@ class _MapScreenState extends State<MapScreen> {
                   myLocationEnabled: true,
                   myLocationButtonEnabled: false,
                   zoomControlsEnabled: false,
-                  style: isDark ? _darkMapStyle : '[]',
                 ),
 
-          // Floating Controls (Weather toggle)
+          // Weather floating button over map
           Positioned(
+            top: 16,
             right: 16,
-            bottom: 106,
             child: FloatingActionButton.small(
               heroTag: 'weatherBtn',
               backgroundColor: _isWeatherPanelOpen
-                  ? const Color(0xFF0066FF)
-                  : (isDark ? const Color(0xFF0A0D1A) : Colors.white),
+                  ? const Color(0xFF007AFF)
+                  : (isDark ? Colors.white.withOpacity(0.12) : Colors.white.withOpacity(0.6)),
               foregroundColor: _isWeatherPanelOpen
                   ? Colors.white
-                  : (isDark ? Colors.white : Colors.black87),
-              onPressed: _toggleWeatherPanel,
+                  : (isDark ? Colors.white : const Color(0xFF1C1C1E)),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                _toggleWeatherPanel();
+              },
               child: const Icon(Icons.cloud_outlined),
             ),
           ),
 
           // Legend bar
           Positioned(
-            bottom: 24,
+            bottom: 80,
             left: 24,
             right: 24,
-            child: Container(
+            child: GlassContainer(
+              borderRadius: 16,
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0A0D1A) : Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -462,15 +453,9 @@ class _MapScreenState extends State<MapScreen> {
               minChildSize: 0.35,
               maxChildSize: 0.75,
               builder: (context, scrollController) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF0A0D1A) : Colors.white,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                    border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black38, blurRadius: 20, offset: Offset(0, -4)),
-                    ],
-                  ),
+                return GlassContainer(
+                  borderRadius: 22,
+                  padding: EdgeInsets.zero,
                   child: ListView(
                     controller: scrollController,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -499,7 +484,7 @@ class _MapScreenState extends State<MapScreen> {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 17,
-                                  color: isDark ? Colors.white : Colors.black87,
+                                  color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                                 ),
                               ),
                             ],
@@ -507,7 +492,10 @@ class _MapScreenState extends State<MapScreen> {
                           IconButton(
                             icon: const Icon(Icons.close, size: 20),
                             color: Colors.grey,
-                            onPressed: () => setState(() => _isWeatherPanelOpen = false),
+                            onPressed: () {
+                              HapticFeedback.lightImpact();
+                              setState(() => _isWeatherPanelOpen = false);
+                            },
                           ),
                         ],
                       ),
@@ -521,7 +509,7 @@ class _MapScreenState extends State<MapScreen> {
                         const Center(
                           child: Padding(
                             padding: EdgeInsets.all(20.0),
-                            child: CircularProgressIndicator(color: Color(0xFF0066FF)),
+                            child: CircularProgressIndicator(color: Color(0xFF007AFF)),
                           ),
                         )
                       else ...[
@@ -529,9 +517,9 @@ class _MapScreenState extends State<MapScreen> {
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: (_weatherData!['verdictColor'] as Color).withValues(alpha: 0.1),
+                            color: (_weatherData!['verdictColor'] as Color).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: (_weatherData!['verdictColor'] as Color).withValues(alpha: 0.3)),
+                            border: Border.all(color: (_weatherData!['verdictColor'] as Color).withOpacity(0.3)),
                           ),
                           child: Text(
                             _weatherData!['verdict'],
@@ -565,15 +553,13 @@ class _MapScreenState extends State<MapScreen> {
                         const SizedBox(height: 16),
 
                         // Flight suitability score
-                        Container(
+                        GlassContainer(
                           padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF0A1A30) : const Color(0xFFF0F6FF),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          borderRadius: 12,
+                          opacity: isDark ? 0.05 : 0.35,
                           child: Row(
                             children: [
-                              const Icon(Icons.flight_takeoff, color: Color(0xFF0066FF)),
+                              const Icon(Icons.flight_takeoff, color: Color(0xFF007AFF)),
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Column(
@@ -583,7 +569,7 @@ class _MapScreenState extends State<MapScreen> {
                                       'Пригодность для БПЛА',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: isDark ? Colors.white : Colors.black87,
+                                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                                         fontSize: 13,
                                       ),
                                     ),
@@ -615,13 +601,10 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Widget _buildWeatherCard(String label, String value, IconData icon, Color color, bool isDark) {
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0D1628) : const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-      ),
+      borderRadius: 12,
+      opacity: isDark ? 0.08 : 0.4,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -632,7 +615,7 @@ class _MapScreenState extends State<MapScreen> {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black87,
+              color: isDark ? Colors.white : const Color(0xFF1C1C1E),
             ),
           ),
           const SizedBox(height: 2),

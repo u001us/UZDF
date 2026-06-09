@@ -25,7 +25,7 @@ subprojects {
             val android = extensions.findByName("android") as? com.android.build.gradle.BaseExtension
             android?.let {
                 if (it.namespace == null) {
-                    it.namespace = "uz.skycheck." + project.name.replace("-", "_").replace(".", "_")
+                    it.namespace = "uz.uzdf." + project.name.replace("-", "_").replace(".", "_")
                 }
             }
         }

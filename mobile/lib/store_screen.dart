@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'app_state.dart';
 import 'api_service.dart';
+import 'glass_widgets.dart';
 
 class StoreScreen extends StatefulWidget {
   const StoreScreen({super.key});
@@ -33,22 +35,26 @@ class _StoreScreenState extends State<StoreScreen> {
         final isDark = Theme.of(context).brightness == Brightness.dark;
 
         return Scaffold(
-          appBar: AppBar(
+          appBar: GlassAppBar(
             title: Text(
               state.translate('shop_title'),
-              style: const TextStyle(fontWeight: FontWeight.w900),
+              style: const TextStyle(fontWeight: FontWeight.w400, letterSpacing: -0.5),
             ),
-            backgroundColor: Colors.transparent,
-            elevation: 0,
             actions: [
               IconButton(
                 icon: const Icon(Icons.refresh),
-                onPressed: _refreshProducts,
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _refreshProducts();
+                },
               )
             ],
           ),
           body: RefreshIndicator(
-            onRefresh: () async => _refreshProducts(),
+            onRefresh: () async {
+              HapticFeedback.lightImpact();
+              _refreshProducts();
+            },
             child: FutureBuilder<List<dynamic>>(
               future: _productsFuture,
               builder: (context, snapshot) {
@@ -79,38 +85,28 @@ class _StoreScreenState extends State<StoreScreen> {
                     final inStock = (p['stock'] as int? ?? 0) > 0;
                     return GestureDetector(
                       onTap: () {
+                        HapticFeedback.lightImpact();
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => ProductDetailScreen(productId: p['id']),
+                          GlassRoute(
+                            page: ProductDetailScreen(productId: p['id']),
                           ),
                         );
                       },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF0A0D1A) : Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isDark ? Colors.black26 : Colors.black12,
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            )
-                          ],
-                        ),
+                      child: GlassContainer(
+                        padding: EdgeInsets.zero,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Expanded(
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: isDark ? const Color(0xFF050814) : const Color(0xFFF1F5F9),
-                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                  color: isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.2),
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
                                 ),
                                 child: p['imageUrl'] != null && (p['imageUrl'] as String).isNotEmpty
                                     ? ClipRRect(
-                                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                        borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
                                         child: Image.network(
                                           p['imageUrl'],
                                           fit: BoxFit.cover,
@@ -130,8 +126,9 @@ class _StoreScreenState extends State<StoreScreen> {
                                   Text(
                                     p['title'] as String? ?? '',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: isDark ? Colors.white : Colors.black87,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: -0.5,
+                                      color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                                       fontSize: 15,
                                     ),
                                     maxLines: 1,
@@ -140,7 +137,7 @@ class _StoreScreenState extends State<StoreScreen> {
                                   const SizedBox(height: 4),
                                   Text(
                                     '\$${p['price']}',
-                                    style: const TextStyle(color: Color(0xFF0066FF), fontWeight: FontWeight.w900, fontSize: 16),
+                                    style: const TextStyle(color: Color(0xFF007AFF), fontWeight: FontWeight.w900, fontSize: 16),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
@@ -205,13 +202,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Scaffold(
-                appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
+                appBar: GlassAppBar(title: const Text('')),
                 body: const Center(child: CircularProgressIndicator()),
               );
             }
             if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
               return Scaffold(
-                appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
+                appBar: GlassAppBar(title: const Text('')),
                 body: const Center(child: Text('Товар не найден', style: TextStyle(color: Colors.grey))),
               );
             }
@@ -222,14 +219,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             final inStock = stock > 0;
 
             return Scaffold(
-              appBar: AppBar(
-                title: Text(product['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
-                backgroundColor: Colors.transparent,
-                elevation: 0,
+              appBar: GlassAppBar(
+                title: Text(product['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w400, letterSpacing: -0.5)),
                 actions: [
                   IconButton(
                     icon: const Icon(Icons.refresh),
-                    onPressed: _refreshDetail,
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      _refreshDetail();
+                    },
                   )
                 ],
               ),
@@ -238,23 +236,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
+                    GlassContainer(
                       height: 300,
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF0A0D1A) : const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: isDark ? Colors.black26 : Colors.black12,
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          )
-                        ],
-                      ),
+                      padding: EdgeInsets.zero,
                       child: product['imageUrl'] != null && (product['imageUrl'] as String).isNotEmpty
                           ? ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(22),
                               child: Image.network(
                                 product['imageUrl'],
                                 fit: BoxFit.cover,
@@ -270,14 +257,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       product['title'] ?? '',
                       style: TextStyle(
                         fontSize: 28,
-                        fontWeight: FontWeight.w900,
-                        color: isDark ? Colors.white : Colors.black87,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
+                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       '\$${product['price']}',
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF0066FF)),
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF007AFF)),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -287,18 +275,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     const SizedBox(height: 16),
                     Text(
                       product['description'] ?? 'Нет описания.',
-                      style: const TextStyle(color: Colors.grey, height: 1.6),
+                      style: TextStyle(color: isDark ? Colors.white.withOpacity(0.7) : Colors.black54, height: 1.6),
                     ),
                     const SizedBox(height: 24),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0066FF),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        elevation: 0,
-                      ),
+                    GlassButton(
                       onPressed: inStock
                           ? () {
+                              HapticFeedback.lightImpact();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Товар добавлен в корзину')),
                               );
@@ -315,7 +298,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -330,21 +313,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         final name = userMap['name'] ?? 'Аноним';
                         final ratingStars = '★' * (rev['rating'] as int? ?? 5);
 
-                        return Container(
+                        return GlassContainer(
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF0A0D1A) : Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: isDark ? Colors.black12 : Colors.black12,
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              )
-                            ],
-                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -352,14 +323,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 name,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : Colors.black87,
+                                  color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                                 ),
                               ),
                               Text(ratingStars, style: const TextStyle(color: Colors.amber)),
                               const SizedBox(height: 8),
                               Text(
                                 rev['comment'] ?? '',
-                                style: const TextStyle(color: Colors.grey),
+                                style: TextStyle(color: isDark ? Colors.white.withOpacity(0.7) : Colors.black54),
                               ),
                             ],
                           ),
@@ -375,4 +346,3 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 }
-

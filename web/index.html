@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SkyCheck — Безопасные полёты БПЛА в Узбекистане</title>
-  <meta name="description" content="SkyCheck — интерактивная карта зон полетов дронов, курсы пилотирования, магазин оборудования и сертификация пилотов БПЛА.">
+  <title>UZDF — Безопасные полёты БПЛА в Узбекистане</title>
+  <meta name="description" content="UZDF — интерактивная карта зон полетов дронов, курсы пилотирования, магазин оборудования и сертификация пилотов БПЛА.">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -13,13 +13,14 @@
 
 <!-- NAVBAR -->
 <nav class="navbar">
-  <div class="navbar-logo" onclick="showPage('home')">✈ SkyCheck</div>
+  <div class="navbar-logo" onclick="showPage('home')">✈ UZDF</div>
   <div class="navbar-links" id="navbar-links">
     <a onclick="showPage('home')" id="nav-home" class="active" data-i18n="nav_home">Главная</a>
     <a onclick="showPage('news')" id="nav-news" data-i18n="nav_news">Новости</a>
     <a onclick="showPage('map')" id="nav-map" data-i18n="nav_map">Карта</a>
     <a onclick="showPage('courses')" id="nav-courses" data-i18n="nav_courses">Курсы</a>
     <a onclick="showPage('shop')" id="nav-shop" data-i18n="nav_shop">Магазин</a>
+    <a onclick="showPage('faq')" id="nav-faq" data-i18n="nav_faq">FAQ</a>
     <a onclick="showPage('login')" id="nav-login" class="btn-login" data-i18n="nav_login">Войти</a>
     <a onclick="showPage('profile')" id="nav-profile" class="btn-profile" style="display:none" data-i18n="nav_profile">Профиль</a>
   </div>
@@ -40,7 +41,7 @@
 <div class="page" id="page-login">
   <div class="login-page">
     <div class="login-card">
-      <h2 id="login-header-title">✈ Sky<span>Check</span></h2>
+      <h2 id="login-header-title">✈ UZDF</h2>
       <p id="login-header-sub" data-i18n="login_sub">Войдите в аккаунт пилота БПЛА</p>
       <div class="login-tabs">
         <button class="login-tab active" onclick="switchTab('signin')" id="tab-btn-signin" data-i18n="login_tab_signin">Войти</button>
@@ -52,7 +53,7 @@
       <div id="tab-signin">
         <div class="form-group">
           <label data-i18n="form_email">Email</label>
-          <input type="email" id="signin-email" placeholder="pilot@skycheck.uz">
+          <input type="email" id="signin-email" placeholder="pilot@uzdf.uz">
         </div>
         <div class="form-group">
           <label data-i18n="form_password">Пароль</label>
@@ -74,7 +75,7 @@
           </div>
           <div class="form-group">
             <label data-i18n="form_email">Email</label>
-            <input type="email" id="signup-email" placeholder="pilot@skycheck.uz">
+            <input type="email" id="signup-email" placeholder="pilot@uzdf.uz">
           </div>
           <div class="form-group">
             <label data-i18n="form_password">Пароль</label>
@@ -186,7 +187,7 @@
     <div class="section-header">
       <div>
         <div class="section-eyebrow" data-i18n="section_about_eyebrow">О нас</div>
-        <h2 class="section-title" data-i18n="section_about_title">Познакомьтесь с <span class="blue">SkyCheck</span></h2>
+        <h2 class="section-title" data-i18n="section_about_title">Познакомьтесь с <span class="blue">UZDF</span></h2>
       </div>
     </div>
     <div class="about-rows" id="about-rows-container">
@@ -198,7 +199,7 @@
   <footer class="footer-main">
     <div class="footer-grid">
       <div class="footer-col">
-        <div class="footer-logo">✈ SkyCheck</div>
+        <div class="footer-logo" style="display:flex; align-items:center; gap:8px;"><img src="img/logo.png" alt="Logo" style="height:32px; object-fit:contain;"><span>UZDF</span></div>
         <p style="color:var(--text-muted); font-size:0.9rem; margin-top:12px; line-height:1.6" data-i18n="footer_sub">Платформа мониторинга полетных зон и сертификации пилотов гражданских БПЛА в Узбекистане.</p>
         <div style="display:flex; gap:12px; margin-top:20px">
           <a href="https://instagram.com" target="_blank" style="text-decoration:none; font-size:1.5rem">📸</a>
@@ -221,7 +222,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <div class="footer-copy" data-i18n="footer_copy">© 2024 SkyCheck. Все права защищены.</div>
+      <div class="footer-copy" data-i18n="footer_copy">© 2024 UZDF. Все права защищены.</div>
     </div>
   </footer>
 </div>
@@ -413,9 +414,14 @@
     <div id="course-viewer-view" style="display:none">
       <button class="back-btn" onclick="showCoursesList()" data-i18n="btn_back">← Назад</button>
       <div class="course-viewer">
-        <div class="course-viewer-header">
-          <h2 id="viewer-title" style="font-size:1.8rem; font-weight:700"></h2>
-          <p id="viewer-desc" style="color:var(--text-muted); margin-top:8px"></p>
+        <div class="course-viewer-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <h2 id="viewer-title" style="font-size:1.8rem; font-weight:700"></h2>
+            <p id="viewer-desc" style="color:var(--text-muted); margin-top:8px"></p>
+          </div>
+          <div id="viewer-lives" style="display:flex; align-items:center; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); padding:6px 12px; border-radius:20px; font-weight:bold; color:#EF4444; font-size:0.95rem;">
+            <span style="margin-right:6px">❤️</span> <span id="viewer-lives-count">3</span>
+          </div>
         </div>
         <div class="steps-nav" id="steps-nav"></div>
         <div class="step-content-box" id="step-content" style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:32px; margin-top:24px; position:relative"></div>
@@ -525,7 +531,7 @@
         <div class="profile-avatar-box">
           <div class="profile-avatar" id="prof-avatar-placeholder">U</div>
           <h3 class="profile-name" id="prof-display-name">Пилот</h3>
-          <p class="profile-email" id="prof-display-email">pilot@skycheck.uz</p>
+          <p class="profile-email" id="prof-display-email">pilot@uzdf.uz</p>
         </div>
         
         <!-- EXP & LEVEL PROGRESS -->
@@ -537,6 +543,14 @@
           <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden">
             <div id="prof-exp-fill" style="width:0%; height:100%; background:var(--blue); transition:width 0.4s ease"></div>
           </div>
+        </div>
+
+        <!-- LIVES SYSTEM (HEARTS ❤️) -->
+        <div id="prof-lives-box" style="margin:20px 0; border:1px solid rgba(239,68,68,0.2); border-radius:8px; padding:16px; background:rgba(239,68,68,0.05); display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-weight:700; font-size:0.9rem; color:#EF4444; display:flex; align-items:center;">
+            <span style="margin-right:6px">❤️</span> <span data-i18n="profile_lives_title">Попытки / Жизни</span>
+          </span>
+          <span id="prof-lives-count" style="font-weight:800; font-size:1.1rem; color:#EF4444">3</span>
         </div>
 
         <nav class="profile-nav" style="display:flex; flex-direction:column; gap:8px">
@@ -593,6 +607,140 @@
   </div>
 </div>
 
+<!-- PAGE: FAQ -->
+<div class="page" id="page-faq">
+  <div class="section">
+    <div class="faq-container">
+      <div class="section-eyebrow" data-i18n="faq_eyebrow">Инструкция</div>
+      <h2 class="section-title" data-i18n="faq_title">Инструкция и <span class="blue">FAQ</span></h2>
+      <p class="faq-desc" data-i18n="faq_desc">Ответы на часто задаваемые вопросы о правилах полетов, системе попыток и использовании платформы UZDF Uzbekistan.</p>
+      
+      <div class="faq-grid">
+        <!-- Category 1 -->
+        <div class="faq-category-card">
+          <div class="faq-cat-header">
+            <span class="faq-cat-icon">🛸</span>
+            <h3 data-i18n="faq_cat_general">Общие вопросы</h3>
+          </div>
+          <div class="accordion">
+            <div class="accordion-item">
+              <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span data-i18n="faq_q1">Что такое UZDF Uzbekistan?</span>
+                <span class="accordion-icon">＋</span>
+              </button>
+              <div class="accordion-body">
+                <p data-i18n="faq_a1">Это единая цифровая платформа для пилотов БПЛА (дронов) в Узбекистане, помогающая летать безопасно, изучать правила воздушного пространства, проходить обучение и приобретать сертифицированное оборудование.</p>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span data-i18n="faq_q2">Как начать пользоваться платформой?</span>
+                <span class="accordion-icon">＋</span>
+              </button>
+              <div class="accordion-body">
+                <p data-i18n="faq_a2">Зарегистрируйтесь в приложении или на сайте с помощью Email. После этого вам станут доступны интерактивная карта зон и обучающие курсы.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category 2 -->
+        <div class="faq-category-card">
+          <div class="faq-cat-header">
+            <span class="faq-cat-icon">🗺</span>
+            <h3 data-i18n="faq_cat_zones">Карта полетных зон</h3>
+          </div>
+          <div class="accordion">
+            <div class="accordion-item">
+              <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span data-i18n="faq_q3">Что означают цвета зон на карте?</span>
+                <span class="accordion-icon">＋</span>
+              </button>
+              <div class="accordion-body">
+                <p data-i18n="faq_a3">Красная зона (🔴 RED): Полеты категорически запрещены. Желтая зона (🟡 YELLOW): Полеты ограничены по высоте (обычно до 50м) или требуют согласования. Зеленая зона (🟢 GREEN): Свободные полеты в соответствии с общими правилами БПЛА.</p>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span data-i18n="faq_q4">Как узнать точную разрешенную высоту?</span>
+                <span class="accordion-icon">＋</span>
+              </button>
+              <div class="accordion-body">
+                <p data-i18n="faq_a4">Кликните на интересующую зону на карте, чтобы открыть детальную карточку с информацией о названии зоны и максимальной разрешенной высоте полета.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category 3 -->
+        <div class="faq-category-card">
+          <div class="faq-cat-header">
+            <span class="faq-cat-icon">❤️</span>
+            <h3 data-i18n="faq_cat_courses">Курсы и Попытки</h3>
+          </div>
+          <div class="accordion">
+            <div class="accordion-item">
+              <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span data-i18n="faq_q5">Как устроена система попыток (❤️)?</span>
+                <span class="accordion-icon">＋</span>
+              </button>
+              <div class="accordion-body">
+                <p data-i18n="faq_a5">Каждому пилоту дается 3 попытки (жизни). При совершении хотя бы одной ошибки в тесте или при фиксации нарушений (скриншоты/запись экрана) сгорает 1 жизнь. Раз в 24 часа автоматически восстанавливается +1 жизнь (максимум до 3х).</p>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span data-i18n="faq_q6">За что блокируется доступ к обучению?</span>
+                <span class="accordion-icon">＋</span>
+              </button>
+              <div class="accordion-body">
+                <p data-i18n="faq_a6">В целях защиты учебных материалов съемка скриншотов или запись экрана в приложении запрещены. При фиксации 5 нарушений доступ к курсу автоматически блокируется на 24 часа.</p>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span data-i18n="faq_q7">Как получить цифровой сертификат?</span>
+                <span class="accordion-icon">＋</span>
+              </button>
+              <div class="accordion-body">
+                <p data-i18n="faq_a7">Успешно завершите все уроки курса и сдайте финальный экзамен (порог сдачи — не менее 95% правильных ответов). Сертификат с уникальным UUID появится в вашем профиле.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category 4 -->
+        <div class="faq-category-card">
+          <div class="faq-cat-header">
+            <span class="faq-cat-icon">🛒</span>
+            <h3 data-i18n="faq_cat_shop">Магазин и Заказы</h3>
+          </div>
+          <div class="accordion">
+            <div class="accordion-item">
+              <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span data-i18n="faq_q8">Как купить дрон или комплектующие?</span>
+                <span class="accordion-icon">＋</span>
+              </button>
+              <div class="accordion-body">
+                <p data-i18n="faq_a8">Перейдите в раздел «Магазин», выберите товар и нажмите кнопку оформления. Ваш заказ будет сохранен.</p>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header" onclick="toggleAccordion(this)">
+                <span data-i18n="faq_q9">Как указать адрес доставки?</span>
+                <span class="accordion-icon">＋</span>
+              </button>
+              <div class="accordion-body">
+                <p data-i18n="faq_a9">После оформления перейдите в профиль -> «Мои заказы», выберите ваш заказ и заполните форму доставки (Адрес, Город, Телефон).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════ MODALS ══════════════ -->
 
 <!-- TERMS MODAL -->
@@ -603,11 +751,11 @@
       <button class="cart-close" onclick="closeTermsModal()" style="position:static">✕</button>
     </div>
     <div style="flex:1; overflow-y:auto; background:var(--bg); padding:24px; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:20px">
-      <p data-i18n="terms_intro">Добро пожаловать в SkyCheck. Используя нашу платформу, вы соглашаетесь со следующими условиями:</p>
+      <p data-i18n="terms_intro">Добро пожаловать в UZDF. Используя нашу платформу, вы соглашаетесь со следующими условиями:</p>
       <p data-i18n="terms_1" style="margin-top:12px">1. Вы обязуетесь соблюдать правила полетов в Республике Узбекистан.</p>
       <p data-i18n="terms_2" style="margin-top:12px">2. Информация на карте предоставляется "как есть" и может не быть на 100% точной в каждый момент времени.</p>
       <p data-i18n="terms_3" style="margin-top:12px">3. Возврат товаров из магазина возможен в течение 14 дней в нераспечатанном виде.</p>
-      <p data-i18n="terms_4" style="margin-top:12px">4. Администрация SkyCheck не несет ответственности за нарушения правил полетов пилотами.</p>
+      <p data-i18n="terms_4" style="margin-top:12px">4. Администрация UZDF не несет ответственности за нарушения правил полетов пилотами.</p>
     </div>
     <button class="btn btn-primary" onclick="closeTermsModal()" style="justify-content:center" data-i18n="modal_close_btn">Понятно</button>
   </div>
@@ -621,7 +769,7 @@
       <button class="cart-close" onclick="closeLicenseModal()" style="position:static">✕</button>
     </div>
     <div style="flex:1; overflow-y:auto; background:var(--bg); padding:24px; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); font-size:0.9rem; line-height:1.6; margin-bottom:20px">
-      <p data-i18n="license_body_1">Платформа SkyCheck сертифицирована Агентством гражданской авиации Республики Узбекистан.</p>
+      <p data-i18n="license_body_1">Платформа UZDF сертифицирована Агентством гражданской авиации Республики Узбекистан.</p>
       <p data-i18n="license_body_2" style="margin-top:12px">Номер лицензии: № БПЛА-2024-089 от 15.05.2024.</p>
       <p data-i18n="license_body_3" style="margin-top:12px">Интерактивная карта зон мониторинга воздушного пространства обновляется ежедневно на основе данных Агентства гражданской авиации.</p>
     </div>
@@ -792,11 +940,11 @@ const translations = {
     section_courses_title: "Курсы <span>обучения</span>",
     all_courses_btn: "Все курсы →",
     section_about_eyebrow: "О нас",
-    section_about_title: "Познакомьтесь с <span class=\"blue\">SkyCheck</span>",
+    section_about_title: "Познакомьтесь с <span class=\"blue\">UZDF</span>",
     footer_sub: "Платформа мониторинга полетных зон и сертификации пилотов гражданских БПЛА в Узбекистане.",
     footer_nav_title: "Навигация",
     footer_legal_title: "Юридическая информация",
-    footer_copy: "© 2024 SkyCheck. Все права защищены.",
+    footer_copy: "© 2024 UZDF. Все права защищены.",
     profile_terms_title: "Пользовательское соглашение",
     profile_license_title: "Сведения о лицензии БПЛА",
     support_feedback_btn: "Служба поддержки",
@@ -836,12 +984,12 @@ const translations = {
     profile_tab_certs: "Сертификаты",
     profile_btn_logout: "Выйти из аккаунта",
     profile_btn_save: "Сохранить изменения",
-    terms_intro: "Добро пожаловать в SkyCheck. Используя нашу платформу, вы соглашаетесь со следующими условиями:",
+    terms_intro: "Добро пожаловать в UZDF. Используя нашу платформу, вы соглашаетесь со следующими условиями:",
     terms_1: "1. Вы обязуетесь соблюдать правила полетов в Республике Узбекистан.",
     terms_2: "2. Информация на карте предоставляется \"как есть\" и может не быть на 100% точной в каждый момент времени.",
     terms_3: "3. Возврат товаров из магазина возможен в течение 14 дней в нераспечатанном виде.",
-    terms_4: "4. Администрация SkyCheck не несет ответственности за нарушения правил полетов пилотами.",
-    license_body_1: "Платформа SkyCheck сертифицирована Агентством гражданской авиации Республики Узбекистан.",
+    terms_4: "4. Администрация UZDF не несет ответственности за нарушения правил полетов пилотами.",
+    license_body_1: "Платформа UZDF сертифицирована Агентством гражданской авиации Республики Узбекистан.",
     license_body_2: "Номер лицензии: № БПЛА-2024-089 от 15.05.2024.",
     license_body_3: "Интерактивная карта зон мониторинга воздушного пространства обновляется ежедневно на основе данных Агентства гражданской авиации.",
     cert_congrat_title: "Поздравляем с прохождением курса!",
@@ -864,7 +1012,33 @@ const translations = {
     pay_success_desc: "Ваш заказ оплачен. Мы начислили вам",
     support_message_label: "Ваше сообщение в службу поддержки",
     achievement_unlocked: "Разблокировано",
-    achievement_locked: "Заблокировано"
+    achievement_locked: "Заблокировано",
+    nav_faq: "FAQ",
+    faq_eyebrow: "Инструкция",
+    faq_title: "Инструкция и <span class=\"blue\">FAQ</span>",
+    faq_desc: "Ответы на часто задаваемые вопросы о правилах полетов, системе попыток и использовании платформы UZDF Uzbekistan.",
+    faq_cat_general: "Общие вопросы",
+    faq_q1: "Что такое UZDF Uzbekistan?",
+    faq_a1: "Это единая цифровая платформа для пилотов БПЛА (дронов) в Узбекистане, помогающая летать безопасно, изучать правила воздушного пространства, проходить обучение и приобретать сертифицированное оборудование.",
+    faq_q2: "Как начать пользоваться платформой?",
+    faq_a2: "Зарегистрируйтесь в приложении или на сайте с помощью Email. После этого вам станут доступны интерактивная карта зон и обучающие курсы.",
+    faq_cat_zones: "Карта полетных зон",
+    faq_q3: "Что означают цвета зон на карте?",
+    faq_a3: "Красная зона (🔴 RED): Полеты категорически запрещены. Желтая зона (🟡 YELLOW): Полеты ограничены по высоте (обычно до 50м) или требуют согласования. Зеленая зона (🟢 GREEN): Свободные полеты в соответствии с общими правилами БПЛА.",
+    faq_q4: "Как узнать точную разрешенную высоту?",
+    faq_a4: "Кликните на интересующую зону на карте, чтобы открыть детальную карточку с информацией о названии зоны и максимальной разрешенной высоте полета.",
+    faq_cat_courses: "Курсы и Попытки",
+    faq_q5: "Как устроена система попыток (❤️)?",
+    faq_a5: "Каждому пилоту дается 3 попытки (жизни). При совершении хотя бы одной ошибки в тесте или при фиксации нарушений (скриншоты/запись экрана) сгорает 1 жизнь. Раз в 24 часа автоматически восстанавливается +1 жизнь (максимум до 3х).",
+    faq_q6: "За что блокируется доступ к обучению?",
+    faq_a6: "В целях защиты учебных материалов съемка скриншотов или запись экрана в приложении запрещены. При фиксации 5 нарушений доступ к курсу автоматически блокируется на 24 часа.",
+    faq_q7: "Как получить цифровой сертификат?",
+    faq_a7: "Успешно завершите все уроки курса и сдайте финальный экзамен (порог сдачи — не менее 95% правильных ответов). Сертификат с уникальным UUID появится в вашем профиле.",
+    faq_cat_shop: "Магазин и Заказы",
+    faq_q8: "Как купить дрон или комплектующие?",
+    faq_a8: "Перейдите в раздел «Магазин», выберите товар и нажмите кнопку оформления. Ваш заказ будет сохранен.",
+    faq_q9: "Как указать адрес доставки?",
+    faq_a9: "После оформления перейдите в профиль -> «Мои заказы», выберите ваш заказ и заполните форму доставки (Адрес, Город, Телефон)."
   },
   uz: {
     nav_home: "Bosh sahifa",
@@ -900,11 +1074,11 @@ const translations = {
     section_courses_title: "O'qitish <span>kurslari</span>",
     all_courses_btn: "Barcha kurslar →",
     section_about_eyebrow: "Biz haqimizda",
-    section_about_title: "<span class=\"blue\">SkyCheck</span> bilan tanishing",
+    section_about_title: "<span class=\"blue\">UZDF</span> bilan tanishing",
     footer_sub: "O'zbekistonda fuqaro BPLA zonalarining monitoringi va pilotlarni sertifikatlash platformasi.",
     footer_nav_title: "Navigatsiya",
     footer_legal_title: "Yuridik ma'lumotlar",
-    footer_copy: "© 2024 SkyCheck. Barcha huquqlar himoyalangan.",
+    footer_copy: "© 2024 UZDF. Barcha huquqlar himoyalangan.",
     profile_terms_title: "Foydalanish shartlari",
     profile_license_title: "BPLA litsenziyasi haqida",
     support_feedback_btn: "Qo'llab-quvvatlash xizmati",
@@ -944,12 +1118,12 @@ const translations = {
     profile_tab_certs: "Sertifikatlar",
     profile_btn_logout: "Profildan chiqish",
     profile_btn_save: "O'zgarishlarni saqlash",
-    terms_intro: "SkyCheck platformasiga xush kelibsiz. Tizimdan foydalanish orqali siz quyidagi shartlarga rozilik bildirasiz:",
+    terms_intro: "UZDF platformasiga xush kelibsiz. Tizimdan foydalanish orqali siz quyidagi shartlarga rozilik bildirasiz:",
     terms_1: "1. O'zbekiston Respublikasida parvoz qoidalariga rioya qilishingiz shart.",
     terms_2: "2. Xaritadagi ma'lumotlar boricha taqdim etiladi va har soniyada 100% aniq bo'lmasligi mumkin.",
     terms_3: "3. Do'kondan sotib olingan tovarlarni ochilmagan holda 14 kun ichida qaytarish mumkin.",
-    terms_4: "4. SkyCheck ma'muriyati uchuvchilarning qoidabuzarliklari uchun javobgarlikni zimmasiga olmaydi.",
-    license_body_1: "SkyCheck platformasi O'zbekiston Respublikasi Fuqaro aviatsiyasi agentligi tomonidan sertifikatlangan.",
+    terms_4: "4. UZDF ma'muriyati uchuvchilarning qoidabuzarliklari uchun javobgarlikni zimmasiga olmaydi.",
+    license_body_1: "UZDF platformasi O'zbekiston Respublikasi Fuqaro aviatsiyasi agentligi tomonidan sertifikatlangan.",
     license_body_2: "Litsenziya raqami: № BPLA-2024-089 (15.05.2024 yildagi).",
     license_body_3: "Havo hududining interaktiv xaritasi Fuqaro aviatsiyasi agentligi ma'lumotlari asosida har kuni yangilanadi.",
     cert_congrat_title: "Kursni tugatganingiz bilan tabriklaymiz!",
@@ -972,7 +1146,33 @@ const translations = {
     pay_success_desc: "Buyurtma to'landi. Sizga berildi: ",
     support_message_label: "Qo'llab-quvvatlash uchun xabaringiz",
     achievement_unlocked: "Ochildi",
-    achievement_locked: "Yopiq"
+    achievement_locked: "Yopiq",
+    nav_faq: "FAQ",
+    faq_eyebrow: "Yo'riqnoma",
+    faq_title: "Yo'riqnoma va <span class=\"blue\">FAQ</span>",
+    faq_desc: "UZDF Uzbekistan platformasidan foydalanish, parvoz qoidalari va urinishlar haqida tez-tez beriladigan savollarga javoblar.",
+    faq_cat_general: "Umumiy savollar",
+    faq_q1: "UZDF Uzbekistan nima?",
+    faq_a1: "Bu O'zbekistondagi BUA (dron) uchuvchilari uchun yagona raqamli platforma bo'lib, xavfsiz parvoz qilish, havo hududi qoidalarini o'rganish, ta'lim olish va sertifikatlangan uskunalarni sotib olishga yordam beradi.",
+    faq_q2: "Platformadan foydalanishni qanday boshlash kerak?",
+    faq_a2: "Email orqali ilova yoki saytda ro'yxatdan o'ting. Shundan so'ng interaktiv xarita va o'quv kurslari sizga taqdim etiladi.",
+    faq_cat_zones: "Parvoz zonalari xaritasi",
+    faq_q3: "Xaritadagi zonalarning ranglari nimani anglatadi?",
+    faq_a3: "Qizil zona (🔴 RED): Parvozlar qat'iyan taqiqlanadi. Sariq zona (🟡 YELLOW): Parvozlar balandligi cheklangan (odatda 50 metrgacha) yoki kelishuv talab etiladi. Yashil zona (🟢 GREEN): BUA umumiy qoidalariga muvofiq erkin parvozlar.",
+    faq_q4: "Ruxsat etilgan aniq balandlikni qanday bilish mumkin?",
+    faq_a4: "Qiziqtirgan zonani ustiga bosing, shunda zona nomi va maksimal ruxsat etilgan parvoz balandligi ko'rsatilgan ma'lumotlar oynasi ochiladi.",
+    faq_cat_courses: "Kurslar va urinishlar",
+    faq_q5: "Urinishlar (❤️) tizimi qanday ishlaydi?",
+    faq_a5: "Har bir uchuvchiga 3 ta urinish (hayot) beriladi. Testda bitta xatoga yo'l qo'yilganda yoki qoida buzilishi (skrinshot/ekran yozuvi) aniqlanganda 1 ta hayot kamayadi. Har 24 soatda avtomatik ravishda +1 urinish tiklanadi (maksimal 3 tagacha).",
+    faq_q6: "O'qish imkoniyati nima sababdan bloklanadi?",
+    faq_a6: "O'quv materiallarini himoya qilish maqsadida ilovada skrinshot olish yoki ekranni yozib olish taqiqlanadi. 5 marta qoida buzilishi qayd etilsa, kursga kirish 24 soatga avtomatik bloklanadi.",
+    faq_q7: "Raqamli sertifikatni qanday olish mumkin?",
+    faq_a7: "Kursning barcha darslarini yakunlang va yakuniy imtihonni topshiring (kamida 95% to'g'ri javob). Noyob UUID bilan sertifikat profilingizda paydo bo'ladi.",
+    faq_cat_shop: "Do'kon va Buyurtmalar",
+    faq_q8: "Dron yoki butlovchi qismlarni qanday sotib olish mumkin?",
+    faq_a8: "\"Do'kon\" bo'limiga o'ting, mahsulotni tanlang va buyurtma berish tugmasini bosing. Buyurtmangiz saqlanib qoladi.",
+    faq_q9: "Yetkazib berish manzili qanday ko'rsatiladi?",
+    faq_a9: "Buyurtma berganingizdan so'ng profil -> \"Mening buyurtmalarim\" bo'limiga o'ting, buyurtmangizni tanlang va yetkazib berish formasini to'ldiring (Manzil, Shahar, Telefon)."
   },
   en: {
     nav_home: "Home",
@@ -1008,11 +1208,11 @@ const translations = {
     section_courses_title: "Training <span>Courses</span>",
     all_courses_btn: "All Courses →",
     section_about_eyebrow: "About Us",
-    section_about_title: "Get to know <span class=\"blue\">SkyCheck</span>",
+    section_about_title: "Get to know <span class=\"blue\">UZDF</span>",
     footer_sub: "Monitoring airspace zones and certifying civil UAV pilots in Uzbekistan.",
     footer_nav_title: "Navigation",
     footer_legal_title: "Legal Information",
-    footer_copy: "© 2024 SkyCheck. All rights reserved.",
+    footer_copy: "© 2024 UZDF. All rights reserved.",
     profile_terms_title: "Terms of Service",
     profile_license_title: "UAV License & Compliance",
     support_feedback_btn: "Support Center",
@@ -1052,12 +1252,12 @@ const translations = {
     profile_tab_certs: "My Certificates",
     profile_btn_logout: "Log Out",
     profile_btn_save: "Save Changes",
-    terms_intro: "Welcome to SkyCheck. By using our platform, you agree to the following terms:",
+    terms_intro: "Welcome to UZDF. By using our platform, you agree to the following terms:",
     terms_1: "1. You agree to follow the drone flight regulations of the Republic of Uzbekistan.",
     terms_2: "2. Airspace zone map data is provided 'as is' and may not be 100% accurate at all times.",
     terms_3: "3. Shop returns are accepted within 14 days in their original, unopened packaging.",
-    terms_4: "4. SkyCheck is not responsible for rules violated by pilots.",
-    license_body_1: "SkyCheck platform is certified by the Civil Aviation Agency of the Republic of Uzbekistan.",
+    terms_4: "4. UZDF is not responsible for rules violated by pilots.",
+    license_body_1: "UZDF platform is certified by the Civil Aviation Agency of the Republic of Uzbekistan.",
     license_body_2: "License number: No. UAV-2024-089 dated 15.05.2024.",
     license_body_3: "The interactive flight zone monitoring map is updated daily based on Civil Aviation Agency datasets.",
     cert_congrat_title: "Congratulations on completing the course!",
@@ -1080,7 +1280,33 @@ const translations = {
     pay_success_desc: "Your order has been paid. You earned",
     support_message_label: "Your Message to Support",
     achievement_unlocked: "Unlocked",
-    achievement_locked: "Locked"
+    achievement_locked: "Locked",
+    nav_faq: "FAQ",
+    faq_eyebrow: "Guidelines",
+    faq_title: "Guidelines & <span class=\"blue\">FAQ</span>",
+    faq_desc: "Answers to frequently asked questions about flight rules, attempts system, and using the UZDF Uzbekistan platform.",
+    faq_cat_general: "General Questions",
+    faq_q1: "What is UZDF Uzbekistan?",
+    faq_a1: "It is a unified digital platform for UAV (drone) pilots in Uzbekistan, helping to fly safely, study airspace regulations, undergo training, and purchase certified equipment.",
+    faq_q2: "How to start using the platform?",
+    faq_a2: "Register on the app or website using your Email. After that, the interactive airspace map and training courses will become available to you.",
+    faq_cat_zones: "Flight Zones Map",
+    faq_q3: "What do the zone colors on the map mean?",
+    faq_a3: "Red zone (🔴 RED): Flights are strictly prohibited. Yellow zone (🟡 YELLOW): Flights are altitude-limited (usually up to 50m) or require approval. Green zone (🟢 GREEN): Free flights in compliance with general UAV regulations.",
+    faq_q4: "How to find the exact allowed altitude?",
+    faq_a4: "Click on the zone of interest on the map to open a detailed card with the zone name and maximum allowed flight altitude.",
+    faq_cat_courses: "Courses & Lives",
+    faq_q5: "How does the attempts (❤️) system work?",
+    faq_a5: "Each pilot is given 3 attempts (lives). Making a single mistake in a quiz or committing a security violation (screenshots/screen recording) burns 1 life. Every 24 hours, +1 life is restored automatically (up to a maximum of 3).",
+    faq_q6: "What causes access to training to be blocked?",
+    faq_a6: "To protect educational materials, screenshots and screen recording are prohibited in the app. Upon reaching 5 violations, access to the course is automatically blocked for 24 hours.",
+    faq_q7: "How to obtain a digital certificate?",
+    faq_a7: "Successfully complete all course steps and pass the final exam (passing score is at least 95%). A certificate with a unique UUID will appear in your profile.",
+    faq_cat_shop: "Shop & Orders",
+    faq_q8: "How to buy a drone or components?",
+    faq_a8: "Go to the \"Shop\" section, select a product, and click the checkout button. Your order will be saved.",
+    faq_q9: "How to specify the delivery address?",
+    faq_a9: "After checking out, go to Profile -> \"My Orders\", select your order, and fill out the delivery form (Address, City, Phone)."
   }
 };
 
@@ -1238,8 +1464,8 @@ async function doLogin() {
     const d = await r.json();
     if (!r.ok) return showLoginAlert(d.error);
     
-    localStorage.setItem('skycheck_token', d.token);
-    localStorage.setItem('skycheck_user', JSON.stringify(d.user));
+    localStorage.setItem('uzdf_token', d.token);
+    localStorage.setItem('uzdf_user', JSON.stringify(d.user));
     currentUser = d.user;
     
     showLoginAlert('Успешный вход!', 'success');
@@ -1280,8 +1506,8 @@ async function doRegister() {
       document.getElementById('signup-otp-fields').style.display = 'block';
       showLoginAlert('Код подтверждения отправлен на почту', 'success');
     } else {
-      localStorage.setItem('skycheck_token', d.token);
-      localStorage.setItem('skycheck_user', JSON.stringify(d.user));
+      localStorage.setItem('uzdf_token', d.token);
+      localStorage.setItem('uzdf_user', JSON.stringify(d.user));
       currentUser = d.user;
       showLoginAlert('Аккаунт успешно создан!', 'success');
       updateUserNavbarState();
@@ -1307,8 +1533,8 @@ async function doVerifyOTP() {
     const d = await r.json();
     if (!r.ok) return showLoginAlert(d.error);
     
-    localStorage.setItem('skycheck_token', d.token);
-    localStorage.setItem('skycheck_user', JSON.stringify(d.user));
+    localStorage.setItem('uzdf_token', d.token);
+    localStorage.setItem('uzdf_user', JSON.stringify(d.user));
     currentUser = d.user;
     
     showLoginAlert('Почта успешно подтверждена!', 'success');
@@ -1332,8 +1558,8 @@ function cancelVerifyOTP() {
 }
 
 function doLogout() {
-  localStorage.removeItem('skycheck_token');
-  localStorage.removeItem('skycheck_user');
+  localStorage.removeItem('uzdf_token');
+  localStorage.removeItem('uzdf_user');
   currentUser = null;
   updateUserNavbarState();
   showPage('home');
@@ -1341,8 +1567,8 @@ function doLogout() {
 }
 
 function checkUserLoginState() {
-  const token = localStorage.getItem('skycheck_token');
-  const user = localStorage.getItem('skycheck_user');
+  const token = localStorage.getItem('uzdf_token');
+  const user = localStorage.getItem('uzdf_user');
   if (token && user) {
     currentUser = JSON.parse(user);
     updateUserNavbarState();
@@ -1437,7 +1663,7 @@ function renderHomeNews() {
         ${n.imageUrl ? `<img class="news-card-img" src="${n.imageUrl}" onerror="this.parentElement.textContent='📰'">` : '📰'}
       </div>
       <div class="news-card-body" style="padding:20px">
-        <span class="news-card-tag">${esc(n.author || 'SkyCheck')}</span>
+        <span class="news-card-tag">${esc(n.author || 'UZDF')}</span>
         <h3 class="news-card-title" style="margin:8px 0; font-size:1.15rem; font-weight:700">${esc(n.title)}</h3>
         <p class="news-card-text" style="font-size:0.88rem; color:var(--text-muted); line-height:1.5">${esc(n.content.substring(0, 110))}...</p>
       </div>
@@ -1471,7 +1697,7 @@ function renderNewsList() {
         ${n.imageUrl ? `<img class="news-card-img" src="${n.imageUrl}" onerror="this.parentElement.textContent='📰'">` : '📰'}
       </div>
       <div class="news-card-body" style="padding:20px">
-        <span class="news-card-tag">${esc(n.author || 'SkyCheck')}</span>
+        <span class="news-card-tag">${esc(n.author || 'UZDF')}</span>
         <h3 class="news-card-title" style="margin:8px 0; font-size:1.15rem; font-weight:700">${esc(n.title)}</h3>
         <p class="news-card-text" style="font-size:0.88rem; color:var(--text-muted); line-height:1.5">${esc(n.content.substring(0, 150))}...</p>
       </div>
@@ -1492,7 +1718,7 @@ function openNewsDetail(id) {
   document.getElementById('news-detail-content').innerHTML = `
     <article class="news-detail-article" style="max-width:800px; margin:0 auto; padding:20px 0">
       ${n.imageUrl ? `<img src="${n.imageUrl}" style="width:100%; max-height:420px; object-fit:cover; border-radius:16px; border:1px solid var(--border); margin-bottom:24px" onerror="this.style.display='none'">` : ''}
-      <span class="news-card-tag" style="padding:6px 12px; font-size:0.8rem">${esc(n.author || 'SkyCheck')}</span>
+      <span class="news-card-tag" style="padding:6px 12px; font-size:0.8rem">${esc(n.author || 'UZDF')}</span>
       <h1 style="font-size:2.5rem; font-weight:800; margin:16px 0 8px 0; letter-spacing:-0.03em">${esc(n.title)}</h1>
       <p style="color:var(--text-dim); font-size:0.9rem; margin-bottom:32px">📅 ${fmtDate(n.publishedAt)}</p>
       <div style="font-size:1.1rem; line-height:1.8; color:var(--text-muted); white-space:pre-wrap">${esc(n.content)}</div>
@@ -1846,7 +2072,7 @@ function renderHomeCourses() {
 
 async function loadPublicCourses() {
   const list = document.getElementById('courses-list');
-  const token = localStorage.getItem('skycheck_token');
+  const token = localStorage.getItem('uzdf_token');
   const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
   
   try {
@@ -1867,7 +2093,7 @@ function renderCoursesList() {
   list.innerHTML = allCourses.map(c => {
     const isLocked = c.isLocked;
     return `
-      <div class="course-card ${isLocked ? 'locked-course' : ''}" onclick="${isLocked ? `alert('${currentLanguage==='ru'?'Этот курс заблокирован! Пройдите предыдущий курс.':'Kurs yopiq. Avvalgisini tugating.'}')` : `openCourse(${c.id})`}" style="opacity:${isLocked ? '0.5' : '1'}; position:relative">
+      <div class="course-card ${isLocked ? 'locked-course' : ''}" onclick="openCourse(${c.id})" style="opacity:${isLocked ? '0.5' : '1'}; position:relative">
         <div class="course-icon" style="background:${c.color}22">${courseEmoji(c.iconType)}</div>
         <div class="course-info">
           <div class="course-level" style="color:${c.color}">${levelLabel(c.iconType, currentLanguage)}</div>
@@ -1887,10 +2113,21 @@ function showCoursesList() {
 }
 
 function openCourse(id) {
-  showPage('courses');
+  if (!currentUser) {
+    alert(currentLanguage === 'ru' ? 'Пожалуйста, авторизуйтесь для доступа к курсу!' : 'Iltimos, kursga kirish uchun tizimga kiring!');
+    showPage('login');
+    return;
+  }
+
   const c = allCourses.find(x => x.id === id);
   if (!c || !c.steps?.length) return;
+
+  if (c.isLocked) {
+    alert(currentLanguage === 'ru' ? 'Этот курс заблокирован! Пройдите предыдущий курс.' : 'Kurs yopiq. Avvalgisini tugating.');
+    return;
+  }
   
+  showPage('courses');
   currentCourse = c;
   currentStepIdx = 0;
   
@@ -1899,6 +2136,10 @@ function openCourse(id) {
   document.getElementById('viewer-title').textContent = c.title;
   document.getElementById('viewer-desc').textContent = c.description;
   
+  // Update lives display in viewer
+  const livesVal = currentUser.courseLives !== undefined ? currentUser.courseLives : 3;
+  document.getElementById('viewer-lives-count').textContent = livesVal;
+
   renderStepsNav();
   renderStep();
 }
@@ -1972,7 +2213,7 @@ async function nextStep() {
   const isCompleted = step.userProgress?.status === 'completed';
   
   if (!isCompleted && step.type !== 'quiz') {
-    const token = localStorage.getItem('skycheck_token');
+    const token = localStorage.getItem('uzdf_token');
     if (!token) {
       showToast(currentLanguage === 'ru' ? 'Войдите, чтобы сохранить прогресс' : 'Tizimga kiring', 'error');
       return;
@@ -2014,7 +2255,7 @@ async function nextStep() {
 }
 
 async function startStepSession(stepId, type, isAlreadyCompleted) {
-  const token = localStorage.getItem('skycheck_token');
+  const token = localStorage.getItem('uzdf_token');
   if (!token) return;
   
   try {
@@ -2073,7 +2314,7 @@ function checkTextScroll() {
 }
 
 async function loadQuizData(stepId, isAlreadyCompleted) {
-  const token = localStorage.getItem('skycheck_token');
+  const token = localStorage.getItem('uzdf_token');
   if (!token) return;
   
   const box = document.getElementById('step-content');
@@ -2164,7 +2405,7 @@ function selectQuizOption(questionIdx, optionText) {
 }
 
 async function submitQuizAnswers(stepId) {
-  const token = localStorage.getItem('skycheck_token');
+  const token = localStorage.getItem('uzdf_token');
   if (!token) return;
   
   const answeredCount = Object.keys(quizSelectedAnswers).length;
@@ -2196,6 +2437,15 @@ async function submitQuizAnswers(stepId) {
       showToast(d.error || 'Ошибка отправки теста', 'error');
       if (submitBtn) submitBtn.disabled = false;
       return;
+    }
+
+    if (d.courseLives !== undefined) {
+      currentUser.courseLives = d.courseLives;
+      localStorage.setItem('uzdf_user', JSON.stringify(currentUser));
+      const viewerLivesEl = document.getElementById('viewer-lives-count');
+      if (viewerLivesEl) viewerLivesEl.textContent = d.courseLives;
+      const profLivesEl = document.getElementById('prof-lives-count');
+      if (profLivesEl) profLivesEl.textContent = d.courseLives;
     }
     
     const alertBox = document.getElementById('quiz-alert-box');
@@ -2301,7 +2551,7 @@ async function generateAndDownloadCert() {
   const studentName = document.getElementById('cert-student-name').value.trim();
   if (!studentName) return alert('Введите имя пилота');
   
-  const token = localStorage.getItem('skycheck_token');
+  const token = localStorage.getItem('uzdf_token');
   try {
     const res = await fetch(`${API}/courses/${currentCourse.id}/complete`, {
       method: 'POST',
@@ -2391,7 +2641,7 @@ function downloadSVGCertificate(studentName, courseTitle) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `SkyCheck_Certificate_${studentName.replace(/\s+/g, '_')}.svg`;
+  a.download = `UZDF_Certificate_${studentName.replace(/\s+/g, '_')}.svg`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -2499,7 +2749,7 @@ async function loadProductReviews(productId) {
 }
 
 async function submitProductReview() {
-  const token = localStorage.getItem('skycheck_token');
+  const token = localStorage.getItem('uzdf_token');
   if (!token) return alert('Сначала войдите в систему');
   
   const rating = document.getElementById('pr-rating').value;
@@ -2557,10 +2807,10 @@ function addToCart(productId) {
 }
 
 function saveCart() {
-  localStorage.setItem('skycheck_cart', JSON.stringify(cart));
+  localStorage.setItem('uzdf_cart', JSON.stringify(cart));
 }
 function loadCart() {
-  const c = localStorage.getItem('skycheck_cart');
+  const c = localStorage.getItem('uzdf_cart');
   if (c) cart = JSON.parse(c);
   updateCartBadge();
 }
@@ -2642,7 +2892,7 @@ async function checkout() {
   }
   if (!cart.length) return;
   
-  const token = localStorage.getItem('skycheck_token');
+  const token = localStorage.getItem('uzdf_token');
   try {
     const r = await fetch(`${API}/orders`, {
       method: 'POST',
@@ -2761,7 +3011,7 @@ function backToCardInput() {
 
 async function confirmPaymentOTP() {
   const code = document.getElementById('pay-sms-code').value.trim();
-  const token = localStorage.getItem('skycheck_token');
+  const token = localStorage.getItem('uzdf_token');
   
   if (code !== '1234') {
     document.getElementById('pay-otp-alert').innerHTML = `<div class="alert alert-error">${currentLanguage==='ru'?'Неверный код! Введите "1234".':'Sms kod xato! "1234" kiriting.'}</div>`;
@@ -2797,12 +3047,12 @@ function switchProfileTab(tab, btn) {
 }
 
 async function loadUserProfileData() {
-  const token = localStorage.getItem('skycheck_token');
+  const token = localStorage.getItem('uzdf_token');
   if (!token) return;
   try {
     const user = await fetch(`${API}/auth/me`, { headers: { 'Authorization': 'Bearer ' + token } }).then(r => r.json());
     currentUser = user;
-    localStorage.setItem('skycheck_user', JSON.stringify(user));
+    localStorage.setItem('uzdf_user', JSON.stringify(user));
   } catch (e) {
     console.error('Error syncing user profile:', e);
   }
@@ -2832,6 +3082,12 @@ function loadProfileData() {
   loadMyOrdersHistory();
   renderProfileAchievements();
   loadCompletedCertificates();
+
+  // Update lives count
+  const livesEl = document.getElementById('prof-lives-count');
+  if (livesEl) {
+    livesEl.textContent = currentUser.courseLives !== undefined ? currentUser.courseLives : 3;
+  }
 }
 
 async function saveProfileInfo() {
@@ -2839,7 +3095,7 @@ async function saveProfileInfo() {
   const email = document.getElementById('prof-email').value.trim();
   const phone = document.getElementById('prof-phone').value.trim();
   const language = document.getElementById('prof-language').value;
-  const token = localStorage.getItem('skycheck_token');
+  const token = localStorage.getItem('uzdf_token');
   const editAlert = document.getElementById('profile-edit-alert');
   
   if (!name || !email) {
@@ -2860,7 +3116,7 @@ async function saveProfileInfo() {
     if (!res.ok) throw new Error(d.error);
     
     currentUser = d;
-    localStorage.setItem('skycheck_user', JSON.stringify(d));
+    localStorage.setItem('uzdf_user', JSON.stringify(d));
     editAlert.innerHTML = `<div class="alert alert-success">${currentLanguage==='ru'?'Данные успешно сохранены!':'Ma\'lumotlar saqlandi!'}</div>`;
     
     // Change lang UI
@@ -2873,7 +3129,7 @@ async function saveProfileInfo() {
 
 async function loadMyOrdersHistory() {
   const container = document.getElementById('my-orders-list');
-  const token = localStorage.getItem('skycheck_token');
+  const token = localStorage.getItem('uzdf_token');
   container.innerHTML = '<div class="spinner"></div>';
   
   try {
@@ -2966,7 +3222,7 @@ function renderProfileAchievements() {
 
 async function loadCompletedCertificates() {
   const container = document.getElementById('my-certificates-grid');
-  const token = localStorage.getItem('skycheck_token');
+  const token = localStorage.getItem('uzdf_token');
   container.innerHTML = '<div class="spinner"></div>';
   
   try {
@@ -2983,7 +3239,7 @@ async function loadCompletedCertificates() {
         <div class="cert-card" style="background:var(--bg-card); border:1px solid var(--border); padding:24px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between; gap:16px; position:relative; overflow:hidden">
           <div style="position:absolute; top:-20px; right:-20px; font-size:6rem; opacity:0.04; pointer-events:none">🎓</div>
           <div>
-            <div style="font-size:0.75rem; color:var(--blue); font-weight:700; letter-spacing:1px; margin-bottom:8px">SKYCHECK ACADEMY</div>
+            <div style="font-size:0.75rem; color:var(--blue); font-weight:700; letter-spacing:1px; margin-bottom:8px">UZDF ACADEMY</div>
             <h4 style="margin:0; font-size:1.1rem; font-weight:800; line-height:1.4">${esc(course.title)}</h4>
             <p style="margin:8px 0 0 0; font-size:0.85rem; color:var(--text-muted)"><span data-i18n="form_name">Студент</span>: <strong>${esc(c.studentName || currentUser.name)}</strong></p>
           </div>
@@ -3016,7 +3272,7 @@ async function submitSupportRequest() {
     return;
   }
   
-  const token = localStorage.getItem('skycheck_token');
+  const token = localStorage.getItem('uzdf_token');
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = 'Bearer ' + token;
   
@@ -3312,6 +3568,35 @@ if (origShowToast) {
       });
     });
     mo.observe(toastContainer, { childList: true });
+  }
+}
+
+// ── FAQ ACCORDION HANDLER ──
+function toggleAccordion(btn) {
+  const item = btn.parentElement;
+  const body = item.querySelector('.accordion-body');
+  const icon = item.querySelector('.accordion-icon');
+  
+  const isOpen = item.classList.contains('active');
+  
+  // Close other accordions in the same category
+  const parentCard = item.closest('.faq-category-card');
+  parentCard.querySelectorAll('.accordion-item').forEach(other => {
+    if (other !== item) {
+      other.classList.remove('active');
+      other.querySelector('.accordion-body').style.maxHeight = null;
+      other.querySelector('.accordion-icon').textContent = '＋';
+    }
+  });
+  
+  if (isOpen) {
+    item.classList.remove('active');
+    body.style.maxHeight = null;
+    icon.textContent = '＋';
+  } else {
+    item.classList.add('active');
+    body.style.maxHeight = body.scrollHeight + "px";
+    icon.textContent = '－';
   }
 }
 

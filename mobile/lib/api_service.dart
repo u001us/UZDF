@@ -7,7 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   // ЗАМЕНИТЕ ЭТОТ URL НА ВАШ АДРЕС ПОСЛЕ РАЗВЕРТЫВАНИЯ БЭКЕНДА В ОБЛАКЕ (например, Render.com)
-  static const String productionUrl = 'https://skycheck-backend-your-app.onrender.com';
+  static const String productionUrl = 'https://uzdf-backend-your-app.onrender.com';
+
 
   static String? _resolvedBaseUrl;
   static String? token;
@@ -76,38 +77,17 @@ class ApiService {
 
     final candidates = <String>[
       productionUrl,
-      'http://localhost:3000',
+      'http://190.191.3.112:3000',
       'http://10.0.2.2:3000',
+      'http://localhost:3000',
     ];
-
-    try {
-      final interfaces = await NetworkInterface.list(
-        includeLinkLocal: false,
-        type: InternetAddressType.IPv4,
-      );
-      for (var interface in interfaces) {
-        for (var addr in interface.addresses) {
-          final parts = addr.address.split('.');
-          if (parts.length == 4) {
-            final subnet = '${parts[0]}.${parts[1]}.${parts[2]}';
-            // Add all possible 254 host IP addresses in the subnet for auto-discovery
-            for (int i = 1; i < 255; i++) {
-              final ip = '$subnet.$i';
-              if (ip != addr.address) {
-                candidates.add('http://$ip:3000');
-              }
-            }
-          }
-        }
-      }
-    } catch (_) {}
 
     final uniqueCandidates = candidates.toSet().toList();
     final completer = Completer<String>();
     int completedCount = 0;
 
     for (final url in uniqueCandidates) {
-      http.get(Uri.parse('$url/news')).timeout(const Duration(milliseconds: 800)).then((response) {
+      http.get(Uri.parse('$url/news')).timeout(const Duration(seconds: 3)).then((response) {
         if (response.statusCode == 200 && !completer.isCompleted) {
           completer.complete(url);
         }
@@ -129,7 +109,7 @@ class ApiService {
     } catch (_) {
       // Default fallback
       if (!kIsWeb && Platform.isAndroid) {
-        _resolvedBaseUrl = 'http://10.0.2.2:3000';
+        _resolvedBaseUrl = 'http://190.191.3.112:3000';
       } else {
         _resolvedBaseUrl = 'http://localhost:3000';
       }
@@ -161,7 +141,9 @@ class ApiService {
 
   static Future<void> resetBaseUrl() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('custom_api_url');
+    debugPrint('ApiService.resetBaseUrl: removing custom_api_url');
+    final success = await prefs.remove('custom_api_url');
+    debugPrint('ApiService.resetBaseUrl: remove success: $success');
     _resolvedBaseUrl = null;
   }
 
@@ -321,6 +303,27 @@ class ApiService {
       }
     } catch (e) {
       debugPrint('Google Login error: $e');
+    }
+    return false;
+  }
+
+  static Future<bool> loginWithGoogleReal(String idToken) async {
+    try {
+      final url = await getBaseUrl();
+      final response = await http.post(
+        Uri.parse('$url/auth/google-real'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'idToken': idToken}),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        token = data['token'];
+        currentUser = data['user'] as Map<String, dynamic>?;
+        await saveSession();
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Google Real Login error: $e');
     }
     return false;
   }
@@ -531,9 +534,14 @@ class ApiService {
       );
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode == 200) {
-        if (data.containsKey('currentExp') && currentUser != null) {
-          currentUser!['exp'] = data['currentExp'];
-          currentUser!['level'] = data['currentLevel'];
+        if (currentUser != null) {
+          if (data.containsKey('courseLives')) {
+            currentUser!['courseLives'] = data['courseLives'];
+          }
+          if (data.containsKey('currentExp')) {
+            currentUser!['exp'] = data['currentExp'];
+            currentUser!['level'] = data['currentLevel'];
+          }
           if (data.containsKey('newlyUnlocked')) {
             final list = currentUser!['achievements'] as List<dynamic>? ?? [];
             final newly = data['newlyUnlocked'] as List<dynamic>;
@@ -647,5 +655,6 @@ class ApiService {
   }
 
   /// Open Telegram support bot
-  static String get telegramBotUrl => 'https://t.me/skycheck_support_bot';
+  static String get telegramBotUrl => 'https://t.me/uzdf_support_bot';
 }
+

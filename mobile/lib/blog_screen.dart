@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'glass_widgets.dart';
 import 'app_state.dart';
 import 'api_service.dart';
 import 'news_detail_screen.dart';
@@ -34,17 +36,18 @@ class _BlogScreenState extends State<BlogScreen> {
         final isDark = Theme.of(context).brightness == Brightness.dark;
 
         return Scaffold(
-          appBar: AppBar(
+          appBar: GlassAppBar(
             title: Text(
               state.translate('news_title'),
-              style: const TextStyle(fontWeight: FontWeight.w900),
+              style: const TextStyle(fontWeight: FontWeight.w400, letterSpacing: -0.5),
             ),
-            backgroundColor: Colors.transparent,
-            elevation: 0,
             actions: [
               IconButton(
                 icon: const Icon(Icons.refresh),
-                onPressed: _refreshNews,
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _refreshNews();
+                },
               )
             ],
           ),
@@ -71,13 +74,14 @@ class _BlogScreenState extends State<BlogScreen> {
                   itemCount: newsList.length,
                   itemBuilder: (context, index) {
                     final item = newsList[index];
-                    final author = item['author'] ?? 'SkyCheck';
+                    final author = item['author'] ?? 'UZDF';
                     return GestureDetector(
                       onTap: () {
+                        HapticFeedback.lightImpact();
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => NewsDetailScreen(news: item),
+                          GlassRoute(
+                            page: NewsDetailScreen(news: item),
                           ),
                         );
                       },
@@ -100,27 +104,17 @@ class _BlogScreenState extends State<BlogScreen> {
   }
 
   Widget _buildNewsCard(String title, String desc, String author, String? imageUrl, bool isDark) {
-    return Container(
+    return GlassContainer(
       margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0A0D1A) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-        boxShadow: [
-          BoxShadow(
-            color: isDark ? Colors.black26 : Colors.black12,
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          )
-        ],
-      ),
+      borderRadius: 16,
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
             height: 160,
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF050814) : const Color(0xFFF1F5F9),
+              color: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.03),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             ),
             child: imageUrl != null && imageUrl.isNotEmpty
@@ -144,10 +138,10 @@ class _BlogScreenState extends State<BlogScreen> {
                 Text(
                   title,
                   style: TextStyle(
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                     fontSize: 18,
-                    color: isDark ? Colors.white : Colors.black87,
-                    fontFamily: 'Inter',
+                    color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                    letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -155,12 +149,12 @@ class _BlogScreenState extends State<BlogScreen> {
                   desc,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.grey, height: 1.4),
+                  style: const TextStyle(color: Colors.grey, height: 1.5, fontWeight: FontWeight.w400),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   author.toUpperCase(),
-                  style: const TextStyle(color: Color(0xFF0066FF), fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                  style: const TextStyle(color: Color(0xFF007AFF), fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.5),
                 ),
               ],
             ),

@@ -1,15 +1,66 @@
 const API = 'http://localhost:3000';
-let token = localStorage.getItem('skycheck_token');
-let adminUser = JSON.parse(localStorage.getItem('skycheck_user')||'{}');
+
+// ── TOAST NOTIFICATION SYSTEM ──
+function showToast(msg, type='info') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;pointer-events:none;';
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement('div');
+  const colors = { success:'#10B981', error:'#EF4444', info:'#3B82F6', warning:'#F59E0B' };
+  const icons = { success:'✓', error:'✕', info:'ℹ', warning:'⚠' };
+  toast.style.cssText = `pointer-events:auto;display:flex;align-items:center;gap:10px;padding:14px 20px;border-radius:12px;background:rgba(30,30,45,0.95);border:1px solid ${colors[type]||colors.info};color:#fff;font-size:14px;box-shadow:0 8px 32px rgba(0,0,0,0.3);backdrop-filter:blur(12px);animation:toastIn .3s ease;max-width:400px;`;
+  toast.innerHTML = `<span style="color:${colors[type]||colors.info};font-size:18px;flex-shrink:0;">${icons[type]||icons.info}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'toastOut .3s ease forwards';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+// Inject toast animations
+(function(){
+  const s=document.createElement('style');
+  s.textContent=`@keyframes toastIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(60px)}}`;
+  document.head.appendChild(s);
+})();
+let token = localStorage.getItem('uzdf_token');
+let adminUser = JSON.parse(localStorage.getItem('uzdf_user')||'{}');
 let allNews=[], allUsers=[], allZones=[], allCourses=[], allProducts=[], allOrders=[];
-let adminMap=null, currentPolygon=null, editingZoneId=null, activeCourseId=null;
+let adminMap=null, adminMapTiles=null, currentPolygon=null, editingZoneId=null, activeCourseId=null;
 let loadedPolygons={};
 let isDrawingMode=false, drawingColor='RED', drawingPoints=[], drawingMarkers=[], drawingPolyline=null;
 let mapsReady=true;
+let currentTheme = localStorage.getItem('uzdf_admin_theme') || 'dark';
 
+function updateThemeBtn() {
+  const btn = document.getElementById('theme-btn');
+  if (btn) {
+    btn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+  }
+}
+
+function toggleTheme() {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  localStorage.setItem('uzdf_admin_theme', currentTheme);
+  updateThemeBtn();
+  
+  if (adminMap && adminMapTiles) {
+    const url = currentTheme === 'dark'
+      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+    adminMapTiles.setUrl(url);
+  }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (token && (adminUser.role==='admin' || adminUser.role==='superadmin')) showAdminApp();
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  updateThemeBtn();
+  
+  if (token && ['superadmin', 'admin', 'supersupport', 'support'].includes(adminUser.role)) showAdminApp();
   else document.getElementById('admin-login').style.display='flex';
   document.getElementById('admin-email').addEventListener('keydown', e=>e.key==='Enter'&&adminLogin());
   document.getElementById('admin-pass').addEventListener('keydown', e=>e.key==='Enter'&&adminLogin());
@@ -24,10 +75,10 @@ async function adminLogin() {
     const r=await fetch(`${API}/auth/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass})});
     const d=await r.json();
     if(!r.ok) return showLoginErr(d.error);
-    if(d.user.role!=='admin' && d.user.role!=='superadmin') return showLoginErr('Нет доступа администратора');
+    if(!['superadmin', 'admin', 'supersupport', 'support'].includes(d.user.role)) return showLoginErr('Нет доступа администратора');
     token=d.token; adminUser=d.user;
-    localStorage.setItem('skycheck_token',token);
-    localStorage.setItem('skycheck_user',JSON.stringify(d.user));
+    localStorage.setItem('uzdf_token',token);
+    localStorage.setItem('uzdf_user',JSON.stringify(d.user));
     showAdminApp();
   } catch { showLoginErr('Ошибка соединения'); }
 }
@@ -42,16 +93,46 @@ function showAdminApp() {
   const n=adminUser.name||adminUser.email||'Admin';
   document.getElementById('admin-name').textContent=n;
   document.getElementById('admin-avatar').textContent=n[0].toUpperCase();
+  
   if (adminUser.role === 'superadmin') {
-    const btn = document.getElementById('btn-create-admin');
-    if (btn) btn.style.display = 'inline-block';
+    const btnAdmin = document.getElementById('btn-create-admin');
+    if (btnAdmin) btnAdmin.style.display = 'inline-block';
+    const btnSuper = document.getElementById('btn-create-superuser');
+    if (btnSuper) btnSuper.style.display = 'inline-block';
+  } else {
+    const btnAdmin = document.getElementById('btn-create-admin');
+    if (btnAdmin) btnAdmin.style.display = 'none';
+    const btnSuper = document.getElementById('btn-create-superuser');
+    if (btnSuper) btnSuper.style.display = 'none';
   }
+
+  // Sidebar visibility based on role
+  const role = adminUser.role;
+  const menuMap = {
+    'nav-dashboard': true,
+    'nav-news': ['superadmin', 'admin', 'supersupport'].includes(role),
+    'nav-map': ['superadmin'].includes(role),
+    'nav-users': ['superadmin', 'admin', 'supersupport', 'support'].includes(role),
+    'nav-courses': ['superadmin', 'admin'].includes(role),
+    'nav-shop': ['superadmin', 'admin', 'supersupport'].includes(role),
+    'nav-orders': ['superadmin', 'admin', 'supersupport'].includes(role),
+    'nav-support': ['superadmin', 'admin', 'supersupport', 'support'].includes(role),
+    'nav-tgbot': ['superadmin', 'admin', 'supersupport', 'support'].includes(role),
+  };
+
+  for (const id in menuMap) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.display = menuMap[id] ? 'flex' : 'none';
+    }
+  }
+
   loadStats(); loadNews(); loadUsers(); loadCourses(); loadZones();
 }
 
 function adminLogout() {
-  localStorage.removeItem('skycheck_token');
-  localStorage.removeItem('skycheck_user');
+  localStorage.removeItem('uzdf_token');
+  localStorage.removeItem('uzdf_user');
   location.reload();
 }
 
@@ -61,8 +142,14 @@ function showSection(name) {
   document.querySelectorAll('.sidebar-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('section-'+name).classList.add('active');
   document.getElementById('nav-'+name).classList.add('active');
-  const titles={dashboard:'Dashboard',news:'Новости',map:'Карта зон',users:'Пользователи',courses:'Курсы',shop:'Магазин',orders:'Заказы',support:'Поддержка'};
+  const titles={dashboard:'Dashboard',news:'Новости',map:'Карта зон',users:'Пользователи',courses:'Курсы',shop:'Магазин',orders:'Заказы',support:'Поддержка',tgbot:'Telegram Бот'};
   document.getElementById('topbar-title').textContent=titles[name]||name;
+  
+  if (name !== 'tgbot' && tgChatRefreshInterval) {
+    clearInterval(tgChatRefreshInterval);
+    tgChatRefreshInterval = null;
+  }
+
   if(name==='map') {
     if(mapsReady&&!adminMap) {
       initAdminMap();
@@ -75,6 +162,12 @@ function showSection(name) {
   if(name==='shop'&&!allProducts.length) loadProducts();
   if(name==='orders'&&!allOrders.length) loadOrders();
   if(name==='support') loadSupportRequests();
+  if(name==='tgbot') {
+    loadTgBotStats();
+    loadTgChats();
+    loadTgUsers();
+    loadTgLogs();
+  }
 }
 
 // ── API HELPERS ──
@@ -83,7 +176,7 @@ const api = async(url,opt={})=>{
   const r=await fetch(API+url,{...opt,headers:authH()});
   const d=await r.json();
   if(!r.ok) {
-    alert(d.error || 'Произошла ошибка при запросе');
+    showToast(d.error || 'Произошла ошибка при запросе', 'error');
     throw new Error(d.error || 'API Error');
   }
   return d;
@@ -212,9 +305,11 @@ function renderUsersDashboardTable(items) {
     let roleCell = '';
     if (adminUser.role === 'superadmin' && u.userId !== adminUser.id) {
       roleCell = `
-        <select onchange="changeUserRole(${u.userId}, this.value)" style="background:#111;color:#fff;border:1px solid var(--border);border-radius:4px;padding:4px">
+        <select onchange="changeUserRole(${u.userId}, this.value)" style="background:var(--bg-card2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px">
           <option value="user" ${u.role === 'user' ? 'selected' : ''}>user</option>
-          <option value="moderator" ${u.role === 'moderator' ? 'selected' : ''}>moderator</option>
+          <option value="superuser" ${u.role === 'superuser' ? 'selected' : ''}>superuser</option>
+          <option value="support" ${u.role === 'support' ? 'selected' : ''}>support</option>
+          <option value="supersupport" ${u.role === 'supersupport' ? 'selected' : ''}>supersupport</option>
           <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>admin</option>
           <option value="superadmin" ${u.role === 'superadmin' ? 'selected' : ''}>superadmin</option>
         </select>
@@ -271,6 +366,15 @@ async function viewUserDetails(userId) {
     udData = await api(`/admin/users/${userId}/detail`);
     document.getElementById('ud-name').textContent = udData.user.name;
     document.getElementById('ud-email').textContent = udData.user.email;
+
+    const livesVal = udData.user.courseLives !== undefined ? udData.user.courseLives : 3;
+    document.getElementById('ud-lives-val').textContent = `❤️ ${livesVal}`;
+
+    const courseSelect = document.getElementById('ud-course-select');
+    if (courseSelect) {
+      courseSelect.innerHTML = '<option value="">-- Выберите курс --</option>' +
+        udData.courses.map(c => `<option value="${c.courseId}">${esc(c.courseTitle)}</option>`).join('');
+    }
     
     // Block status and control button
     const blockCtrl = document.getElementById('ud-block-control');
@@ -413,7 +517,7 @@ function renderUdTimeline() {
   }
 
   container.innerHTML = `
-    <div style="position:relative; padding-left:20px; border-left:2px solid rgba(255,255,255,0.05)">
+    <div style="position:relative; padding-left:20px; border-left:2px solid var(--border)">
       ${udData.timeline.map(t => {
         let color = '#3B82F6'; // blue
         if (t.type === 'violation') color = '#EF4444'; // red
@@ -423,7 +527,7 @@ function renderUdTimeline() {
           <div style="margin-bottom:16px; position:relative">
             <span style="position:absolute; left:-27px; top:4px; width:12px; height:12px; border-radius:50%; background:${color}; border:2px solid var(--bg-card)"></span>
             <div style="font-size:0.75rem; color:var(--text-muted)">${new Date(t.timestamp).toLocaleString('ru-RU')}</div>
-            <div style="font-size:0.85rem; font-weight:600; color:white; margin-top:2px">${esc(t.message)}</div>
+            <div style="font-size:0.85rem; font-weight:600; color:var(--text); margin-top:2px">${esc(t.message)}</div>
           </div>
         `;
       }).join('')}
@@ -486,6 +590,114 @@ async function resetUserTimer(userId, stepId) {
   }
 }
 
+async function addLivesToUser() {
+  if (!currentDetailUserId) return;
+  const amountInput = document.getElementById('ud-add-lives-amount');
+  const amount = parseInt(amountInput ? amountInput.value : 1) || 1;
+  try {
+    const d = await api(`/admin/users/${currentDetailUserId}/add-lives`, {
+      method: 'POST',
+      body: JSON.stringify({ amount })
+    });
+    showToast('Попытки добавлены успешно!', 'success');
+    viewUserDetails(currentDetailUserId);
+  } catch (err) {
+    console.error('Error adding lives:', err);
+  }
+}
+
+async function completeCourseForUser() {
+  if (!currentDetailUserId) return;
+  const courseSelect = document.getElementById('ud-course-select');
+  const courseId = courseSelect ? courseSelect.value : '';
+  if (!courseId) {
+    alert('Пожалуйста, выберите курс!');
+    return;
+  }
+  if (!confirm('Вы действительно хотите пометить этот курс как пройденный для пользователя?')) return;
+  try {
+    await api(`/admin/users/${currentDetailUserId}/complete-course`, {
+      method: 'POST',
+      body: JSON.stringify({ courseId: parseInt(courseId) })
+    });
+    showToast('Курс успешно помечен как пройденный!', 'success');
+    loadUsersDashboard();
+    viewUserDetails(currentDetailUserId);
+  } catch (err) {
+    console.error('Error completing course:', err);
+  }
+}
+
+async function resetCourseForUser() {
+  if (!currentDetailUserId) return;
+  const courseSelect = document.getElementById('ud-course-select');
+  const courseId = courseSelect ? courseSelect.value : '';
+  if (!courseId) {
+    alert('Пожалуйста, выберите курс!');
+    return;
+  }
+  if (!confirm('Вы действительно хотите полностью сбросить прогресс пользователя по этому курсу?')) return;
+  try {
+    await api(`/admin/users/${currentDetailUserId}/reset-course`, {
+      method: 'POST',
+      body: JSON.stringify({ courseId: parseInt(courseId) })
+    });
+    showToast('Прогресс по курсу успешно сброшен!', 'success');
+    loadUsersDashboard();
+    viewUserDetails(currentDetailUserId);
+  } catch (err) {
+    console.error('Error resetting course:', err);
+  }
+}
+
+async function completeAllCoursesForUser() {
+  if (!currentDetailUserId) return;
+  if (!confirm('Вы действительно хотите пометить ВСЕ доступные курсы как пройденные для пользователя?')) return;
+  try {
+    await api(`/admin/users/${currentDetailUserId}/complete-all-courses`, {
+      method: 'POST'
+    });
+    showToast('Все курсы успешно пройдены!', 'success');
+    loadUsersDashboard();
+    viewUserDetails(currentDetailUserId);
+  } catch (err) {
+    console.error('Error completing all courses:', err);
+  }
+}
+
+function openCreateSuperuserModal() {
+  document.getElementById('csu-name').value = '';
+  document.getElementById('csu-email').value = '';
+  document.getElementById('csu-password').value = '';
+  document.getElementById('csu-alert').innerHTML = '';
+  document.getElementById('create-superuser-modal').style.display = 'flex';
+}
+
+function closeCreateSuperuserModal() {
+  document.getElementById('create-superuser-modal').style.display = 'none';
+}
+
+async function saveSuperuser() {
+  const name = document.getElementById('csu-name').value.trim();
+  const email = document.getElementById('csu-email').value.trim();
+  const password = document.getElementById('csu-password').value;
+  if (!name || !email || !password) {
+    document.getElementById('csu-alert').innerHTML = '<div class="alert alert-error">Все поля обязательны</div>';
+    return;
+  }
+  try {
+    await api('/admin/create-superuser', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, password })
+    });
+    closeCreateSuperuserModal();
+    showToast('Суперюзер успешно создан!', 'success');
+    loadUsersDashboard();
+  } catch (err) {
+    document.getElementById('csu-alert').innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+  }
+}
+
 // ════════════════════════════════════
 // MAP ZONES (Leaflet Custom Pen Tool Drawing)
 // ════════════════════════════════════
@@ -534,7 +746,10 @@ function initAdminMap() {
   if (adminMap) return;
   adminMap = L.map('admin-map').setView([41.3111, 69.2406], 12);
   
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  const tileUrl = currentTheme === 'dark'
+    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+  adminMapTiles = L.tileLayer(tileUrl, {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: 'abcd',
     maxZoom: 20
@@ -679,7 +894,7 @@ function onMapMouseMove(e) {
 
 function closePolygon() {
   if (drawingPoints.length < 3) {
-    alert("Нужно как минимум 3 точки!");
+    showToast('Нужно как минимум 3 точки!', 'warning');
     return;
   }
   const color = getHexColor(drawingColor);
@@ -740,12 +955,12 @@ async function saveZone() {
   const name=document.getElementById('zf-name').value.trim();
   const type=document.getElementById('zf-type').value;
   const maxAltitude=parseInt(document.getElementById('zf-alt').value)||50;
-  if(!name) return alert('Введите название зоны');
+  if(!name) return showToast('Введите название зоны', 'warning');
 
   if(editingZoneId) {
     await api(`/zones/${editingZoneId}`,{method:'PUT',body:JSON.stringify({name,type,maxAltitude})});
   } else {
-    if(!currentPolygon) return alert('Нарисуйте зону на карте');
+    if(!currentPolygon) return showToast('Нарисуйте зону на карте', 'warning');
     let latlngs = currentPolygon.getLatLngs();
     if (Array.isArray(latlngs[0])) latlngs = latlngs[0];
     const coords = latlngs.map(p => [p.lng, p.lat]);
@@ -1050,7 +1265,7 @@ function renderOrdersTable() {
         <td><span class="badge ${o.status==='COMPLETED'?'badge-green':o.status==='CANCELLED'?'badge-red':'badge-yellow'}">${o.status}</span></td>
         <td style="color:var(--text-muted)">${fmtDate(o.createdAt)}</td>
         <td>
-          <select style="background:#111;color:#fff;border:1px solid var(--border);border-radius:4px;padding:4px" onchange="changeOrderStatus(${o.id}, this.value)">
+          <select style="background:var(--bg-card2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px" onchange="changeOrderStatus(${o.id}, this.value)">
             <option value="PENDING" ${o.status==='PENDING'?'selected':''}>Ожидает</option>
             <option value="COMPLETED" ${o.status==='COMPLETED'?'selected':''}>Выполнен</option>
             <option value="CANCELLED" ${o.status==='CANCELLED'?'selected':''}>Отменён</option>
@@ -1125,7 +1340,7 @@ async function changeUserRole(userId, newRole) {
       method: 'PATCH',
       body: JSON.stringify({ role: newRole })
     });
-    alert('Роль успешно обновлена');
+    showToast('Роль успешно обновлена', 'success');
     loadUsersDashboard();
   } catch (err) {
     loadUsersDashboard();
@@ -1158,12 +1373,427 @@ async function saveAdmin() {
       method: 'POST',
       body: JSON.stringify({ name, email, password, role })
     });
-    alert('Администратор успешно создан');
+    showToast('Администратор успешно создан', 'success');
     closeCreateAdminModal();
     loadUsersDashboard();
     loadStats();
   } catch (err) {
     showModalAlert('cam-alert', 'Ошибка: ' + err.message);
   }
+}
+
+// ════════════════════════════════════
+// TELEGRAM BOT DASHBOARD & LIVE CHAT
+// ════════════════════════════════════
+let activeTgChatId = null;
+let tgDailyChart = null;
+let tgHourlyChart = null;
+let tgChatRefreshInterval = null;
+let tgChartData = [];
+let tgHourlyData = [];
+let allTgChats = [];
+let currentChatUserFullName = '';
+
+function switchTgBotTab(tabName) {
+  document.querySelectorAll('#section-tgbot .tg-tab-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('#section-tgbot .tg-tab-btn').forEach(btn => btn.classList.remove('active'));
+  
+  const content = document.getElementById(`tg-tab-content-${tabName}`);
+  if (content) content.style.display = tabName === 'chat' ? 'flex' : 'block';
+  const btn = document.getElementById(`tg-tab-btn-${tabName}`);
+  if (btn) btn.classList.add('active');
+}
+
+async function loadTgBotStats() {
+  try {
+    const data = await api('/admin/bot/stats');
+    document.getElementById('tg-stat-users').textContent = data.totalUsers || 0;
+    document.getElementById('tg-stat-messages').textContent = data.totalMessages || 0;
+    const unansweredEl = document.getElementById('tg-stat-unanswered');
+    if (unansweredEl) unansweredEl.textContent = data.unansweredChats || 0;
+    tgChartData = data.chartData || [];
+    tgHourlyData = data.hourlyActivity || [];
+    renderTgCharts();
+  } catch (e) {
+    console.error('Error loading bot stats:', e);
+  }
+}
+
+function renderTgCharts() {
+  // Daily activity chart
+  const dailyCanvas = document.getElementById('tg-chart-daily');
+  if (dailyCanvas) {
+    const ctx = dailyCanvas.getContext('2d');
+    if (tgDailyChart) tgDailyChart.destroy();
+    
+    const labels = tgChartData.map(d => {
+      const parts = d.date.split('-');
+      return `${parts[2]}.${parts[1]}`;
+    });
+    const counts = tgChartData.map(d => d.count);
+    
+    tgDailyChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels.length ? labels : ['Нет данных'],
+        datasets: [{
+          label: 'Обращения пользователей',
+          data: counts.length ? counts : [0],
+          borderColor: '#00E5FF',
+          backgroundColor: 'rgba(0, 229, 255, 0.08)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          pointBackgroundColor: '#00E5FF'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15,15,30,0.95)',
+            borderColor: '#00E5FF',
+            borderWidth: 1,
+            padding: 10,
+            titleColor: '#00E5FF',
+            bodyColor: '#fff'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: { color: '#666', font: { size: 11 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#666', font: { size: 10 }, maxRotation: 45 }
+          }
+        }
+      }
+    });
+  }
+
+  // Hourly activity chart
+  const hourlyCanvas = document.getElementById('tg-chart-hourly');
+  if (hourlyCanvas && tgHourlyData.length) {
+    const ctx2 = hourlyCanvas.getContext('2d');
+    if (tgHourlyChart) tgHourlyChart.destroy();
+    
+    const hourLabels = Array.from({length: 24}, (_, i) => `${String(i).padStart(2,'0')}:00`);
+    const maxVal = Math.max(...tgHourlyData, 1);
+    const barColors = tgHourlyData.map(v => {
+      const intensity = v / maxVal;
+      if (intensity > 0.7) return '#EF4444';
+      if (intensity > 0.4) return '#F59E0B';
+      return '#10B981';
+    });
+    
+    tgHourlyChart = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: hourLabels,
+        datasets: [{
+          label: 'Обращений в этот час',
+          data: tgHourlyData,
+          backgroundColor: barColors,
+          borderRadius: 4,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15,15,30,0.95)',
+            borderColor: '#F59E0B',
+            borderWidth: 1,
+            padding: 10,
+            callbacks: {
+              label: ctx => `${ctx.parsed.y} обращений`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: { color: '#666', font: { size: 11 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#666', font: { size: 9 }, maxRotation: 60 }
+          }
+        }
+      }
+    });
+  }
+}
+
+async function loadTgChats() {
+  try {
+    allTgChats = await api('/admin/bot/chats');
+    const countEl = document.getElementById('tg-chats-count');
+    if (countEl) countEl.textContent = allTgChats.length;
+    renderTgChatsList();
+  } catch (e) {
+    console.error('Error loading active bot chats:', e);
+  }
+}
+
+function renderTgChatsList() {
+  const list = document.getElementById('tg-chats-list');
+  if (!list) return;
+  if (!allTgChats.length) {
+    list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">Нет активных диалогов</div>';
+    return;
+  }
+  
+  list.innerHTML = allTgChats.map(c => {
+    const isActive = c.id === activeTgChatId ? 'active' : '';
+    const name = esc([c.firstName, c.lastName].filter(Boolean).join(' ') || c.username || `User #${c.id}`);
+    const unansweredBadge = c.isLastFromUser ? '<span style="background:#EF4444;width:8px;height:8px;border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;" title="Ожидает ответа"></span>' : '';
+    const timeStr = c.lastMessageTime ? new Date(c.lastMessageTime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) : '';
+    const textSnippet = esc(c.lastMessageText || 'Нет сообщений');
+    
+    return `
+      <div class="tg-chat-item ${isActive}" onclick="selectTgChat('${c.id}', '${name.replace(/'/g, "\\'")}')">
+        <div class="tg-chat-item-header">
+          <span class="tg-chat-item-name">${name}</span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="tg-chat-item-time">${timeStr}</span>
+            ${unansweredBadge}
+          </div>
+        </div>
+        <div class="tg-chat-item-text">${textSnippet}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function selectTgChat(id, name) {
+  activeTgChatId = id;
+  currentChatUserFullName = name;
+  
+  renderTgChatsList();
+  
+  // Update header with user info and export button
+  document.getElementById('tg-chat-header').innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;flex:1;">
+      <span style="color:#00E5FF;">💬</span>
+      <strong>${name}</strong>
+      <span style="font-size:0.8rem;color:var(--text-dim);">[ID: ${id}]</span>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="exportChatHistory('${id}')" title="Экспорт истории чата">📥</button>
+  `;
+  document.getElementById('tg-chat-input-area').style.display = 'flex';
+  document.getElementById('tg-chat-reply-input').value = '';
+  document.getElementById('tg-chat-reply-input').focus();
+  
+  await loadTgChatHistory();
+  
+  if (tgChatRefreshInterval) clearInterval(tgChatRefreshInterval);
+  tgChatRefreshInterval = setInterval(loadTgChatHistory, 5000);
+}
+
+async function loadTgChatHistory() {
+  if (!activeTgChatId) return;
+  try {
+    const messages = await api(`/admin/bot/chats/${activeTgChatId}/history`);
+    renderTgChatHistory(messages);
+  } catch (e) {
+    console.error('Error fetching chat history:', e);
+  }
+}
+
+function renderTgChatHistory(messages) {
+  const container = document.getElementById('tg-chat-history');
+  if (!container) return;
+  if (!messages.length) {
+    container.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">Нет сообщений в этом чате</div>';
+    return;
+  }
+  
+  // Messages are already sorted by createdAt ASC from the server
+  // Render them in chronological order (oldest first, newest at bottom)
+  let lastDate = '';
+  let html = '';
+  
+  messages.forEach(m => {
+    const msgDate = new Date(m.createdAt);
+    const dateStr = msgDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+    
+    // Date separator
+    if (dateStr !== lastDate) {
+      html += `<div class="tg-date-separator"><span>${dateStr}</span></div>`;
+      lastDate = dateStr;
+    }
+    
+    const bubbleClass = m.isFromUser ? 'user' : 'admin';
+    const timeStr = msgDate.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    const metaContent = m.isFromUser 
+      ? `<span>${timeStr}</span>`
+      : `<span class="tg-msg-admin-name">✓ ${esc(m.adminName || 'Админ')}</span><span>${timeStr}</span>`;
+       
+    html += `
+      <div class="tg-msg-bubble ${bubbleClass}">
+        <div>${esc(m.text)}</div>
+        <div class="tg-msg-meta">
+          ${metaContent}
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+  
+  // Auto-scroll to the bottom
+  container.scrollTop = container.scrollHeight;
+}
+
+let tgSending = false;
+async function sendTgReply() {
+  if (!activeTgChatId || tgSending) return;
+  const input = document.getElementById('tg-chat-reply-input');
+  const text = input.value.trim();
+  if (!text) return;
+  tgSending = true;
+  
+  // Optimistic UI: immediately show the message
+  const container = document.getElementById('tg-chat-history');
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  const adminName = adminUser.name || adminUser.email || 'Админ';
+  
+  const tempBubble = document.createElement('div');
+  tempBubble.className = 'tg-msg-bubble admin sending';
+  tempBubble.innerHTML = `
+    <div>${esc(text)}</div>
+    <div class="tg-msg-meta">
+      <span class="tg-msg-admin-name">✓ ${esc(adminName)}</span><span>${timeStr}</span>
+    </div>
+  `;
+  container.appendChild(tempBubble);
+  container.scrollTop = container.scrollHeight;
+  input.value = '';
+  
+  try {
+    await api(`/admin/bot/chats/${activeTgChatId}/reply`, {
+      method: 'POST',
+      body: JSON.stringify({ text })
+    });
+    
+    tempBubble.classList.remove('sending');
+    showToast('Сообщение отправлено', 'success');
+    
+    // Refresh data
+    await loadTgChatHistory();
+    await loadTgChats();
+  } catch (e) {
+    tempBubble.classList.add('error');
+    tempBubble.innerHTML += '<div style="color:#EF4444;font-size:0.75rem;margin-top:4px;">⚠ Ошибка отправки</div>';
+    console.error('Error sending reply:', e);
+  } finally {
+    tgSending = false;
+  }
+}
+
+function exportChatHistory(userId) {
+  window.open(`${API}/admin/bot/chats/${userId}/export?token=${token}`, '_blank');
+}
+
+async function loadTgUsers() {
+  try {
+    const users = await api('/admin/bot/users');
+    const tbody = document.getElementById('tg-users-table-body');
+    if (!tbody) return;
+    if (!users.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:20px;">Пользователи бота не найдены</td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = users.map(u => {
+      const usernameLink = u.username ? `<a href="https://t.me/${u.username}" target="_blank" style="color:#00E5FF;text-decoration:none;">@${esc(u.username)}</a>` : '—';
+      return `
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+          <td style="padding:10px;">${esc(u.id)}</td>
+          <td style="padding:10px;">${usernameLink}</td>
+          <td style="padding:10px;">${esc(u.firstName || '—')}</td>
+          <td style="padding:10px;">${esc(u.lastName || '—')}</td>
+          <td style="padding:10px;"><span class="badge badge-blue" style="font-size:0.75rem;">${u.messageCount || 0}</span></td>
+          <td style="padding:10px;color:var(--text-muted);">${fmtDate(u.createdAt)}</td>
+          <td style="padding:10px;">
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-secondary btn-sm" onclick="selectTgChat('${u.id}', '${esc(u.firstName || u.username || u.id).replace(/'/g, "\\'")}')" title="Открыть чат">💬</button>
+              <button class="btn btn-secondary btn-sm" onclick="viewUserLogs('${u.id}')" title="Логи пользователя">📋</button>
+              <button class="btn btn-secondary btn-sm" onclick="exportChatHistory('${u.id}')" title="Экспорт чата">📥</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  } catch (e) {
+    console.error('Error loading bot users:', e);
+  }
+}
+
+function viewUserLogs(userId) {
+  // Switch to logs tab and filter by user
+  switchTgBotTab('logs');
+  const filterInput = document.getElementById('tg-log-filter-user');
+  if (filterInput) {
+    filterInput.value = userId;
+    filterTgLogs();
+  }
+}
+
+async function loadTgLogs(userId) {
+  try {
+    let url = '/admin/bot/logs';
+    if (userId) url += `?userId=${userId}`;
+    const logs = await api(url);
+    const tbody = document.getElementById('tg-logs-table-body');
+    if (!tbody) return;
+    if (!logs.length) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:20px;">Журнал логов пуст</td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = logs.map(l => {
+      const badgeClass = l.level.toLowerCase();
+      const timeStr = new Date(l.createdAt).toLocaleString('ru-RU');
+      return `
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.03)">
+          <td style="padding:6px;color:var(--text-dim);white-space:nowrap;">${timeStr}</td>
+          <td style="padding:6px;"><span class="tg-log-badge ${badgeClass}">${esc(l.level)}</span></td>
+          <td style="padding:6px;color:#cbd5e1;word-break:break-all;">${esc(l.message)}</td>
+        </tr>
+      `;
+    }).join('');
+  } catch (e) {
+    console.error('Error loading bot logs:', e);
+  }
+}
+
+function filterTgLogs() {
+  const filterInput = document.getElementById('tg-log-filter-user');
+  const userId = filterInput ? filterInput.value.trim() : '';
+  loadTgLogs(userId || undefined);
+}
+
+function clearTgLogFilter() {
+  const filterInput = document.getElementById('tg-log-filter-user');
+  if (filterInput) filterInput.value = '';
+  loadTgLogs();
+}
+
+function downloadTgLogs() {
+  window.open(`${API}/admin/bot/logs/download?token=${token}`, '_blank');
 }
 

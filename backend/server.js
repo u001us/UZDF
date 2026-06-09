@@ -2968,6 +2968,10 @@ function sendTelegramMessage(token, chatId, text) {
 }
 
 function startTelegramBot() {
+  if (process.env.DISABLE_BOT_SPAWN === 'true') {
+    console.log('🤖 [Bot Manager] Автозапуск Telegram Bot отключен (DISABLE_BOT_SPAWN=true).');
+    return;
+  }
   const botPath = path.join(__dirname, '../telegram_bot/main.py');
   if (!fs.existsSync(botPath)) {
     console.log(`⚠️ [Bot Manager] Telegram Bot не найден по пути: ${botPath}. Пропускаем автозапуск.`);

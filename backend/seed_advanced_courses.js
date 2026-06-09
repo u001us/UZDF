@@ -443,7 +443,8 @@ async function main() {
           questions: step.questions,
           videoUrl: step.videoUrl || null,
           videoDurationSeconds: step.videoDurationSeconds || null,
-          isFinalExam: step.isFinalExam || false
+          isFinalExam: step.isFinalExam || false,
+          imageUrl: step.imageUrl || null
         }
       });
     }

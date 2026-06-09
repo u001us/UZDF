@@ -749,6 +749,59 @@ class _StepDetailScreenState extends State<StepDetailScreen> {
                         style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
                       ),
                       const SizedBox(height: 16),
+                      if (step['imageUrl'] != null && step['imageUrl'].toString().trim().isNotEmpty) ...[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.network(
+                            step['imageUrl'],
+                            height: 220,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                height: 220,
+                                decoration: BoxDecoration(
+                                  color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.03),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: const Color(0xFF007AFF),
+                                    value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  color: Colors.redAccent.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                                ),
+                                child: const Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.broken_image, color: Colors.redAccent),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Ошибка загрузки изображения',
+                                        style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                       if (!_isQuiz) ...[
                         Text(
                           step['content'] ?? '',

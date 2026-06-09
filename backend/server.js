@@ -1553,9 +1553,9 @@ app.delete('/courses/:id', adminMiddleware, async (req, res) => {
 // Course Steps
 app.post('/courses/:id/steps', adminMiddleware, async (req, res) => {
   try {
-    const { type, title, content, questions, order } = req.body;
+    const { type, title, content, questions, order, imageUrl } = req.body;
     const step = await prisma.courseStep.create({
-      data: { courseId: parseInt(req.params.id), type, title, content, questions, order: parseInt(order) },
+      data: { courseId: parseInt(req.params.id), type, title, content, questions, order: parseInt(order), imageUrl },
     });
     res.json(step);
   } catch (e) {
@@ -1565,10 +1565,10 @@ app.post('/courses/:id/steps', adminMiddleware, async (req, res) => {
 
 app.put('/courses/:courseId/steps/:stepId', adminMiddleware, async (req, res) => {
   try {
-    const { type, title, content, questions, order } = req.body;
+    const { type, title, content, questions, order, imageUrl } = req.body;
     const step = await prisma.courseStep.update({
       where: { id: parseInt(req.params.stepId) },
-      data: { type, title, content, questions, order: parseInt(order) },
+      data: { type, title, content, questions, order: parseInt(order), imageUrl },
     });
     res.json(step);
   } catch (e) {

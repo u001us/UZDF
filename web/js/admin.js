@@ -1059,10 +1059,27 @@ function renderStepsEditor(c) {
         </div>
       </div>
       ${renderStepInput(s)}
+      <div style="margin-top:10px; display:flex; gap:10px; align-items:center;">
+        <input id="st-image-${s.id}" value="${esc(s.imageUrl||'')}" placeholder="Ссылка на изображение (опционально)..." style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 16px;color:var(--text);font-family:inherit;font-size:0.875rem;outline:none" oninput="updateImagePreview(${s.id}, this.value)">
+        <div id="st-image-preview-${s.id}" style="width:50px; height:50px; border-radius:8px; border:1px solid var(--border); background-size:cover; background-position:center; background-image: url('${s.imageUrl || ''}'); display: ${s.imageUrl ? 'block' : 'none'};"></div>
+      </div>
       <div style="margin-top:12px;text-align:right">
         <button class="btn btn-primary btn-sm" onclick="saveStep(${s.id},${c.id})">💾 Сохранить шаг</button>
       </div>
     </div>`).join('');
+}
+
+function updateImagePreview(id, url) {
+  const preview = document.getElementById(`st-image-preview-${id}`);
+  if (preview) {
+    if (url.trim()) {
+      preview.style.backgroundImage = `url('${url}')`;
+      preview.style.display = 'block';
+    } else {
+      preview.style.backgroundImage = '';
+      preview.style.display = 'none';
+    }
+  }
 }
 
 function renderStepInput(s) {
@@ -1104,6 +1121,7 @@ async function saveStep(stepId, courseId) {
   const s=c?.steps?.find(x=>x.id===stepId);
   if(!s||!title) return;
   const type=s.type;
+  const imageUrl=document.getElementById(`st-image-${stepId}`)?.value?.trim() || null;
   let content=null, questions=null;
   if(type!=='quiz') content=document.getElementById(`st-content-${stepId}`)?.value?.trim();
   else {
@@ -1116,14 +1134,14 @@ async function saveStep(stepId, courseId) {
       questions.push({question,options,answer});
     }
   }
-  await api(`/courses/${courseId}/steps/${stepId}`,{method:'PUT',body:JSON.stringify({title,type,content,questions,order:s.order})});
+  await api(`/courses/${courseId}/steps/${stepId}`,{method:'PUT',body:JSON.stringify({title,type,content,questions,order:s.order,imageUrl})});
   await loadCourses(); openAdminCourse(courseId);
 }
 
 async function addStep(courseId) {
   const c=allCourses.find(x=>x.id===courseId);
   const order=(c?.steps?.length||0)+1;
-  await api(`/courses/${courseId}/steps`,{method:'POST',body:JSON.stringify({title:'Новый шаг',type:'text',content:'',order})});
+  await api(`/courses/${courseId}/steps`,{method:'POST',body:JSON.stringify({title:'Новый шаг',type:'text',content:'',order,imageUrl:''})});
   await loadCourses(); openAdminCourse(courseId);
 }
 

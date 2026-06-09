@@ -82,6 +82,7 @@ model CourseStep {
   title     String
   content   String? // text content or YouTube URL
   questions Json?   // [{question, options: [], answer: 0}]
+  imageUrl  String? // image URL (synopsis or test question illustration)
 
   // Timer and exam controls
   videoUrl             String?

@@ -4,7 +4,7 @@
   "description": "Root proxy for UZDF project deployment",
   "scripts": {
     "postinstall": "npm install --prefix backend",
-    "build": "npx --prefix backend prisma generate",
-    "start": "npx --prefix backend prisma migrate deploy && node backend/server.js"
+    "build": "npx --prefix backend prisma generate --schema=backend/prisma/schema.prisma",
+    "start": "npx --prefix backend prisma migrate deploy --schema=backend/prisma/schema.prisma && node backend/server.js"
   }
 }

@@ -10,6 +10,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
+<canvas id="particles-canvas"></canvas>
 
 <!-- NAVBAR -->
 <nav class="navbar">
@@ -102,6 +103,10 @@
 <div class="page active" id="page-home">
   <!-- Hero Section -->
   <section class="hero">
+    <div class="hero-video-bg">
+      <video src="https://assets.mixkit.co/videos/preview/mixkit-flying-a-fpv-drone-above-a-mountain-valley-41712-large.mp4" autoplay loop muted playsinline></video>
+      <div class="hero-video-overlay"></div>
+    </div>
     <!-- Left Column: Text & Stats -->
     <div class="hero-content">
       <div class="hero-badge" data-i18n="hero_badge">🛸 Единая платформа для пилотов БПЛА</div>
@@ -127,19 +132,19 @@
       </div>
     </div>
 
-    <!-- Center Column: Floating 3D Drone & Hotspots -->
+    <!-- Center Column: Floating 3D Drone -->
     <div class="hero-drone-container">
+      <div class="hero-drone-3d-wrapper">
+        <iframe
+          class="hero-drone-3d-iframe"
+          title="3D Drone Model"
+          src="https://sketchfab.com/models/bea9dd5f5afc41a3aae7e94d70717476/embed?autospin=0.4&autostart=1&transparent=1&ui_animations=0&ui_infos=0&ui_stop=0&ui_inspector=0&ui_watermark_link=0&ui_watermark=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&preload=1&camera=0&scrollwheel=0&double_click=0"
+          frameborder="0"
+          allow="autoplay; fullscreen; xr-spatial-tracking"
+          allowfullscreen
+        ></iframe>
+      </div>
       <img src="/img/hero_drone.png" alt="Drone" class="hero-drone-img">
-      <!-- Interactive Hotspots -->
-      <div class="hotspot hotspot-1" data-tooltip="HD Camera 4K / 60FPS">
-        <div class="hotspot-dot"></div>
-      </div>
-      <div class="hotspot hotspot-2" data-tooltip="LiDAR Airspace Scanning">
-        <div class="hotspot-dot"></div>
-      </div>
-      <div class="hotspot hotspot-3" data-tooltip="Active Air Safety Guard">
-        <div class="hotspot-dot"></div>
-      </div>
     </div>
 
     <!-- Right Column: Floating FPV Pilot Card -->
@@ -154,8 +159,32 @@
     </div>
   </section>
 
+  <!-- Partners Carousel Section -->
+  <section class="partners-section reveal-on-scroll">
+    <p class="partners-title" data-i18n="partners_title">Наши партнеры и инвесторы</p>
+    <div class="partners-marquee">
+      <div class="partners-track">
+        <span>🚁 AeroUz</span>
+        <span>🛰️ UzSpace</span>
+        <span>🏢 Ministry of Transport</span>
+        <span>🌐 Tashkent Air Control</span>
+        <span>🛸 DJI Academy Uz</span>
+        <span>⚙️ SkyTech Systems</span>
+        <span>🦅 Falcon Drone Club</span>
+        <!-- Duplicate for infinite looping -->
+        <span>🚁 AeroUz</span>
+        <span>🛰️ UzSpace</span>
+        <span>🏢 Ministry of Transport</span>
+        <span>🌐 Tashkent Air Control</span>
+        <span>🛸 DJI Academy Uz</span>
+        <span>⚙️ SkyTech Systems</span>
+        <span>🦅 Falcon Drone Club</span>
+      </div>
+    </div>
+  </section>
+
   <!-- News Section -->
-  <section class="section">
+  <section class="section reveal-on-scroll">
     <div class="section-header">
       <div>
         <div class="section-eyebrow" data-i18n="section_news_eyebrow">Блог</div>
@@ -169,7 +198,7 @@
   </section>
 
   <!-- Courses Section -->
-  <section class="section" style="padding-top:0">
+  <section class="section reveal-on-scroll" style="padding-top:0">
     <div class="section-header">
       <div>
         <div class="section-eyebrow" data-i18n="section_courses_eyebrow">Академия</div>
@@ -183,7 +212,7 @@
   </section>
 
   <!-- About Us Section -->
-  <section class="section" style="padding-top:0">
+  <section class="section reveal-on-scroll" style="padding-top:0">
     <div class="section-header">
       <div>
         <div class="section-eyebrow" data-i18n="section_about_eyebrow">О нас</div>
@@ -1038,7 +1067,8 @@ const translations = {
     faq_q8: "Как купить дрон или комплектующие?",
     faq_a8: "Перейдите в раздел «Магазин», выберите товар и нажмите кнопку оформления. Ваш заказ будет сохранен.",
     faq_q9: "Как указать адрес доставки?",
-    faq_a9: "После оформления перейдите в профиль -> «Мои заказы», выберите ваш заказ и заполните форму доставки (Адрес, Город, Телефон)."
+    faq_a9: "После оформления перейдите в профиль -> «Мои заказы», выберите ваш заказ и заполните форму доставки (Адрес, Город, Телефон).",
+    partners_title: "Наши партнеры и инвесторы"
   },
   uz: {
     nav_home: "Bosh sahifa",
@@ -1172,7 +1202,8 @@ const translations = {
     faq_q8: "Dron yoki butlovchi qismlarni qanday sotib olish mumkin?",
     faq_a8: "\"Do'kon\" bo'limiga o'ting, mahsulotni tanlang va buyurtma berish tugmasini bosing. Buyurtmangiz saqlanib qoladi.",
     faq_q9: "Yetkazib berish manzili qanday ko'rsatiladi?",
-    faq_a9: "Buyurtma berganingizdan so'ng profil -> \"Mening buyurtmalarim\" bo'limiga o'ting, buyurtmangizni tanlang va yetkazib berish formasini to'ldiring (Manzil, Shahar, Telefon)."
+    faq_a9: "Buyurtma berganingizdan so'ng profil -> \"Mening buyurtmalarim\" bo'limiga o'ting, buyurtmangizni tanlang va yetkazib berish formasini to'ldiring (Manzil, Shahar, Telefon).",
+    partners_title: "Hamkorlarimiz va investorlar"
   },
   en: {
     nav_home: "Home",
@@ -1306,7 +1337,8 @@ const translations = {
     faq_q8: "How to buy a drone or components?",
     faq_a8: "Go to the \"Shop\" section, select a product, and click the checkout button. Your order will be saved.",
     faq_q9: "How to specify the delivery address?",
-    faq_a9: "After checking out, go to Profile -> \"My Orders\", select your order, and fill out the delivery form (Address, City, Phone)."
+    faq_a9: "After checking out, go to Profile -> \"My Orders\", select your order, and fill out the delivery form (Address, City, Phone).",
+    partners_title: "Our Partners & Investors"
   }
 };
 
@@ -3372,6 +3404,9 @@ loadCart();
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('revealed');
+        if (entry.target.classList.contains('reveal-on-scroll')) {
+          entry.target.classList.add('visible');
+        }
       }
     });
   }, {
@@ -3381,8 +3416,8 @@ loadCart();
 
   function observeAll() {
     tagRevealElements();
-    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
-      if (!el.classList.contains('revealed')) {
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-on-scroll').forEach(el => {
+      if (!el.classList.contains('revealed') && !el.classList.contains('visible')) {
         revealObserver.observe(el);
       }
     });
@@ -3432,19 +3467,137 @@ loadCart();
   }, { passive: true });
 })();
 
-// 4. FLOATING PARTICLES
+// 4. INTERACTIVE CANVAS PARTICLES ENGINE
 (function initParticles() {
-  const count = 8;
-  for (let i = 0; i < count; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    p.style.left = Math.random() * 100 + 'vw';
-    p.style.animationDuration = (12 + Math.random() * 18) + 's';
-    p.style.animationDelay = (Math.random() * 10) + 's';
-    p.style.width = (2 + Math.random() * 3) + 'px';
-    p.style.height = p.style.width;
-    document.body.appendChild(p);
+  const canvas = document.getElementById('particles-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  let particles = [];
+  let width = canvas.width = window.innerWidth;
+  let height = canvas.height = window.innerHeight;
+  
+  const mouse = {
+    x: null,
+    y: null,
+    radius: 120
+  };
+  
+  window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
+  
+  window.addEventListener('mouseleave', () => {
+    mouse.x = null;
+    mouse.y = null;
+  });
+  
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    createParticles();
+  });
+  
+  class Particle {
+    constructor() {
+      this.reset();
+      this.y = Math.random() * height;
+    }
+    
+    reset() {
+      this.x = Math.random() * width;
+      this.y = -10;
+      this.size = Math.random() * 2 + 1;
+      this.speedX = Math.random() * 0.4 - 0.2;
+      this.speedY = Math.random() * 0.5 + 0.2;
+      this.density = (Math.random() * 15) + 12;
+      this.alpha = Math.random() * 0.5 + 0.2;
+    }
+    
+    update() {
+      this.y += this.speedY;
+      this.x += this.speedX;
+      
+      if (this.y > height + 10 || this.x < -10 || this.x > width + 10) {
+        this.reset();
+      }
+      
+      if (mouse.x !== null && mouse.y !== null) {
+        let dx = mouse.x - this.x;
+        let dy = mouse.y - this.y;
+        let distance = Math.hypot(dx, dy);
+        if (distance < mouse.radius) {
+          let forceDirectionX = dx / distance;
+          let forceDirectionY = dy / distance;
+          let maxDistance = mouse.radius;
+          let force = (maxDistance - distance) / maxDistance;
+          let directionX = forceDirectionX * force * this.density;
+          let directionY = forceDirectionY * force * this.density;
+          
+          this.x -= directionX;
+          this.y -= directionY;
+        }
+      }
+    }
+    
+    draw() {
+      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+      ctx.fillStyle = isDark 
+        ? `rgba(59, 130, 246, ${this.alpha})` 
+        : `rgba(0, 102, 255, ${this.alpha * 0.7})`;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+    }
   }
+  
+  function createParticles() {
+    particles = [];
+    const densityRatio = (width * height) / 15000;
+    const count = Math.min(Math.max(densityRatio, 40), 120);
+    for (let i = 0; i < count; i++) {
+      particles.push(new Particle());
+    }
+  }
+  
+  function connect() {
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const maxDistance = 90;
+    for (let a = 0; a < particles.length; a++) {
+      for (let b = a; b < particles.length; b++) {
+        let dx = particles[a].x - particles[b].x;
+        let dy = particles[a].y - particles[b].y;
+        let distance = Math.hypot(dx, dy);
+        
+        if (distance < maxDistance) {
+          let alpha = (1 - (distance / maxDistance)) * 0.15;
+          ctx.strokeStyle = isDark 
+            ? `rgba(99, 102, 241, ${alpha})` 
+            : `rgba(0, 102, 255, ${alpha * 0.8})`;
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(particles[a].x, particles[a].y);
+          ctx.lineTo(particles[b].x, particles[b].y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+  
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+    for (let i = 0; i < particles.length; i++) {
+      particles[i].update();
+      particles[i].draw();
+    }
+    connect();
+    requestAnimationFrame(animate);
+  }
+  
+  createParticles();
+  animate();
 })();
 
 // 5. CURSOR GLOW

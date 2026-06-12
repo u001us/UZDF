@@ -107,7 +107,7 @@ class _StoreScreenState extends State<StoreScreen> {
                             Expanded(
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.2),
+                                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.2),
                                   borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
                                 ),
                                 child: p['imageUrl'] != null && (p['imageUrl'] as String).isNotEmpty
@@ -286,7 +286,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     const SizedBox(height: 16),
                     Text(
                       product['description'] ?? 'Нет описания.',
-                      style: TextStyle(color: isDark ? Colors.white.withOpacity(0.7) : Colors.black54, height: 1.6),
+                      style: TextStyle(color: isDark ? Colors.white.withValues(alpha: 0.7) : Colors.black54, height: 1.6),
                     ),
                     const SizedBox(height: 24),
                     GlassButton(
@@ -341,7 +341,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               const SizedBox(height: 8),
                               Text(
                                 rev['comment'] ?? '',
-                                style: TextStyle(color: isDark ? Colors.white.withOpacity(0.7) : Colors.black54),
+                                style: TextStyle(color: isDark ? Colors.white.withValues(alpha: 0.7) : Colors.black54),
                               ),
                             ],
                           ),

@@ -36,7 +36,7 @@ class SettingsScreen extends StatelessWidget {
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF007AFF).withOpacity(0.15),
+                            color: const Color(0xFF007AFF).withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                             border: Border.all(color: const Color(0xFF007AFF), width: 1.5),
                           ),
@@ -98,7 +98,7 @@ class SettingsScreen extends StatelessWidget {
                           },
                         ),
                       ),
-                      Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.15)),
+                      Divider(height: 1, indent: 56, color: Colors.white.withValues(alpha: 0.15)),
                       // Language selector
                       ListTile(
                         leading: const Icon(
@@ -134,7 +134,7 @@ class SettingsScreen extends StatelessWidget {
                           },
                         ),
                       ),
-                      Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.15)),
+                      Divider(height: 1, indent: 56, color: Colors.white.withValues(alpha: 0.15)),
                       // Connection config
                       ListTile(
                         leading: const Icon(
@@ -163,9 +163,9 @@ class SettingsScreen extends StatelessWidget {
                     isDark: isDark,
                     children: [
                       _settingItem(Icons.emoji_events, state.translate('settings_achievements'), isDark),
-                      Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.15)),
+                      Divider(height: 1, indent: 56, color: Colors.white.withValues(alpha: 0.15)),
                       _settingItem(Icons.shopping_cart, state.translate('settings_cart'), isDark),
-                      Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.15)),
+                      Divider(height: 1, indent: 56, color: Colors.white.withValues(alpha: 0.15)),
                       _settingItem(Icons.help_outline, state.translate('settings_support'), isDark),
                     ],
                   ),
@@ -208,7 +208,7 @@ class SettingsScreen extends StatelessWidget {
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.bold,
-          color: Colors.grey.withOpacity(0.8),
+          color: Colors.grey.withValues(alpha: 0.8),
           letterSpacing: 1.0,
         ),
       ),
@@ -289,7 +289,7 @@ class SettingsScreen extends StatelessWidget {
                           'Текущий адрес: $url',
                           style: TextStyle(
                             fontSize: 13,
-                            color: isDark ? Colors.white.withOpacity(0.6) : Colors.black54,
+                            color: isDark ? Colors.white.withValues(alpha: 0.6) : Colors.black54,
                           ),
                         );
                       },

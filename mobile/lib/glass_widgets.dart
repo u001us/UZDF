@@ -25,7 +25,8 @@ class _ShimmerEffect extends StatefulWidget {
   final Widget child;
   final bool enabled;
 
-  const _ShimmerEffect({super.key, required this.child, this.enabled = true});
+  // ignore: unused_element_parameter
+  const _ShimmerEffect({required this.child, this.enabled = true});
 
   @override
   State<_ShimmerEffect> createState() => _ShimmerEffectState();
@@ -78,7 +79,7 @@ class _ShimmerEffectState extends State<_ShimmerEffect> with SingleTickerProvide
             end: Alignment.centerRight,
             colors: [
               Colors.transparent,
-              Colors.white.withOpacity(0.15),
+              Colors.white.withValues(alpha: 0.15),
               Colors.transparent,
             ],
             stops: stops,
@@ -114,10 +115,10 @@ class LiquidBorderPainter extends CustomPainter {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Colors.white.withOpacity(0.12),  // top/left subtle edge
-          Colors.white.withOpacity(0.10),
-          Colors.white.withOpacity(0.06), // bottom/right dim
-          Colors.white.withOpacity(0.05),
+          Colors.white.withValues(alpha: 0.12),  // top/left subtle edge
+          Colors.white.withValues(alpha: 0.10),
+          Colors.white.withValues(alpha: 0.06), // bottom/right dim
+          Colors.white.withValues(alpha: 0.05),
         ],
         stops: const [0.0, 0.35, 0.7, 1.0],
       ).createShader(rect);
@@ -171,7 +172,7 @@ class LiquidGlassCard extends StatelessWidget {
         final cardColor = isDark ? const Color(0xFF111527) : Colors.white;
         
         final defaultBorder = Border.all(
-          color: isDark ? const Color(0x0FFFFFFF) : Colors.black.withOpacity(0.06),
+          color: isDark ? const Color(0x0FFFFFFF) : Colors.black.withValues(alpha: 0.06),
           width: 1.0,
         );
 
@@ -179,7 +180,7 @@ class LiquidGlassCard extends StatelessWidget {
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -297,16 +298,16 @@ class _LiquidButtonState extends State<LiquidButton> {
       valueListenable: AppState().isDarkMode,
       builder: (context, isDark, _) {
         final buttonColor = isDark
-            ? Colors.white.withOpacity(widget.normalOpacity)
-            : Colors.black.withOpacity(0.05);
+            ? Colors.white.withValues(alpha: widget.normalOpacity)
+            : Colors.black.withValues(alpha: 0.05);
 
         final pressedColor = isDark
-            ? Colors.white.withOpacity(widget.pressedOpacity)
-            : Colors.black.withOpacity(0.12);
+            ? Colors.white.withValues(alpha: widget.pressedOpacity)
+            : Colors.black.withValues(alpha: 0.12);
 
         final borderColor = isDark
-            ? Colors.white.withOpacity(_pressed ? 0.25 : 0.12)
-            : Colors.black.withOpacity(_pressed ? 0.15 : 0.06);
+            ? Colors.white.withValues(alpha: _pressed ? 0.25 : 0.12)
+            : Colors.black.withValues(alpha: _pressed ? 0.15 : 0.06);
 
         return GestureDetector(
           onTapDown: (_) {
@@ -382,7 +383,7 @@ class GlassButton extends StatelessWidget {
         
         final finalColor = isPrimary
             ? btnColor
-            : (color ?? (isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.05)));
+            : (color ?? (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.05)));
 
         final textColor = isPrimary
             ? Colors.white
@@ -395,11 +396,11 @@ class GlassButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: finalColor,
               borderRadius: BorderRadius.circular(borderRadius),
-              border: isPrimary ? null : Border.all(color: isDark ? Colors.white.withOpacity(0.12) : Colors.black.withOpacity(0.08)),
+              border: isPrimary ? null : Border.all(color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08)),
               boxShadow: isPrimary
                   ? [
                       BoxShadow(
-                        color: btnColor.withOpacity(0.3),
+                        color: btnColor.withValues(alpha: 0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       )
@@ -433,7 +434,7 @@ class NoisePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.03)
+      ..color = Colors.white.withValues(alpha: 0.03)
       ..strokeWidth = 1.0;
 
     final double width = size.width;
@@ -536,7 +537,7 @@ class _LiquidBackgroundState extends State<LiquidBackground> with SingleTickerPr
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          const Color(0xFF2979FF).withOpacity(isDark ? 0.08 : 0.05 + 0.03 * _animation.value),
+                          const Color(0xFF2979FF).withValues(alpha: isDark ? 0.08 : 0.05 + 0.03 * _animation.value),
                           Colors.transparent,
                         ],
                       ),
@@ -554,7 +555,7 @@ class _LiquidBackgroundState extends State<LiquidBackground> with SingleTickerPr
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          (isDark ? const Color(0xFF7B61FF) : const Color(0xFFE2E8F0)).withOpacity(isDark ? 0.06 : 0.04),
+                          (isDark ? const Color(0xFF7B61FF) : const Color(0xFFE2E8F0)).withValues(alpha: isDark ? 0.06 : 0.04),
                           Colors.transparent,
                         ],
                       ),
@@ -568,7 +569,7 @@ class _LiquidBackgroundState extends State<LiquidBackground> with SingleTickerPr
                       painter: NoisePainter(),
                     ),
                   ),
-                if (widget.child != null) widget.child!,
+                widget.child,
               ],
             );
           },
@@ -657,7 +658,7 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
       builder: (context, isDark, _) {
         final bgColor = isDark ? const Color(0xFF161B30) : Colors.white;
         final textColor = isDark ? Colors.white : const Color(0xFF1C1C1E);
-        final borderColor = isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.06);
+        final borderColor = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06);
 
         return Container(
           decoration: BoxDecoration(
@@ -754,9 +755,9 @@ InputDecoration getGlassInputDecoration({
     prefixIcon: prefixIcon,
     suffixIcon: suffixIcon,
     filled: true,
-    fillColor: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.04),
+    fillColor: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04),
     hintStyle: TextStyle(
-      color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.4),
+      color: isDark ? Colors.white.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.4),
       fontFamily: 'SF Pro Display',
       fontFamilyFallback: [GoogleFonts.sora().fontFamily ?? 'Sora'],
     ),
@@ -772,7 +773,7 @@ InputDecoration getGlassInputDecoration({
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
       borderSide: BorderSide(
-        color: const Color(0xFF2979FF).withOpacity(0.5),
+        color: const Color(0xFF2979FF).withValues(alpha: 0.5),
         width: 1.5,
       ),
     ),
@@ -794,7 +795,7 @@ class AviationProgressBar extends StatelessWidget {
       height: 4.0,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06), // Track
+        color: Colors.white.withValues(alpha: 0.06), // Track
         borderRadius: BorderRadius.circular(2.0),
       ),
       child: FractionallySizedBox(
@@ -833,7 +834,7 @@ class AviationBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(100),
       ),
       child: Text(

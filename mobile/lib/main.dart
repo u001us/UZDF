@@ -59,12 +59,12 @@ class UzdfApp extends StatelessWidget {
           theme: ThemeData(
             brightness: isDark ? Brightness.dark : Brightness.light,
             scaffoldBackgroundColor: isDark ? const Color(0xFF0A0D1A) : const Color(0xFFF8FAFC),
-            primaryColor: const Color(0xFF2979FF),
+            primaryColor: const Color(0xFF0066FF),
             colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF2979FF),
+              seedColor: const Color(0xFF0066FF),
               brightness: isDark ? Brightness.dark : Brightness.light,
-              primary: const Color(0xFF2979FF),
-              secondary: const Color(0xFF2979FF),
+              primary: const Color(0xFF0066FF),
+              secondary: const Color(0xFF0066FF),
               surface: isDark ? const Color(0xFF0A0D1A) : const Color(0xFFF8FAFC),
             ),
             cardTheme: const CardThemeData(
@@ -349,8 +349,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                               child: ClipOval(
                                 child: Image.asset(
                                   'assets/logo.png',
-                                  width: 64,
-                                  height: 64,
+                                  width: 80,
+                                  height: 80,
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -429,6 +429,8 @@ class _MainNavigationState extends State<MainNavigation> {
     const ProfileScreen(),
   ];
 
+  static const _navLabels = ['Курсы', 'Новости', 'Карта', 'Магазин', 'Профиль'];
+
   Widget _buildNavIcon(IconData icon, int index, bool isDark) {
     final isSelected = _currentIndex == index;
     final colorScheme = Theme.of(context).colorScheme;
@@ -441,14 +443,13 @@ class _MainNavigationState extends State<MainNavigation> {
         width: 56,
         height: 56,
         color: Colors.transparent, // Expand hit test target
-        child: Stack(
-          alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeOutCubic,
-              width: isSelected ? 44 : 0,
-              height: isSelected ? 44 : 0,
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
@@ -457,18 +458,28 @@ class _MainNavigationState extends State<MainNavigation> {
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: colorScheme.primary.withOpacity(0.4),
+                          color: colorScheme.primary.withValues(alpha: 0.4),
                           blurRadius: 12,
                           spreadRadius: 2,
                         ),
                       ]
                     : null,
               ),
+              child: Icon(
+                icon,
+                color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                size: 20,
+              ),
             ),
-            Icon(
-              icon,
-              color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
-              size: 22,
+            const SizedBox(height: 2),
+            Text(
+              _navLabels[index],
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                letterSpacing: -0.2,
+              ),
             ),
           ],
         ),
@@ -525,15 +536,15 @@ class _MainNavigationState extends State<MainNavigation> {
                             height: 68,
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             decoration: BoxDecoration(
-                              color: colorScheme.surface.withOpacity(0.9),
+                              color: colorScheme.surface.withValues(alpha: 0.9),
                               borderRadius: BorderRadius.circular(36),
                               border: Border.all(
-                                color: colorScheme.onSurface.withOpacity(0.08),
+                                color: colorScheme.onSurface.withValues(alpha: 0.08),
                                 width: 1.0,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: colorScheme.shadow.withOpacity(isDark ? 0.2 : 0.05),
+                                  color: colorScheme.shadow.withValues(alpha: isDark ? 0.2 : 0.05),
                                   blurRadius: 16,
                                   offset: const Offset(0, 4),
                                 ),

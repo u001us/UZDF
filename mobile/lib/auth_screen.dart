@@ -220,7 +220,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                           'Текущий адрес: $url',
                           style: TextStyle(
                             fontSize: 13,
-                            color: isDark ? Colors.white.withOpacity(0.6) : Colors.black54,
+                            color: isDark ? Colors.white.withValues(alpha: 0.6) : Colors.black54,
                           ),
                         );
                       },
@@ -356,8 +356,8 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                           ClipOval(
                             child: Image.asset(
                               'assets/logo.png',
-                              width: 36,
-                              height: 36,
+                              width: 48,
+                              height: 48,
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -590,18 +590,18 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                           opacity: isDark ? 0.08 : 0.5,
                           gradient: LinearGradient(
                             colors: [
-                              Colors.white.withOpacity(0.05),
-                              Colors.white.withOpacity(0.02),
+                              Colors.white.withValues(alpha: 0.05),
+                              Colors.white.withValues(alpha: 0.02),
                             ],
                           ),
                           onPressed: _isLoading ? null : _handleGoogleSignIn,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Image.network(
-                                'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/24px-Google_%22G%22_logo.svg.png',
-                                height: 18,
-                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata, color: Colors.white),
+                              Icon(
+                                Icons.g_mobiledata_rounded,
+                                size: 24,
+                                color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                               ),
                               const SizedBox(width: 12),
                               Text(

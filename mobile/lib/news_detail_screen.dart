@@ -47,7 +47,7 @@ class NewsDetailScreen extends StatelessWidget {
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         height: 150,
-                        color: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.03),
+                        color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.03),
                         child: Icon(Icons.image, size: 50, color: isDark ? Colors.grey : Colors.grey[400]),
                       );
                     },
@@ -88,7 +88,7 @@ class NewsDetailScreen extends StatelessWidget {
                   fontSize: 16,
                   height: 1.5,
                   fontWeight: FontWeight.w400,
-                  color: isDark ? Colors.white.withOpacity(0.9) : const Color(0xFF1C1C1E).withOpacity(0.9),
+                  color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF1C1C1E).withValues(alpha: 0.9),
                 ),
               ),
             ],

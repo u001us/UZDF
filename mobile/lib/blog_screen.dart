@@ -119,7 +119,7 @@ class _BlogScreenState extends State<BlogScreen> {
           Container(
             height: 160,
             decoration: BoxDecoration(
-              color: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.03),
+              color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.03),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             ),
             child: imageUrl != null && imageUrl.isNotEmpty

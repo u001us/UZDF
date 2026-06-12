@@ -25,6 +25,7 @@ class _MapScreenState extends State<MapScreen> {
   static const LatLng _initialCenter = LatLng(41.2995, 69.2401);
 
   // Dark Map Style JSON
+  // ignore: unused_field
   static const String _darkMapStyle = '''
   [
     {
@@ -349,7 +350,7 @@ class _MapScreenState extends State<MapScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface.withOpacity(0.8),
+                      color: colorScheme.onSurface.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -440,10 +441,10 @@ class _MapScreenState extends State<MapScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   decoration: BoxDecoration(
-                    color: colorScheme.surface.withOpacity(0.85),
+                    color: colorScheme.surface.withValues(alpha: 0.85),
                     borderRadius: BorderRadius.circular(100),
                     border: Border.all(
-                      color: colorScheme.onSurface.withOpacity(0.08),
+                      color: colorScheme.onSurface.withValues(alpha: 0.08),
                       width: 1.0,
                     ),
                   ),
@@ -480,7 +481,7 @@ class _MapScreenState extends State<MapScreen> {
                           width: 40,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+                            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -531,9 +532,9 @@ class _MapScreenState extends State<MapScreen> {
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: (_weatherData!['verdictColor'] as Color).withOpacity(0.1),
+                            color: (_weatherData!['verdictColor'] as Color).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: (_weatherData!['verdictColor'] as Color).withOpacity(0.3)),
+                            border: Border.all(color: (_weatherData!['verdictColor'] as Color).withValues(alpha: 0.3)),
                           ),
                           child: Text(
                             _weatherData!['verdict'],
@@ -650,7 +651,7 @@ class _MapScreenState extends State<MapScreen> {
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             border: Border.all(color: color),
             borderRadius: BorderRadius.circular(2),
           ),

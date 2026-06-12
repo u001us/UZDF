@@ -80,11 +80,11 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.menu_book_outlined, size: 64, color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.4)),
+                      Icon(Icons.menu_book_outlined, size: 64, color: isDark ? Colors.white.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.4)),
                       const SizedBox(height: 24),
                       Text(
                         'В этом курсе пока нет уроков',
-                        style: TextStyle(fontSize: 18, color: isDark ? Colors.white.withOpacity(0.6) : Colors.black.withOpacity(0.6)),
+                        style: TextStyle(fontSize: 18, color: isDark ? Colors.white.withValues(alpha: 0.6) : Colors.black.withValues(alpha: 0.6)),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -107,11 +107,11 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                             style: TextStyle(
                               fontSize: 15,
                               height: 1.5,
-                              color: isDark ? Colors.white.withOpacity(0.75) : const Color(0xFF1C1C1E).withOpacity(0.75),
+                              color: isDark ? Colors.white.withValues(alpha: 0.75) : const Color(0xFF1C1C1E).withValues(alpha: 0.75),
                             ),
                           ),
                           const SizedBox(height: 16),
-                          Divider(color: isDark ? Colors.white.withOpacity(0.15) : Colors.black.withOpacity(0.08)),
+                          Divider(color: isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08)),
                           const SizedBox(height: 8),
                           Text(
                             state.translate('courses_steps'),
@@ -162,10 +162,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                       borderRadius: 14,
                       border: Border.all(
                         color: isCompleted
-                            ? Colors.green.withOpacity(0.5)
+                            ? Colors.green.withValues(alpha: 0.5)
                             : isFinalExam
-                                ? const Color(0xFF007AFF).withOpacity(0.4)
-                                : (isDark ? Colors.white.withOpacity(0.25) : Colors.black.withOpacity(0.12)),
+                                ? const Color(0xFF007AFF).withValues(alpha: 0.4)
+                                : (isDark ? Colors.white.withValues(alpha: 0.25) : Colors.black.withValues(alpha: 0.12)),
                         width: 1.0,
                       ),
                       child: Row(
@@ -175,10 +175,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                             height: 40,
                             decoration: BoxDecoration(
                               color: isCompleted
-                                  ? Colors.green.withOpacity(0.15)
+                                  ? Colors.green.withValues(alpha: 0.15)
                                   : isFinalExam
-                                      ? const Color(0xFF007AFF).withOpacity(0.1)
-                                      : const Color(0xFF007AFF).withOpacity(0.1),
+                                      ? const Color(0xFF007AFF).withValues(alpha: 0.1)
+                                      : const Color(0xFF007AFF).withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Icon(
@@ -230,7 +230,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                                     else
                                       Text(
                                         step['type'] == 'quiz' ? 'Тест' : step['type'] == 'video' ? 'Видеоурок' : 'Теоретический урок',
-                                        style: TextStyle(fontSize: 12, color: isDark ? Colors.white.withOpacity(0.5) : Colors.black.withOpacity(0.5)),
+                                        style: TextStyle(fontSize: 12, color: isDark ? Colors.white.withValues(alpha: 0.5) : Colors.black.withValues(alpha: 0.5)),
                                       ),
                                     if (isInProgress && !isCompleted) ...[
                                       const SizedBox(width: 8),
@@ -252,11 +252,11 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                             ),
                           ),
                           if (step['isLocked'] == true)
-                            Icon(Icons.lock_outline, color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.35), size: 20)
+                            Icon(Icons.lock_outline, color: isDark ? Colors.white.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.35), size: 20)
                           else if (isCompleted)
                             const Icon(Icons.check_circle, color: Colors.green, size: 22)
                           else
-                            Icon(Icons.chevron_right, color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.35)),
+                            Icon(Icons.chevron_right, color: isDark ? Colors.white.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.35)),
                         ],
                       ),
                     ),
@@ -781,7 +781,7 @@ class _StepDetailScreenState extends State<StepDetailScreen> {
                   const SizedBox(height: 12),
                   Text(
                     _blockMessage,
-                    style: TextStyle(fontSize: 14, color: isDark ? Colors.white.withOpacity(0.5) : Colors.black.withOpacity(0.5)),
+                    style: TextStyle(fontSize: 14, color: isDark ? Colors.white.withValues(alpha: 0.5) : Colors.black.withValues(alpha: 0.5)),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
@@ -809,7 +809,7 @@ class _StepDetailScreenState extends State<StepDetailScreen> {
         actions: [
           if (type == 'video')
             IconButton(
-              icon: Icon(Icons.screenshot_monitor, color: isDark ? Colors.white.withOpacity(0.6) : Colors.black.withOpacity(0.6)),
+              icon: Icon(Icons.screenshot_monitor, color: isDark ? Colors.white.withValues(alpha: 0.6) : Colors.black.withValues(alpha: 0.6)),
               tooltip: 'Симулировать скриншот',
               onPressed: () {
                 HapticFeedback.lightImpact();
@@ -848,7 +848,7 @@ class _StepDetailScreenState extends State<StepDetailScreen> {
                               return Container(
                                 height: 220,
                                 decoration: BoxDecoration(
-                                  color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.03),
+                                  color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.03),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Center(
@@ -865,9 +865,9 @@ class _StepDetailScreenState extends State<StepDetailScreen> {
                               return Container(
                                 height: 120,
                                 decoration: BoxDecoration(
-                                  color: Colors.redAccent.withOpacity(0.1),
+                                  color: Colors.redAccent.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                                  border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
                                 ),
                                 child: const Center(
                                   child: Row(
@@ -891,16 +891,16 @@ class _StepDetailScreenState extends State<StepDetailScreen> {
                       if (!_isQuiz) ...[
                         Text(
                           step['content'] ?? '',
-                          style: TextStyle(fontSize: 16, height: 1.6, color: isDark ? Colors.white.withOpacity(0.85) : const Color(0xFF1C1C1E).withOpacity(0.85)),
+                          style: TextStyle(fontSize: 16, height: 1.6, color: isDark ? Colors.white.withValues(alpha: 0.85) : const Color(0xFF1C1C1E).withValues(alpha: 0.85)),
                         ),
                         if (type == 'video' && step['content'] != null && (step['content'] as String).startsWith('http')) ...[
                           const SizedBox(height: 24),
                           Container(
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
-                              color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
+                              color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04),
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: isDark ? Colors.white.withOpacity(0.15) : Colors.black.withOpacity(0.08)),
+                              border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.08)),
                             ),
                             child: Column(
                               children: [
@@ -948,7 +948,7 @@ class _StepDetailScreenState extends State<StepDetailScreen> {
         const SizedBox(height: 8),
         Text(
           'Необходимо набрать минимум ${_isFinalExam ? "95%" : "80%"} правильных ответов.',
-          style: TextStyle(color: isDark ? Colors.white.withOpacity(0.5) : Colors.black.withOpacity(0.5), fontSize: 13),
+          style: TextStyle(color: isDark ? Colors.white.withValues(alpha: 0.5) : Colors.black.withValues(alpha: 0.5), fontSize: 13),
         ),
         const SizedBox(height: 24),
         ..._quizQuestions.map((q) {
@@ -972,9 +972,9 @@ class _StepDetailScreenState extends State<StepDetailScreen> {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF007AFF).withOpacity(0.15) : Colors.transparent,
+                        color: isSelected ? const Color(0xFF007AFF).withValues(alpha: 0.15) : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: isSelected ? const Color(0xFF007AFF) : (isDark ? Colors.white.withOpacity(0.2) : Colors.black.withOpacity(0.12))),
+                        border: Border.all(color: isSelected ? const Color(0xFF007AFF) : (isDark ? Colors.white.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.12))),
                       ),
                       child: ListTile(
                         dense: true,
@@ -1033,10 +1033,10 @@ class _StepDetailScreenState extends State<StepDetailScreen> {
               child: Column(
                 children: [
                   _buildResultRow('Ваш результат:', '${_quizScore.toStringAsFixed(0)}%', isDark),
-                  Divider(color: Colors.white.withOpacity(0.15)),
+                  Divider(color: Colors.white.withValues(alpha: 0.15)),
                   _buildResultRow('Использовано попыток:', '$_attemptsUsed из 5', isDark),
                   if (!_quizPassed && _cooldownUntil != null && remainingCooldownMinutes > 0) ...[
-                    Divider(color: Colors.white.withOpacity(0.15)),
+                    Divider(color: Colors.white.withValues(alpha: 0.15)),
                     _buildResultRow('Повтор доступен через:', '$remainingCooldownMinutes мин', isDark),
                   ]
                 ],
@@ -1056,7 +1056,7 @@ class _StepDetailScreenState extends State<StepDetailScreen> {
                 children: [
                   const Icon(Icons.warning, color: Colors.orange, size: 16),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(topic.toString(), style: TextStyle(color: isDark ? Colors.white.withOpacity(0.6) : Colors.black.withOpacity(0.6)))),
+                  Expanded(child: Text(topic.toString(), style: TextStyle(color: isDark ? Colors.white.withValues(alpha: 0.6) : Colors.black.withValues(alpha: 0.6)))),
                 ],
               ),
             )),
@@ -1121,7 +1121,7 @@ class _StepDetailScreenState extends State<StepDetailScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: TextStyle(color: isDark ? Colors.white.withOpacity(0.6) : Colors.black.withOpacity(0.6), fontSize: 14)),
+          Text(title, style: TextStyle(color: isDark ? Colors.white.withValues(alpha: 0.6) : Colors.black.withValues(alpha: 0.6), fontSize: 14)),
           Text(value, style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E), fontWeight: FontWeight.bold, fontSize: 15)),
         ],
       ),
@@ -1130,7 +1130,7 @@ class _StepDetailScreenState extends State<StepDetailScreen> {
 
   Widget _buildBottomActionBar() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final barBgColor = isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03);
+    final barBgColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03);
 
     if (_status == 'completed') {
       final isLastStep = _currentIndex >= widget.steps.length - 1;

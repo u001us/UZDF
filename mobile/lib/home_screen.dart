@@ -1,4 +1,4 @@
-import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'glass_widgets.dart';
@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return Scaffold(
           body: RefreshIndicator(
             color: const Color(0xFF007AFF),
-            backgroundColor: Colors.white.withOpacity(0.1),
+            backgroundColor: Colors.white.withValues(alpha: 0.1),
             strokeWidth: 2.0,
             displacement: 60,
             onRefresh: () async => _refreshCourses(),
@@ -137,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           const SizedBox(height: 32),
                           Center(
                             child: Text(
-                              'Нет доступных курсов',
+                              'No courses available',
                               style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1C1C1E)),
                             ),
                           ),
@@ -201,13 +201,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               
                               String statusLabel;
                               if (isLocked) {
-                                statusLabel = '🔒 Заблокировано';
+                                statusLabel = '🔒';
                               } else if (completedCount == stepsCount && stepsCount > 0) {
-                                statusLabel = '✅ Завершено';
+                                statusLabel = '✅';
                               } else if (completedCount > 0) {
-                                statusLabel = '$completedCount/$stepsCount шагов';
+                                statusLabel = '$completedCount/$stepsCount';
                               } else {
-                                statusLabel = stepsCount > 0 ? 'Шагов: $stepsCount' : 'Без шагов';
+                                statusLabel = stepsCount > 0 ? '$stepsCount' : '-';
                               }
 
                               child = Padding(
@@ -218,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     if (isLocked) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
-                                          content: Text('Этот курс заблокирован. Пройдите предыдущие курсы по порядку!'),
+                                          content: Text('This course is locked. Complete previous courses first!'),
                                           backgroundColor: Colors.redAccent,
                                         ),
                                       );
@@ -279,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final isDark = AppState().isDarkMode.value;
     final bgColor = isDark ? const Color(0xFF161B30) : Colors.white;
     final textColor = isDark ? Colors.white : const Color(0xFF1C1C1E);
-    final borderColor = isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.06);
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06);
 
     return SliverAppBar(
       floating: true,
@@ -334,17 +334,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     List<dynamic>? courses,
   }) {
     final hasProgress = activeCourse != null && _hasProgress(activeCourse);
-    final buttonLabel = hasProgress ? 'Продолжить обучение' : state.translate('courses_start');
+    final buttonLabel = hasProgress ? state.translate('courses_start') : state.translate('courses_start');
     final title = bannerCourse?['title'] ?? 'Базовый курс пилотирования';
-    final desc = bannerCourse?['description'] ?? 'Освойте основы управления дроном за 4 недели.';
+    final desc = bannerCourse?['description'] ?? '';
 
     final textColor = isDark ? Colors.white : const Color(0xFF1C1C1E);
-    final descColor = isDark ? Colors.white.withOpacity(0.75) : const Color(0xFF1C1C1E).withOpacity(0.75);
-    final progressBgColor = isDark ? Colors.white.withOpacity(0.2) : Colors.black.withOpacity(0.08);
+    final descColor = isDark ? Colors.white.withValues(alpha: 0.75) : const Color(0xFF1C1C1E).withValues(alpha: 0.75);
+    final progressBgColor = isDark ? Colors.white.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.08);
 
     return FloatingHero(
       child: Container(
-        height: 230,
+        height: 260,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Stack(
           alignment: Alignment.center,
@@ -358,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 height: 300,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF007AFF).withOpacity(isDark ? 0.35 : 0.08),
+                  color: const Color(0xFF007AFF).withValues(alpha: isDark ? 0.35 : 0.08),
                 ),
               ),
             ),
@@ -371,13 +371,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 height: 150,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF5856D6).withOpacity(isDark ? 0.2 : 0.04),
+                  color: const Color(0xFF5856D6).withValues(alpha: isDark ? 0.2 : 0.04),
                 ),
               ),
             ),
             // Hero card wrapper
             LiquidGlassCard(
-              height: 220,
+              height: 250,
               padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -470,7 +470,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildCourseCard(String title, String desc, String authorName, String status, double progress, bool isDark, {bool isLocked = false}) {
     final textColor = isDark ? Colors.white : const Color(0xFF1C1C1E);
-    final descColor = isDark ? Colors.white.withOpacity(0.65) : const Color(0xFF1C1C1E).withOpacity(0.65);
+    final descColor = isDark ? Colors.white.withValues(alpha: 0.65) : const Color(0xFF1C1C1E).withValues(alpha: 0.65);
 
     Widget cardContent = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -499,8 +499,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF007AFF).withOpacity(0.12),
-                        border: Border.all(color: const Color(0xFF007AFF).withOpacity(0.3), width: 1.0),
+                        color: const Color(0xFF007AFF).withValues(alpha: 0.12),
+                        border: Border.all(color: const Color(0xFF007AFF).withValues(alpha: 0.3), width: 1.0),
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: Text(
@@ -519,7 +519,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               const SizedBox(width: 8),
               Icon(
                 Icons.lock_rounded,
-                color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.3),
+                color: isDark ? Colors.white.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.3),
                 size: 20,
               ),
             ],
@@ -542,10 +542,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Прогресс: ${(progress * 100).toInt()}%",
+                "${(progress * 100).toInt()}%",
                 style: TextStyle(
                   fontFamily: 'SF Pro Text',
-                  color: isDark ? Colors.white.withOpacity(0.7) : const Color(0xFF1C1C1E).withOpacity(0.7),
+                  color: isDark ? Colors.white.withValues(alpha: 0.7) : const Color(0xFF1C1C1E).withValues(alpha: 0.7),
                   fontWeight: FontWeight.w600,
                   fontSize: 12,
                 ),
@@ -561,7 +561,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             status,
             style: TextStyle(
               fontFamily: 'SF Pro Text',
-              color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.4),
+              color: isDark ? Colors.white.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.4),
               fontWeight: FontWeight.w500,
               fontSize: 12,
             ),
@@ -581,7 +581,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             const SizedBox(width: 12),
             Icon(
               Icons.arrow_forward_ios_rounded,
-              color: isDark ? Colors.white.withOpacity(0.3) : Colors.black.withOpacity(0.2),
+              color: isDark ? Colors.white.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.2),
               size: 16,
             ),
           ],
@@ -603,7 +603,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: badgeColor.withOpacity(0.12),
+        color: badgeColor.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(100), // Pill shape
       ),
       child: Row(

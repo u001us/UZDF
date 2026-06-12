@@ -311,7 +311,7 @@ class _FaqScreenState extends State<FaqScreen> {
                                         style: TextStyle(
                                           fontSize: 13.5,
                                           height: 1.5,
-                                          color: isDark ? Colors.white.withOpacity(0.7) : const Color(0xFF1C1C1E).withOpacity(0.7),
+                                          color: isDark ? Colors.white.withValues(alpha: 0.7) : const Color(0xFF1C1C1E).withValues(alpha: 0.7),
                                         ),
                                       ),
                                     ],

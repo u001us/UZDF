@@ -253,7 +253,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.15),
+              color: statusColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -284,7 +284,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0088CC).withOpacity(0.15),
+                  color: const Color(0xFF0088CC).withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.telegram, color: Color(0xFF0088CC), size: 30),
@@ -481,7 +481,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     'Приложение предоставляет информационные карты зон полетов (зеленые, желтые и красные зоны). Пользователь несет персональную юридическую ответственность за соблюдение правил безопасности пилотирования БПЛА.\n\n'
                     '3. Конфиденциальность\n'
                     'Мы сохраняем данные вашего профиля и историю заказов исключительно для обеспечения функционала приложения.',
-                    style: TextStyle(color: colorScheme.onSurface.withOpacity(0.8), height: 1.5),
+                    style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.8), height: 1.5),
                   ),
                 ),
               ),
@@ -549,7 +549,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: 70,
                       height: 70,
                       decoration: BoxDecoration(
-                        color: colorScheme.primary.withOpacity(0.15),
+                        color: colorScheme.primary.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                         border: Border.all(color: colorScheme.primary, width: 1.5),
                       ),
@@ -669,10 +669,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         margin: const EdgeInsets.only(left: 6),
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: isSelected ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.08),
+                          color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isSelected ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.12),
+                            color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.12),
                             width: 1.2,
                           ),
                         ),
@@ -851,7 +851,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: colorScheme.primary.withOpacity(0.35),
+                                  color: colorScheme.primary.withValues(alpha: 0.35),
                                   blurRadius: 12,
                                   spreadRadius: 2,
                                 ),
@@ -937,7 +937,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.bold,
-          color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
           letterSpacing: 1.0,
         ),
       ),

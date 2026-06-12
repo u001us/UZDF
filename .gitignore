@@ -34,4 +34,6 @@ pinggy.log
 # Temporary root images
 /*.png
 /*.jpeg
-
+# Root temp files and clones
+.env
+open-design/
